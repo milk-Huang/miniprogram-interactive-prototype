@@ -56,12 +56,12 @@
 git clone git@github.com:milk-Huang/miniprogram-interactive-prototype.git
 cd miniprogram-interactive-prototype
 
-npx --yes serve .
+sh scripts/dev.sh
 # 或
-python3 -m http.server 8080
+npx --yes serve -l tcp://192.168.20.140:5000 .
 ```
 
-浏览器打开终端提示的地址（如 `http://localhost:3000`）。需能访问外网（加载 [Lucide](https://unpkg.com) 图标 CDN）。
+浏览器打开 **http://192.168.20.140:5000**。需能访问外网（加载 [Lucide](https://unpkg.com) 图标 CDN）。
 
 ### 运行所需文件
 
@@ -110,7 +110,9 @@ python3 -m http.server 8080
 ├── app.js              # 逻辑、Mock、API 目录、i18n、渲染
 ├── styles.css          # 样式（含小程序按钮/弹窗组件）
 ├── CHANGELOG.md        # 版本变更
-├── scripts/patch-app.js  # 可选：从参考原型生成补丁（非运行依赖）
+├── scripts/
+│   ├── dev.sh            # 本地开发：192.168.20.140:5000
+│   └── patch-app.js      # 可选：从参考原型生成补丁（非运行依赖）
 └── README.md
 ```
 
