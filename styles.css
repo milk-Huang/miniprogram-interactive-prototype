@@ -3715,6 +3715,31 @@ body.is-demo-mode .prototype-stage {
   font-size: 12px;
 }
 
+.page-add-device-bar {
+  margin-bottom: 12px;
+}
+
+.page-add-device-bar .mp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.device-empty-hint {
+  padding: 20px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .mp-pull-refresh.refreshing {
   justify-content: center;
   color: var(--primary-dark);

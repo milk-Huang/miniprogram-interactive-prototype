@@ -933,13 +933,13 @@ const mpAdaptationPageMap = {
     title: "地图页系统适配",
     summary: "自定义顶栏须避让胶囊；底部固定元素加 safe-area-inset-bottom；补全权限/加载/空/错态。",
     items: [
-      { title: "胶囊避让", desc: "标题行仅放标题 + 胶囊；操作按钮下移到页面内第二行，避免与胶囊同高。", status: "demo" },
+      { title: "胶囊避让", desc: "顶栏仅标题 + 胶囊；下拉刷新与页面操作在内容区顶部。", status: "demo" },
       { title: "定位权限", desc: "首次进入轻量引导；拒绝后隐藏地图、保留列表与「去开启权限」。", status: "demo", demo: "?location=denied" },
       { title: "边界态", desc: "骨架屏 / 空设备引导添加 / 网络错误重试。", status: "demo", demo: "?map=loading|error|empty" },
       { title: "列表地图联动", desc: "点击设备卡高亮地图标记；重叠标记可放大或弹出列表。", status: "demo" },
       { title: "下拉刷新", desc: "onPullDownRefresh 同步最新位置。", status: "demo" },
       { title: "地图底图", desc: "国内用原生 map（腾讯底图、GCJ-02）；海外 Google 仅 web-view。", status: "todo" },
-      { title: "扫码添加", desc: "页面内「添加设备」按钮优先 wx.scanCode 绑定。", status: "demo" },
+      { title: "扫码添加", desc: "下拉刷新下方全宽「添加设备」，优先 wx.scanCode。", status: "demo" },
       { title: "订阅与分享", desc: "告警订阅消息；地图/详情 onShareAppMessage 分享给家人。", status: "todo" },
     ],
   },
@@ -3648,9 +3648,26 @@ function renderPullRefreshBar(scope = "map") {
   `;
 }
 
-function renderHeader(title, back = false) {
+function renderAddDeviceBar() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  const showAddDevice = !back && ["map", "devices"].includes(state.tab);
+  return `
+    <div class="page-add-device-bar">
+      <button class="mp-btn mp-btn-primary mp-btn-block hoverable" type="button" data-action="open-add-device" aria-label="${L.common.addDevice}">
+        ${icon("plus")}<span>${L.common.addDevice}</span>
+      </button>
+    </div>
+  `;
+}
+
+function renderPageTop(scope, options = {}) {
+  const { addDevice = false } = options;
+  return `
+    ${renderPullRefreshBar(scope)}
+    ${addDevice ? renderAddDeviceBar() : ""}
+  `;
+}
+
+function renderHeader(title, back = false) {
   return `
     <header class="app-header mp-custom-nav">
       <div class="status-bar"><span>09:41</span><span>${icon("wifi")} ${icon("battery-medium")}</span></div>
@@ -3659,11 +3676,6 @@ function renderHeader(title, back = false) {
         <h1 class="mp-nav-title">${title}</h1>
         ${renderMpCapsule()}
       </div>
-      ${showAddDevice ? `
-        <div class="header-page-actions">
-          <button class="header-action-btn hoverable" type="button" data-action="open-add-device" aria-label="${L.common.addDevice}">${icon("plus")}<span>${L.common.addDevice}</span></button>
-        </div>
-      ` : ""}
     </header>
   `;
 }
@@ -3701,8 +3713,8 @@ function renderGlobalMap() {
   const showEmpty = isDemoEmpty || (state.mapFilter === "all" && !devices.length && state.mapLoadState === "ready");
 
   return `
+    ${renderPageTop("map", { addDevice: true })}
     <section class="section map-home-section">
-      ${renderPullRefreshBar("map")}
       <div class="category-filter" aria-label="设备筛选">
         ${mapFilters().map((filter) => `
           <button class="hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}">
@@ -3730,8 +3742,7 @@ function renderMapEmptyState() {
   return `
     <div class="map-empty-state">
       <strong>${icon("radio-receiver")} 还没有绑定设备</strong>
-      <p>添加第一台设备后即可在地图查看位置与安全状态</p>
-      <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="open-add-device">${icon("plus")} 添加设备</button>
+      <p>点击上方「添加设备」绑定第一台设备后即可查看位置与安全状态</p>
     </div>
   `;
 }
@@ -3811,7 +3822,7 @@ function renderDevices() {
   const onlineCount = mock.devices.filter((device) => device.status === "online").length;
   const alertCount = mock.alarms.filter((alarm) => alarm.status !== "已处理").length;
   return `
-    ${renderPullRefreshBar("devices")}
+    ${renderPageTop("devices", { addDevice: true })}
     <section class="section">
       <div class="home-summary">
         <button class="summary-tile" type="button" data-action="toast-sync">
@@ -3828,14 +3839,7 @@ function renderDevices() {
       <div class="device-list">
         ${mock.devices.length
           ? mock.devices.map(renderDeviceCard).join("")
-          : `<button class="add-device-card" type="button" data-action="open-add-device">
-              <span>${icon("scan-line")}</span>
-              <div>
-                <strong>添加你的第一台设备</strong>
-                <small>扫码、输入 IMEI 或 BLE 扫描绑定人、宠物和物品设备</small>
-              </div>
-              ${icon("chevron-right")}
-            </button>`}
+          : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码、输入 IMEI 或 BLE 绑定</div>`}
       </div>
     </section>
   `;
@@ -3869,7 +3873,7 @@ function renderDetail() {
   return `
     ${renderHeader(device.name, true)}
     <div class="screen-body with-detail-tabs">
-      ${renderPullRefreshBar("detail")}
+      ${renderPageTop("detail")}
       ${renderDeviceHero(device)}
       <div class="tab-strip" aria-label="设备详情标签">
         ${[
@@ -4246,7 +4250,7 @@ function renderConfig(device) {
 
 function renderMessages() {
   return `
-    ${renderPullRefreshBar("messages")}
+    ${renderPageTop("messages")}
     <section class="section">
       <div class="section-header">
         <div>
@@ -4340,7 +4344,7 @@ function renderMine() {
     },
   ];
   return `
-    ${renderPullRefreshBar("mine")}
+    ${renderPageTop("mine")}
     <section class="section">
       <div class="profile-card">
         <div class="profile-avatar">${icon("user-round")}</div>
