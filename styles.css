@@ -3037,68 +3037,11 @@ textarea:focus-visible {
   color: #fff;
 }
 
-.miniprogram-login .login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 20px;
+.miniprogram-login {
+  min-height: 100%;
 }
-
-.wechat-login-btn {
-  background: #07c160 !important;
-  border-color: #07c160 !important;
-}
-
-.wechat-login-btn:hover {
-  filter: brightness(0.95);
-}
-
-.phone-login-btn,
-.secondary-button {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  color: var(--text);
-  padding: 12px 16px;
-  border-radius: var(--radius);
-  font-weight: 600;
-}
-
-.login-hint {
-  margin: 0 0 8px;
-  font-size: 12px;
-  color: var(--muted);
-  text-align: center;
-}
-
-.agreement-row {
-  margin: 8px 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.checkbox-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-.text-button.inline {
-  display: inline;
-  padding: 0;
-  font-size: inherit;
-}
-
-.mp-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(7, 193, 96, 0.12);
-  color: #067a42;
-  font-size: 12px;
-  font-weight: 600;
+.miniprogram-login .login-visual {
+  flex: 1;
 }
 
 .version-note {
@@ -3108,8 +3051,70 @@ textarea:focus-visible {
   color: var(--muted);
 }
 
-.demo-entry-btn {
-  margin-top: 4px;
+/* 微信小程序交互组件 */
+.mp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+.mp-btn-block { width: 100%; }
+.mp-btn-mini { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.mp-btn-wechat { color: #fff; background: #07c160; }
+.mp-btn-primary { color: #fff; background: var(--primary); }
+.mp-btn-default { color: #000; background: #fff; border: 1px solid rgba(0,0,0,0.1); }
+.mp-btn-warn-outline { color: #fa5151; border: 1px solid rgba(250,81,81,0.35); background: #fff; }
+.mp-btn-disabled, .mp-btn:disabled { opacity: 0.5; pointer-events: none; }
+.mp-btn-phone { position: relative; min-height: 48px; }
+.mp-open-type { position: absolute; top: 4px; right: 6px; font-size: 9px; color: #888; font-family: ui-monospace, monospace; }
+.mp-login-actions { margin-top: auto; padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+.mp-agreement { display: flex; gap: 8px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.mp-agreement input { margin-top: 3px; accent-color: #07c160; }
+.mp-link, .mp-text-link, .mp-link-btn { padding: 0; border: 0; background: none; color: #576b95; cursor: pointer; font-size: inherit; }
+.mp-text-link { margin-top: 4px; font-size: 14px; text-align: center; }
+.mp-link-btn.warn { color: #fa5151; }
+
+.mp-dialog-mask {
+  position: absolute; inset: 0; z-index: 50;
+  display: grid; place-items: center; padding: 28px;
+  background: rgba(0,0,0,0.55);
+}
+.mp-dialog { width: 100%; max-width: 320px; border-radius: 12px; background: #fff; overflow: hidden; }
+.mp-dialog-title { padding: 24px 24px 8px; text-align: center; font-size: 17px; font-weight: 600; }
+.mp-dialog-content { padding: 0 24px 20px; text-align: center; font-size: 15px; color: #888; line-height: 1.5; }
+.mp-dialog-footer { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(0,0,0,0.08); }
+.mp-dialog-btn { min-height: 48px; border: 0; background: #fff; font-size: 16px; cursor: pointer; }
+.mp-dialog-btn + .mp-dialog-btn { border-left: 1px solid rgba(0,0,0,0.08); }
+.mp-dialog-btn.confirm, .mp-dialog-btn.warn { font-weight: 600; }
+.mp-dialog-btn.confirm { color: #576b95; }
+.mp-dialog-btn.warn { color: #fa5151; }
+
+.mp-sheet { display: flex; flex-direction: column; max-height: 88%; padding: 0; border-radius: 12px 12px 0 0; }
+.mp-sheet-handle { width: 36px; height: 4px; margin: 8px auto 4px; border-radius: 2px; background: #e5e5e5; }
+.mp-sheet-header { display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; padding: 0 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.mp-sheet-title { margin: 0; text-align: center; font-size: 16px; font-weight: 600; }
+.mp-nav-text { padding: 8px 4px; border: 0; background: none; color: #576b95; font-size: 15px; cursor: pointer; }
+.mp-sheet-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+.mp-sheet-footer { padding: 10px 16px; border-top: 1px solid rgba(0,0,0,0.06); display: grid; gap: 8px; }
+.safe-bottom { padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)); }
+
+.mp-tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 12px; }
+.mp-tab { min-height: 40px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--muted); font-size: 13px; cursor: pointer; margin-bottom: -1px; }
+.mp-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+.mp-toast {
+  position: absolute; left: 50%; top: 50%; z-index: 60;
+  transform: translate(-50%, -50%); max-width: 70%;
+  padding: 10px 16px; border-radius: 8px;
+  background: rgba(0,0,0,0.75); color: #fff; font-size: 14px;
+  text-align: center; pointer-events: none;
 }
 
 @media (max-width: 1100px) {

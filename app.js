@@ -399,7 +399,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.1.0";
+const PROTOTYPE_VERSION = "0.1.1";
 
 const LOCALES = {
   "zh-CN": {
@@ -473,20 +473,25 @@ const LOCALES = {
       hero: "统一管理定位、健康与设备安全",
       desc: "查看家人位置、健康状态和安全提醒，随时管理设备。",
       wechatLogin: "微信一键登录",
-      wechatHint: "调用 wx.login 获取 code，服务端换取 session",
       phoneLogin: "手机号快捷登录",
-      phoneHint: 'button open-type="getPhoneNumber"',
       guestDemo: "演示模式进入",
-      agreements: "用户协议与隐私政策",
-      agreementsHint: "登录前需勾选同意",
       agreePrefix: "我已阅读并同意",
       userAgreement: "《用户协议》",
       privacy: "《隐私政策》",
+      agreeRequired: "请先阅读并同意用户协议与隐私政策",
+      openTypePhone: "open-type=\"getPhoneNumber\"",
     },
     common: {
-      back: "返回", close: "关闭", save: "保存", cancel: "取消", confirm: "确认",
+      back: "返回", close: "关闭", save: "保存", cancel: "取消", confirm: "确定",
       addDevice: "添加设备", sync: "同步", online: "在线", offline: "离线",
       allDevices: "全部设备", family: "家人", pet: "宠物", item: "物品",
+      submit: "提交", done: "完成",
+    },
+    dialog: {
+      logoutTitle: "退出登录",
+      logoutContent: "退出后将返回登录页，设备告警需重新登录后查看。",
+      unbindTitle: "解绑设备",
+      unbindContent: "解绑后设备将从账号移除，是否继续？",
     },
     toast: {
       wechatLogin: "wx.login 成功 → POST /c/v1/auth/wechat/login",
@@ -574,20 +579,25 @@ const LOCALES = {
       hero: "Location, health and device safety in one place",
       desc: "Track family locations, health and safety alerts, manage all devices.",
       wechatLogin: "WeChat sign in",
-      wechatHint: "wx.login code → server session",
       phoneLogin: "Phone quick sign in",
-      phoneHint: "button open-type=getPhoneNumber",
       guestDemo: "Enter demo mode",
-      agreements: "Terms & Privacy",
-      agreementsHint: "Must agree before login",
       agreePrefix: "I agree to",
       userAgreement: "Terms of Service",
       privacy: "Privacy Policy",
+      agreeRequired: "Please agree to Terms and Privacy Policy first",
+      openTypePhone: "open-type=\"getPhoneNumber\"",
     },
     common: {
-      back: "Back", close: "Close", save: "Save", cancel: "Cancel", confirm: "Confirm",
+      back: "Back", close: "Close", save: "Save", cancel: "Cancel", confirm: "OK",
       addDevice: "Add device", sync: "Sync", online: "Online", offline: "Offline",
       allDevices: "All", family: "Family", pet: "Pet", item: "Items",
+      submit: "Submit", done: "Done",
+    },
+    dialog: {
+      logoutTitle: "Sign out",
+      logoutContent: "You will return to login. Alerts require sign-in.",
+      unbindTitle: "Unbind device",
+      unbindContent: "Device will be removed from your account. Continue?",
     },
     toast: {
       wechatLogin: "wx.login OK → POST /c/v1/auth/wechat/login",
@@ -824,6 +834,8 @@ const state = {
   addMode: "scan",
   configCategory: "home",
   settingsPanel: "profile",
+  agreedToTerms: false,
+  dialog: null,
   toast: "",
   chat: [],
 };
@@ -885,6 +897,74 @@ function shouldExpandMapPin(device) {
 
 function icon(name) {
   return `<i data-lucide="${name}"></i>`;
+}
+
+/** 模拟 wx.showModal 居中对话框 */
+function renderMpDialog({ title, content, confirmAction, cancelAction = "close-dialog", confirmText, cancelText, confirmDanger = false }) {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  return `
+    <div class="mp-dialog-mask" data-action="${cancelAction}">
+      <div class="mp-dialog" data-sheet role="alertdialog" aria-modal="true">
+        <div class="mp-dialog-title">${escapeHtml(title)}</div>
+        <div class="mp-dialog-content">${escapeHtml(content)}</div>
+        <div class="mp-dialog-footer">
+          <button type="button" class="mp-dialog-btn" data-action="${cancelAction}">${escapeHtml(cancelText || L.common.cancel)}</button>
+          <button type="button" class="mp-dialog-btn ${confirmDanger ? "warn" : "confirm"}" data-action="${confirmAction}">${escapeHtml(confirmText || L.common.confirm)}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/** 模拟小程序底部弹层 page-container / 半屏页 */
+function wrapMpSheet(title, bodyHtml, footerHtml = "") {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  return `
+    <div class="modal-backdrop" data-action="close-modal">
+      <section class="bottom-sheet mp-sheet" role="dialog" aria-modal="true" data-sheet>
+        <div class="mp-sheet-handle" aria-hidden="true"></div>
+        <div class="mp-sheet-header">
+          <button type="button" class="mp-nav-text" data-action="close-modal">${L.common.cancel}</button>
+          <h2 class="mp-sheet-title">${title}</h2>
+          <span class="mp-sheet-spacer" aria-hidden="true"></span>
+        </div>
+        <div class="mp-sheet-body">${bodyHtml}</div>
+        ${footerHtml ? `<div class="mp-sheet-footer safe-bottom">${footerHtml}</div>` : ""}
+      </section>
+    </div>
+  `;
+}
+
+function mpBtn(type, label, action, extraClass = "") {
+  const cls = ["mp-btn", `mp-btn-${type}`, extraClass].filter(Boolean).join(" ");
+  return `<button type="button" class="${cls}" data-action="${action}">${label}</button>`;
+}
+
+function renderMpToast(message) {
+  return `<div class="mp-toast" role="status"><span>${escapeHtml(message)}</span></div>`;
+}
+
+function renderDialog() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  if (state.dialog === "logout-confirm") {
+    return renderMpDialog({
+      title: L.dialog.logoutTitle,
+      content: L.dialog.logoutContent,
+      confirmAction: "logout",
+      confirmDanger: true,
+      confirmText: L.dialog.logoutTitle,
+    });
+  }
+  if (state.dialog === "unbind-confirm") {
+    return renderMpDialog({
+      title: L.dialog.unbindTitle,
+      content: L.dialog.unbindContent,
+      confirmAction: "unbind-device-confirm",
+      confirmDanger: true,
+      confirmText: L.common.confirm,
+    });
+  }
+  return "";
 }
 
 function statusLabel(status) {
@@ -2111,8 +2191,11 @@ function render() {
   if (state.modal) {
     app.insertAdjacentHTML("beforeend", renderModal());
   }
+  if (state.dialog) {
+    app.insertAdjacentHTML("beforeend", renderDialog());
+  }
   if (state.toast) {
-    app.insertAdjacentHTML("beforeend", `<div class="toast">${icon("check-circle-2")}<span>${state.toast}</span></div>`);
+    app.insertAdjacentHTML("beforeend", renderMpToast(state.toast));
   }
   renderApiPanel();
   renderDemoPanel();
@@ -2178,6 +2261,7 @@ function renderApiPanel() {
 
 function getApiPanelInfo() {
   if (!state.loggedIn || state.route === "login") return apiPageMap.login;
+  if (state.dialog === "logout-confirm") return apiPageMap["modal:logout-confirm"];
   if (state.modal === "settings") return settingsApiPanelInfo();
   if (state.modal) return apiPageMap[`modal:${state.modal}`] || apiPageMap[`tab:${state.tab}`];
   if (state.route === "detail") return apiPageMap[`detail:${state.detailTab}`] || apiPageMap["detail:overview"];
@@ -2474,9 +2558,16 @@ function toRequirementItems(info) {
 
 function getDemoPanelInfo() {
   if (!state.loggedIn || state.route === "login") return loginPanelInfo();
+  if (state.dialog) return dialogPanelInfo();
   if (state.modal) return modalPanelInfo();
   if (state.route === "detail") return detailPanelInfo();
   return tabPanelInfo();
+}
+
+function dialogPanelInfo() {
+  if (state.dialog === "logout-confirm") return logoutPanelInfo();
+  if (state.dialog === "unbind-confirm") return editDevicePanelInfo();
+  return logoutPanelInfo();
 }
 
 function loginPanelInfo() {
@@ -3050,6 +3141,8 @@ function logoutPanelInfo() {
 
 function renderLogin() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const canLogin = state.agreedToTerms;
+  const disabledCls = canLogin ? "" : " mp-btn-disabled";
   return `
     <div class="login-screen miniprogram-login">
       <div class="login-visual">
@@ -3065,24 +3158,23 @@ function renderLogin() {
           <h1>${L.login.hero}</h1>
           <p>${L.login.desc}</p>
         </div>
-        <div class="mp-badge">${icon("smartphone")} WeChat Mini Program</div>
       </div>
-      <div class="login-form">
-        <button class="primary-button wechat-login-btn" type="button" data-action="wechat-login">
+      <div class="login-form mp-login-actions safe-bottom">
+        <label class="mp-agreement">
+          <input type="checkbox" data-action="toggle-agreement" ${state.agreedToTerms ? "checked" : ""} />
+          <span>${L.login.agreePrefix}
+            <button type="button" class="mp-link" data-action="open-h5">${L.login.userAgreement}</button>
+            <button type="button" class="mp-link" data-action="toast-policy">${L.login.privacy}</button>
+          </span>
+        </label>
+        <button type="button" class="mp-btn mp-btn-wechat mp-btn-block${disabledCls}" data-action="wechat-login" ${canLogin ? "" : "disabled"}>
           ${icon("message-circle")} ${L.login.wechatLogin}
         </button>
-        <p class="login-hint">${L.login.wechatHint}</p>
-        <button class="secondary-button phone-login-btn" type="button" data-action="phone-login">
+        <button type="button" class="mp-btn mp-btn-default mp-btn-block mp-btn-phone${disabledCls}" data-action="phone-login" ${canLogin ? "" : "disabled"}>
+          <span class="mp-open-type">${L.login.openTypePhone}</span>
           ${icon("phone")} ${L.login.phoneLogin}
         </button>
-        <p class="login-hint">${L.login.phoneHint}</p>
-        <div class="agreement-row">
-          <label class="checkbox-row">
-            <input type="checkbox" checked disabled />
-            <span>${L.login.agreePrefix} <button type="button" class="text-button inline" data-action="open-h5">${L.login.userAgreement}</button> · <button type="button" class="text-button inline" data-action="toast-policy">${L.login.privacy}</button></span>
-          </label>
-        </div>
-        <button class="ghost-button demo-entry-btn" type="button" data-action="quick-demo">${icon("play")} ${L.login.guestDemo}</button>
+        <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
         <p class="version-note">${L.brand.subtitle}</p>
       </div>
     </div>
@@ -3858,7 +3950,6 @@ function renderModal() {
   if (state.modal === "geofence") return renderGeofenceModal();
   if (state.modal === "config-category") return renderConfigCategoryModal();
   if (state.modal === "settings") return renderSettingsModal();
-  if (state.modal === "logout-confirm") return renderLogoutConfirmModal();
   if (state.modal === "h5") return renderH5Modal();
   if (state.modal === "chat") return renderChatModal();
   if (state.modal === "ai") return renderAiModal();
@@ -3867,73 +3958,70 @@ function renderModal() {
 
 function renderShareModal() {
   const device = getDevice();
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="设备分享" data-sheet>
-        <div class="sheet-header">
-          <h2>分享 ${deviceDisplayName(device)}</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <div class="field">
-          <label for="share-account">家人账号</label>
-          <input id="share-account" type="email" value="jason.chen@email.com" />
-        </div>
-        <div class="field">
-          <label for="share-permission">权限</label>
-          <select id="share-permission">
-            <option>查看 + 接收告警</option>
-            <option>仅查看</option>
-            <option>协助管理</option>
-          </select>
-        </div>
-        <section class="section">
-          <div class="section-header"><h2>已有分享</h2></div>
-          <div class="card-list">
-            ${mock.shares.map((share) => `
-              <div class="list-card">
-                <div class="share-row"><div><strong>${share.name}</strong><span>${share.account} · ${share.permission}</span></div><span class="status-pill info">${share.status}</span></div>
-                <div class="inline-actions">
-                  <button class="text-button" type="button" data-action="resend-share">${share.status === "待接受" ? "重新发送" : "修改权限"}</button>
-                  <button class="text-button danger-text" type="button" data-action="revoke-share">取消分享</button>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-        </section>
-        <section class="section">
-          <div class="panel-card">
-            <h3>${icon("shield-check")}权限说明</h3>
-            <p>设备拥有者可管理配置、分享和解绑；被分享用户默认只能查看位置和接收告警，是否允许协助管理需要服务端权限字段支持。</p>
-          </div>
-        </section>
-        <button class="primary-button" type="button" data-action="send-share">${icon("send")}发送邀请</button>
-      </section>
+  const body = `
+    <div class="field">
+      <label for="share-account">家人账号</label>
+      <input id="share-account" type="email" value="jason.chen@email.com" />
     </div>
+    <div class="field">
+      <label for="share-permission">权限</label>
+      <select id="share-permission">
+        <option>查看 + 接收告警</option>
+        <option>仅查看</option>
+        <option>协助管理</option>
+      </select>
+    </div>
+    <section class="section">
+      <div class="section-header"><h2>已有分享</h2></div>
+      <div class="card-list">
+        ${mock.shares.map((share) => `
+          <div class="list-card">
+            <div class="share-row"><div><strong>${share.name}</strong><span>${share.account} · ${share.permission}</span></div><span class="status-pill info">${share.status}</span></div>
+            <div class="inline-actions">
+              <button class="mp-link-btn" type="button" data-action="resend-share">${share.status === "待接受" ? "重新发送" : "修改权限"}</button>
+              <button class="mp-link-btn warn" type="button" data-action="revoke-share">取消分享</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+    <section class="section">
+      <div class="panel-card">
+        <h3>${icon("shield-check")}权限说明</h3>
+        <p>设备拥有者可管理配置、分享和解绑；被分享用户默认只能查看位置和接收告警。</p>
+      </div>
+    </section>
   `;
+  const footer = mpBtn("primary", `${icon("send")} 发送邀请`, "send-share", "mp-btn-block");
+  return wrapMpSheet(`分享 ${deviceDisplayName(device)}`, body, footer);
 }
 
 function renderAddDeviceModal() {
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="添加设备" data-sheet>
-        <div class="sheet-header">
-          <h2>添加设备</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <div class="segmented-control" aria-label="添加设备方式">
-          <button class="${state.addMode === "scan" ? "active" : ""}" type="button" data-add-mode="scan">${icon("scan-line")}扫码</button>
-          <button class="${state.addMode === "imei" ? "active" : ""}" type="button" data-add-mode="imei">${icon("keyboard")}IMEI</button>
-          <button class="${state.addMode === "ble" ? "active" : ""}" type="button" data-add-mode="ble">${icon("bluetooth")}BLE</button>
-        </div>
-        ${renderAutoPanelDownload()}
-        ${renderAddDeviceContent()}
-        <div class="panel-card">
-          <h3>${icon("badge-check")}绑定前确认</h3>
-          <p>系统会自动确认设备是否可用、是否已被其他账号绑定，以及当前账号是否可以添加这台设备。</p>
-        </div>
-      </section>
+  const body = `
+    <div class="mp-tabs" role="tablist" aria-label="添加设备方式">
+      <button class="mp-tab ${state.addMode === "scan" ? "active" : ""}" type="button" data-add-mode="scan" role="tab">${icon("scan-line")}扫码</button>
+      <button class="mp-tab ${state.addMode === "imei" ? "active" : ""}" type="button" data-add-mode="imei" role="tab">${icon("keyboard")}IMEI</button>
+      <button class="mp-tab ${state.addMode === "ble" ? "active" : ""}" type="button" data-add-mode="ble" role="tab">${icon("bluetooth")}BLE</button>
+    </div>
+    ${renderAutoPanelDownload()}
+    ${renderAddDeviceContent()}
+    <div class="panel-card">
+      <h3>${icon("badge-check")}绑定前确认</h3>
+      <p>系统会自动确认设备是否可用、是否已被其他账号绑定，以及当前账号是否可以添加这台设备。</p>
     </div>
   `;
+  const footer = renderAddDeviceFooter();
+  return wrapMpSheet("添加设备", body, footer);
+}
+
+function renderAddDeviceFooter() {
+  if (state.addMode === "imei") {
+    return mpBtn("primary", `${icon("badge-check")} 校验并绑定`, "bind-device", "mp-btn-block");
+  }
+  if (state.addMode === "ble") {
+    return mpBtn("default", `${icon("bluetooth")} 连接并识别`, "connect-ble", "mp-btn-block");
+  }
+  return mpBtn("primary", `${icon("scan-line")} 扫码添加`, "toast-scan", "mp-btn-block");
 }
 
 function renderAddDeviceContent() {
@@ -3948,7 +4036,6 @@ function renderAddDeviceContent() {
           <label for="device-name">设备名称</label>
           <input id="device-name" value="妈妈手表" />
         </div>
-        <button class="primary-button full-width" type="button" data-action="bind-device">${icon("badge-check")}校验并绑定</button>
       </div>
     `;
   }
@@ -3963,8 +4050,8 @@ function renderAddDeviceContent() {
           ${mock.discoveredDevices.map((device) => `
             <div class="list-card">
               <div class="list-row">
-                <div><strong>${deviceDisplayName(device)}</strong><span>${device.model} · ${device.id} · 信号${device.signal}</span></div>
-                <button class="ghost-button" type="button" data-action="connect-ble">${icon("link")}连接</button>
+                <div><strong>${device.name}</strong><span>${device.model} · ${device.id} · 信号${device.signal}</span></div>
+                <button class="mp-btn mp-btn-default mp-btn-mini" type="button" data-action="connect-ble">${icon("link")}连接</button>
               </div>
             </div>
           `).join("")}
@@ -3977,9 +4064,8 @@ function renderAddDeviceContent() {
       <div class="qr-placeholder">
         ${icon("scan-qr-code")}
         <strong>扫描设备二维码</strong>
-        <span>识别 IMEI 后进入设备资料填写和绑定校验</span>
+        <span>调用 wx.scanCode，识别 IMEI 后进入绑定</span>
       </div>
-      <button class="primary-button full-width" type="button" data-action="bind-device">${icon("scan-line")}模拟扫码成功</button>
     </div>
   `;
 }
@@ -4001,7 +4087,6 @@ function renderAutoPanelDownload() {
           <div class="download-step">${icon("check")}<span>${step}</span></div>
         `).join("")}
       </div>
-      <button class="primary-button full-width" type="button" data-action="bind-device">${icon("arrow-right")}进入设备绑定</button>
     </div>
   `;
 }
@@ -4009,96 +4094,73 @@ function renderAutoPanelDownload() {
 function renderEditDeviceModal() {
   const device = getDevice();
   const isOwner = device.permission === "owner";
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="设备管理" data-sheet>
-        <div class="sheet-header">
-          <h2>设备管理</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <div class="form-grid">
-          <div class="field">
-            <label for="edit-device-name">设备名称</label>
-            <input id="edit-device-name" value="${deviceDisplayName(device)}" />
-          </div>
-          <div class="field">
-            <label for="edit-device-user">使用者</label>
-            <input id="edit-device-user" value="${device.model === "EV04" ? "作业人员" : "家庭成员"}" />
-          </div>
-          <div class="field">
-            <label for="edit-phone">紧急联系人手机号</label>
-            <input id="edit-phone" value="+86 138 0000 1234" />
-          </div>
-          <div class="field">
-            <label for="edit-note">备注</label>
-            <textarea id="edit-note" rows="3">${device.scenario}</textarea>
-          </div>
-        </div>
-        <div class="panel-card ${isOwner ? "" : "muted-panel"}">
-          <h3>${icon(isOwner ? "shield-check" : "lock")}当前权限</h3>
-          <p>${isOwner ? "你是设备拥有者，可以编辑资料、分享设备、修改配置和解绑设备。" : "这是分享给你的设备，只能查看位置、健康和告警，不能修改配置或解绑。"}</p>
-        </div>
-        <div class="sheet-actions">
-          <button class="primary-button" type="button" data-action="save-device">${icon("save")}保存</button>
-          ${isOwner ? `<button class="danger-button" type="button" data-action="unbind-device">${icon("unlink")}解绑设备</button>` : ""}
-        </div>
-      </section>
+  const body = `
+    <div class="form-grid">
+      <div class="field">
+        <label for="edit-device-name">设备名称</label>
+        <input id="edit-device-name" value="${deviceDisplayName(device)}" />
+      </div>
+      <div class="field">
+        <label for="edit-device-user">使用者</label>
+        <input id="edit-device-user" value="${device.model === "EV04" ? "作业人员" : "家庭成员"}" />
+      </div>
+      <div class="field">
+        <label for="edit-phone">紧急联系人手机号</label>
+        <input id="edit-phone" value="+86 138 0000 1234" />
+      </div>
+      <div class="field">
+        <label for="edit-note">备注</label>
+        <textarea id="edit-note" rows="3">${device.scenario}</textarea>
+      </div>
+    </div>
+    <div class="panel-card ${isOwner ? "" : "muted-panel"}">
+      <h3>${icon(isOwner ? "shield-check" : "lock")}当前权限</h3>
+      <p>${isOwner ? "你是设备拥有者，可以编辑资料、分享设备、修改配置和解绑设备。" : "这是分享给你的设备，只能查看位置、健康和告警，不能修改配置或解绑。"}</p>
     </div>
   `;
+  const footer = `
+    ${mpBtn("primary", `${icon("save")} 保存`, "save-device", "mp-btn-block")}
+    ${isOwner ? mpBtn("default", `${icon("unlink")} 解绑设备`, "unbind-device", "mp-btn-block mp-btn-warn-outline") : ""}
+  `;
+  return wrapMpSheet("设备管理", body, footer);
 }
 
 function renderGeofenceModal() {
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="安全围栏" data-sheet>
-        <div class="sheet-header">
-          <h2>安全围栏</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <div class="mini-map-editor">
-          <div class="geofence draft"></div>
-          <div class="map-pin main">${icon("map-pin")}</div>
-          <span>拖动地图选择区域</span>
-        </div>
-        <div class="form-grid">
-          <div class="field">
-            <label for="fence-name">围栏名称</label>
-            <input id="fence-name" value="Home Zone" />
-          </div>
-          <div class="field">
-            <label for="fence-shape">围栏形状</label>
-            <select id="fence-shape"><option>圆形</option><option>多边形</option></select>
-          </div>
-          <div class="field">
-            <label for="fence-radius">半径 / 范围</label>
-            <input id="fence-radius" value="300m" />
-          </div>
-          <div class="field">
-            <label for="fence-trigger">提醒条件</label>
-            <select id="fence-trigger"><option>进出都提醒</option><option>离开提醒</option><option>进入提醒</option></select>
-          </div>
-        </div>
-        <button class="primary-button full-width" type="button" data-action="save-geofence">${icon("shield-check")}保存围栏</button>
-      </section>
+  const body = `
+    <div class="mini-map-editor">
+      <div class="geofence draft"></div>
+      <div class="map-pin main">${icon("map-pin")}</div>
+      <span>拖动地图选择区域 · wx.chooseLocation</span>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="fence-name">围栏名称</label>
+        <input id="fence-name" value="Home Zone" />
+      </div>
+      <div class="field">
+        <label for="fence-shape">围栏形状</label>
+        <select id="fence-shape"><option>圆形</option><option>多边形</option></select>
+      </div>
+      <div class="field">
+        <label for="fence-radius">半径 / 范围</label>
+        <input id="fence-radius" value="300m" />
+      </div>
+      <div class="field">
+        <label for="fence-trigger">提醒条件</label>
+        <select id="fence-trigger"><option>进出都提醒</option><option>离开提醒</option><option>进入提醒</option></select>
+      </div>
     </div>
   `;
+  const footer = mpBtn("primary", `${icon("shield-check")} 保存围栏`, "save-geofence", "mp-btn-block");
+  return wrapMpSheet("安全围栏", body, footer);
 }
 
 function renderConfigCategoryModal() {
   const category = mock.configCategories.find((item) => item.id === state.configCategory) || mock.configCategories[0];
   const isReadOnly = category.id === "info";
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="${category.title}" data-sheet>
-        <div class="sheet-header">
-          <h2>${category.title}</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        ${renderConfigCategoryContent(category.id)}
-        ${isReadOnly ? "" : `<button class="primary-button full-width" type="button" data-action="save-config">${icon("save")}保存配置</button>`}
-      </section>
-    </div>
-  `;
+  const body = renderConfigCategoryContent(category.id);
+  const footer = isReadOnly ? "" : mpBtn("primary", `${icon("save")} 保存配置`, "save-config", "mp-btn-block");
+  return wrapMpSheet(category.title, body, footer);
 }
 
 function renderCallContent() {
@@ -4311,17 +4373,7 @@ function renderSettingsModal() {
     about: ["关于与协议", renderAboutSettings()],
   };
   const [title, content] = panelMap[state.settingsPanel] || panelMap.profile;
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="${title}" data-sheet>
-        <div class="sheet-header">
-          <h2>${title}</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        ${content}
-      </section>
-    </div>
-  `;
+  return wrapMpSheet(title, content);
 }
 
 function renderProfileSettings() {
@@ -4332,7 +4384,7 @@ function renderProfileSettings() {
       <div class="field"><label for="profile-phone">手机号</label><input id="profile-phone" value="+86 138 0000 1234" /></div>
       <div class="field"><label for="profile-region">国家 / 地区</label><select id="profile-region"><option>中国大陆</option><option>中国香港</option><option>美国</option><option>欧洲</option></select></div>
     </div>
-    <button class="primary-button full-width" type="button" data-action="save-settings">${icon("save")}保存资料</button>
+    <button class="mp-btn mp-btn-primary mp-btn-block" type="button" data-action="save-settings">${icon("save")}保存资料</button>
   `;
 }
 
@@ -4385,7 +4437,7 @@ function renderNotificationSettings() {
     <div class="form-grid">
       <div class="field"><label for="quiet-hours">免打扰时段</label><select id="quiet-hours"><option>22:00 - 08:00</option><option>关闭</option><option>自定义</option></select></div>
     </div>
-    <button class="primary-button full-width" type="button" data-action="save-settings">${icon("save")}保存通知设置</button>
+    <button class="mp-btn mp-btn-primary mp-btn-block" type="button" data-action="save-settings">${icon("save")}保存通知设置</button>
   `;
 }
 
@@ -4400,7 +4452,7 @@ function renderMapSettings() {
       <h3>${icon("map")}说明</h3>
       <p>这里用于管理 App 自身的地图显示、地区和权限。查看设备位置仍然在设备详情的地图页完成。</p>
     </div>
-    <button class="primary-button full-width" type="button" data-action="save-settings">${icon("save")}保存地图设置</button>
+    <button class="mp-btn mp-btn-primary mp-btn-block" type="button" data-action="save-settings">${icon("save")}保存地图设置</button>
   `;
 }
 
@@ -4515,105 +4567,67 @@ function renderAboutSettings() {
   `;
 }
 
-function renderLogoutConfirmModal() {
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet compact-sheet" role="dialog" aria-modal="true" aria-label="退出登录确认" data-sheet>
-        <div class="sheet-header">
-          <h2>退出登录？</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <p class="confirm-text">退出后将返回登录页，设备告警需要重新登录后查看。</p>
-        <div class="sheet-actions">
-          <button class="danger-button" type="button" data-action="logout">${icon("log-out")}退出登录</button>
-          <button class="ghost-button" type="button" data-action="close-modal">取消</button>
-        </div>
-      </section>
-    </div>
-  `;
-}
-
 function renderH5Modal() {
   const device = getDevice();
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="帮助中心" data-sheet>
-        <div class="sheet-header">
-          <h2>帮助中心</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
+  const body = `
+    <div class="h5-shell">
+      <div class="h5-topbar"><span>Evmars Help</span><span>在线</span></div>
+      <div class="h5-content">
+        <div class="panel-card">
+          <h3>${icon("file-question")}设备帮助中心</h3>
+          <p>查看设备离线、定位不准、配置、分享和服务协议相关帮助。</p>
         </div>
-        <div class="h5-shell">
-          <div class="h5-topbar"><span>Evmars Help</span><span>在线</span></div>
-          <div class="h5-content">
-            <div class="panel-card">
-              <h3>${icon("file-question")}设备帮助中心</h3>
-              <p>查看设备离线、定位不准、配置、分享和服务协议相关帮助。</p>
-            </div>
-            <button class="list-card" type="button" data-action="h5-open-device">
-              <div class="list-row">
-                <div><strong>${deviceDisplayName(device)} 使用说明</strong><span>绑定、定位、充电和告警说明</span></div>
-                ${icon("chevron-right")}
-              </div>
-            </button>
-            <button class="list-card" type="button" data-action="toast-policy">
-              <div class="list-row">
-                <div><strong>服务协议与隐私政策</strong><span>查看账号、设备和数据使用说明</span></div>
-                ${icon("chevron-right")}
-              </div>
-            </button>
-            <button class="list-card" type="button" data-action="open-chat">
-              <div class="list-row">
-                <div><strong>联系在线客服</strong><span>获取设备问题排查建议</span></div>
-                ${icon("chevron-right")}
-              </div>
-            </button>
+        <button class="list-card" type="button" data-action="h5-open-device">
+          <div class="list-row">
+            <div><strong>${deviceDisplayName(device)} 使用说明</strong><span>绑定、定位、充电和告警说明</span></div>
+            ${icon("chevron-right")}
           </div>
-        </div>
-      </section>
+        </button>
+        <button class="list-card" type="button" data-action="toast-policy">
+          <div class="list-row">
+            <div><strong>服务协议与隐私政策</strong><span>查看账号、设备和数据使用说明</span></div>
+            ${icon("chevron-right")}
+          </div>
+        </button>
+        <button class="list-card" type="button" data-action="open-chat">
+          <div class="list-row">
+            <div><strong>联系在线客服</strong><span>获取设备问题排查建议</span></div>
+            ${icon("chevron-right")}
+          </div>
+        </button>
+      </div>
     </div>
   `;
+  return wrapMpSheet("帮助中心", body);
 }
 
 function renderChatModal() {
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="AI 客服" data-sheet>
-        <div class="sheet-header">
-          <h2>AI 客服</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <div class="chat-shell">
-          ${state.chat.map((message) => `<div class="chat-message ${message.role === "user" ? "user" : ""}">${message.text}</div>`).join("")}
-        </div>
-        <div class="section">
-          <div class="tag-grid">
-            ${mock.aiQuestions.map((item, index) => `<button class="ghost-button" type="button" data-question="${index}">${item.q}</button>`).join("")}
-          </div>
-          <div class="chat-input-row">
-            <input id="chat-input" type="text" value="为什么设备离线？" aria-label="输入问题" />
-            <button class="icon-button" type="button" data-action="send-chat" aria-label="发送">${icon("send")}</button>
-          </div>
-        </div>
-      </section>
+  const body = `
+    <div class="chat-shell">
+      ${state.chat.map((message) => `<div class="chat-message ${message.role === "user" ? "user" : ""}">${message.text}</div>`).join("")}
+    </div>
+    <div class="section">
+      <div class="tag-grid">
+        ${mock.aiQuestions.map((item, index) => `<button class="mp-btn mp-btn-default mp-btn-mini" type="button" data-question="${index}">${item.q}</button>`).join("")}
+      </div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" value="为什么设备离线？" aria-label="输入问题" />
+        <button class="icon-button" type="button" data-action="send-chat" aria-label="发送">${icon("send")}</button>
+      </div>
     </div>
   `;
+  return wrapMpSheet("AI 客服", body);
 }
 
 function renderAiModal() {
-  return `
-    <div class="modal-backdrop" data-action="close-modal">
-      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="AI 分析" data-sheet>
-        <div class="sheet-header">
-          <h2>AI 分析结果</h2>
-          <button class="small-icon-button" type="button" data-action="close-modal" aria-label="关闭">${icon("x")}</button>
-        </div>
-        <div class="insight-card warning">
-          <h3>${icon("sparkles")}规则引擎 + AI 解释</h3>
-          <p>系统已结合位置、健康、告警和历史行为生成解释，并给出下一步处理建议。</p>
-        </div>
-      </section>
+  const body = `
+    <div class="insight-card warning">
+      <h3>${icon("sparkles")}规则引擎 + AI 解释</h3>
+      <p>系统已结合位置、健康、告警和历史行为生成解释，并给出下一步处理建议。</p>
     </div>
   `;
+  const footer = mpBtn("primary", "知道了", "close-modal", "mp-btn-block");
+  return wrapMpSheet("AI 分析结果", body, footer);
 }
 
 function bindEvents() {
@@ -4680,6 +4694,18 @@ function bindEvents() {
     });
   });
 
+  const agreementInput = document.querySelector(".mp-agreement input[type='checkbox']");
+  if (agreementInput) {
+    agreementInput.addEventListener("change", () => {
+      state.agreedToTerms = agreementInput.checked;
+      render();
+    });
+  }
+
+  document.querySelectorAll(".mp-dialog").forEach((el) => {
+    el.addEventListener("click", (e) => e.stopPropagation());
+  });
+
   const loginForm = document.querySelector("[data-form='login']");
   if (loginForm) {
     loginForm.addEventListener("submit", (event) => {
@@ -4724,10 +4750,16 @@ function handleAction(action, element, event) {
       state.addMode = "scan";
       state.configCategory = "home";
       state.settingsPanel = "profile";
+      state.agreedToTerms = false;
+      state.dialog = null;
       state.chat = [{ role: "assistant", text: t("mock.chatWelcome") }];
       render();
     },
     "wechat-login"() {
+      if (!state.agreedToTerms) {
+        showToast(t("login.agreeRequired"));
+        return;
+      }
       state.loggedIn = true;
       state.route = "home";
       state.tab = "map";
@@ -4735,6 +4767,10 @@ function handleAction(action, element, event) {
       showToast(t("toast.wechatLogin"));
     },
     "phone-login"() {
+      if (!state.agreedToTerms) {
+        showToast(t("login.agreeRequired"));
+        return;
+      }
       showToast(t("toast.phoneLogin"));
     },
     "quick-demo"() {
@@ -4780,16 +4816,21 @@ function handleAction(action, element, event) {
     },
     "close-modal"() {
       const isBackdrop = element.classList.contains("modal-backdrop");
-      if (!isBackdrop || event?.target === element) {
+      const isSheetAction = element.closest(".mp-sheet-footer, .mp-nav-text");
+      if (isSheetAction || !isBackdrop || event?.target === element) {
         state.modal = null;
         render();
       }
+    },
+    "close-dialog"() {
+      state.dialog = null;
+      render();
     },
     "toast-sync"() {
       showToast("设备状态、告警和健康摘要已同步");
     },
     "toast-scan"() {
-      showToast("扫码添加入口：后续对接 IMEI 校验和设备绑定接口");
+      showToast(t("toast.scan"));
     },
     "toast-track"() {
       showToast("已切换到轨迹回放，正式版按时间查询历史轨迹");
@@ -4834,8 +4875,13 @@ function handleAction(action, element, event) {
       showToast("设备资料已保存");
     },
     "unbind-device"() {
+      state.dialog = "unbind-confirm";
+      render();
+    },
+    "unbind-device-confirm"() {
+      state.dialog = null;
       state.modal = null;
-      showToast("已提交解绑确认，正式版需要二次确认");
+      showToast("设备已解绑");
     },
     "save-geofence"() {
       state.modal = null;
@@ -4854,7 +4900,7 @@ function handleAction(action, element, event) {
       showToast("反馈已提交，客服会在消息中心回复");
     },
     "logout-confirm"() {
-      state.modal = "logout-confirm";
+      state.dialog = "logout-confirm";
       render();
     },
     "toast-change-password"() {
@@ -4971,6 +5017,8 @@ function handleAction(action, element, event) {
       state.loggedIn = false;
       state.route = "login";
       state.modal = null;
+      state.dialog = null;
+      state.agreedToTerms = false;
       render();
     },
   };
