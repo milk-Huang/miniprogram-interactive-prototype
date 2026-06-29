@@ -452,28 +452,58 @@ const LOCALES = {
       kickerHttp: "HTTP 服务端 API",
       kickerWx: "微信原生能力",
       truthSource: "事实来源",
-      truthDesc: "HTTP 接口按小程序 Repository/Service 合约列出；微信 API 标注需客户端调用的原生能力。建议接口仅反推 UI 缺口。",
-      defined: "本页已定义 HTTP 接口",
-      suggested: "UI 需要但尚未实现",
+      truthDesc: "按 OpenAPI 风格列出本页 HTTP 接口：方法、路径、请求/响应结构；小程序通过 wx.request 调用，须配置 request 合法域名。",
+      defined: "本页 HTTP 接口",
+      suggested: "规划中接口",
       wxDefined: "本页需调用的微信 API",
-      gaps: "接口缺口说明",
+      gaps: "补充说明",
       count: "个",
-      requestDto: "请求 DTO",
-      responseDto: "响应 DTO",
-      codeNotImpl: "代码未实现",
-      emptyDefined: "当前代码没有为这个页面定义可直接对应的 HTTP API。",
-      emptySuggested: "当前原型页面没有额外反推出待实现服务器接口。",
-      emptyWx: "当前页面不依赖额外微信原生 API。",
-      purpose: "用途",
-      repository: "调用链",
-      dto: "DTO",
-      source: "源码",
-      uiEvidence: "UI 依据",
-      currentStatus: "当前状态",
+      requestBody: "请求体",
+      responseBody: "响应体",
+      schemaTitle: "数据结构",
+      method: "方法",
+      pathLabel: "路径",
+      auth: "认证",
+      authDefault: "Bearer Token（登录后）",
+      response: "响应",
+      codeNotImpl: "待实现",
+      emptyDefined: "本页暂无已定义 HTTP 接口。",
+      emptySuggested: "本页暂无额外规划接口。",
+      emptyWx: "本页不依赖额外微信原生 API。",
+      emptySchema: "暂无字段定义。",
+      purpose: "说明",
+      uiEvidence: "页面场景",
+      currentStatus: "状态",
+      statusPlanned: "规划中",
+      suggestedNote: "路径与字段供前后端评审，落地前需确认。",
+      note: "备注",
       wxPurpose: "场景",
       wxReturns: "返回值/回调",
       wxNeedBackend: "需后端配合",
       mpAdaptKicker: "小程序落地清单",
+      mpTechKicker: "技术与 API 适配",
+      mpTechTitle: "小程序请求层与域名合规",
+      mpTechSummary: "小程序通过 wx.request 调用下方 HTTP 接口；须统一封装请求层，并在微信公众平台配置 request 合法域名。",
+      mpTechDomainTitle: "request 合法域名（必配）",
+      mpTechClientTitle: "请求层规范",
+      mpDomainNote: "该接口所属域名须预先配置为微信公众平台 request 合法域名，否则正式版请求会被拦截。",
+      mpTechRules: {
+        domain: [
+          "配置入口：微信公众平台 → 开发管理 → 开发设置 → 服务器域名 → request 合法域名",
+          "必须 HTTPS，不支持 HTTP",
+          "域名不可带端口号（如 api.example.com:443 无效）",
+          "域名须已完成 ICP 备案",
+          "仅填写域名，不含路径：GET https://api.evmars.com/c/v1/devices → 填写 api.evmars.com",
+          "开发版可勾选「不校验合法域名」；体验版 / 正式版未配置会直接失败",
+        ],
+        client: [
+          "统一封装 wx.request：Base URL、Authorization、超时与错误处理",
+          "按页面拆分 services（如 device、alert、auth）",
+          "页面用 setData 驱动视图更新",
+          "401 / 网络异常 / 业务错误码统一 Toast 或重试",
+        ],
+      },
+      mpTechExample: "示例：GET https://api.evmars.com/c/v1/devices",
     },
     nav: { map: "地图", devices: "设备", messages: "消息", mine: "我的" },
     navSub: {
@@ -571,27 +601,58 @@ const LOCALES = {
       kickerHttp: "HTTP Server APIs",
       kickerWx: "WeChat Native APIs",
       truthSource: "Source of truth",
-      truthDesc: "HTTP APIs follow mini program Repository/Service contracts; WeChat APIs mark native calls. Suggested APIs reflect UI gaps only.",
-      defined: "Defined HTTP APIs on this page",
-      suggested: "Required by UI but not implemented",
+      truthDesc: "HTTP APIs in OpenAPI style: method, path, request/response schemas. Call via wx.request; configure request合法域名 for release.",
+      defined: "HTTP APIs on this page",
+      suggested: "Planned APIs",
       wxDefined: "WeChat APIs needed on this page",
-      gaps: "API gaps",
+      gaps: "Notes",
       count: "",
-      requestDto: "Request DTO",
-      responseDto: "Response DTO",
-      codeNotImpl: "Not implemented",
-      emptyDefined: "No HTTP API maps directly to this page in current code.",
-      emptySuggested: "No additional server APIs inferred for this page.",
+      requestBody: "Request body",
+      responseBody: "Response body",
+      schemaTitle: "Schema",
+      method: "Method",
+      pathLabel: "Path",
+      auth: "Auth",
+      authDefault: "Bearer token (after login)",
+      response: "Response",
+      codeNotImpl: "Planned",
+      emptyDefined: "No HTTP APIs defined for this page.",
+      emptySuggested: "No additional planned APIs for this page.",
       emptyWx: "No extra WeChat native APIs for this page.",
-      purpose: "Purpose",
-      repository: "Call chain",
-      dto: "DTO",
-      source: "Source",
-      uiEvidence: "UI evidence",
-      currentStatus: "Current status",
+      emptySchema: "No fields defined.",
+      purpose: "Description",
+      uiEvidence: "Page scenario",
+      currentStatus: "Status",
+      statusPlanned: "Planned",
+      suggestedNote: "Path and fields need backend review before implementation.",
+      note: "Note",
       wxPurpose: "Scenario",
       wxReturns: "Returns / callback",
       wxNeedBackend: "Backend needed",
+      mpAdaptKicker: "Mini program checklist",
+      mpTechKicker: "Tech & API adaptation",
+      mpTechTitle: "Mini program request layer & domains",
+      mpTechSummary: "Call HTTP APIs below via wx.request with a shared client layer; configure request合法域名 in WeChat MP Admin.",
+      mpTechDomainTitle: "request合法域名 (required)",
+      mpTechClientTitle: "Client conventions",
+      mpDomainNote: "The API host must be added as request合法域名 before release, or requests will be blocked.",
+      mpTechRules: {
+        domain: [
+          "WeChat MP Admin → Development → Dev settings → Server domains → request合法域名",
+          "HTTPS only; HTTP is rejected",
+          "No port in domain (api.example.com:8080 is invalid)",
+          "Domain must have ICP filing (备案)",
+          "Domain only, no path: GET https://api.evmars.com/c/v1/devices → api.evmars.com",
+          "Dev builds may skip validation; trial/release builds fail without配置",
+        ],
+        client: [
+          "Wrap wx.request: base URL, Authorization, timeout, errors",
+          "Split services by domain (device, alert, auth, …)",
+          "Update views via setData only",
+          "Unified toast/retry for 401, network and business errors",
+        ],
+      },
+      mpTechExample: "Example: GET https://api.evmars.com/c/v1/devices",
     },
     nav: { map: "Map", devices: "Devices", messages: "Messages", mine: "Me" },
     navSub: {
@@ -835,8 +896,9 @@ const mpAdaptationPageMap = {
     summary: "原型按 375px 设计，落地须统一 rpx（750rpx 满屏）；HTTP 请求封装 wx.request，配置 request 合法域名（HTTPS、备案、无端口）。",
     items: [
       { title: "尺寸单位", desc: "布局与字号统一使用 rpx，避免 px 在不同屏宽错位。", status: "todo" },
-      { title: "请求层", desc: "Kotlin Repository/DTO 不可复用；需 TS 封装 Token、错误码与网络异常。", status: "todo" },
-      { title: "合法域名", desc: "/c/v1/* 对应域名须在微信公众平台配置 request 合法域名。", status: "todo" },
+      { title: "请求层", desc: "wx.request 统一封装 Base URL、Token、错误码与网络异常。", status: "todo" },
+      { title: "合法域名", desc: "GET /c/v1/devices 等接口的 HTTPS 域名须在微信公众平台配置 request 合法域名（备案、无端口）。", status: "todo" },
+      { title: "请求封装", desc: "wx.request 统一 Base URL、Token、错误处理；开发版可跳过域名校验，正式版不可。", status: "todo" },
       { title: "原生 TabBar", desc: "4 个 Tab 符合 ≤5 限制，建议用 app.json tabBar，性能优于自定义。", status: "demo" },
     ],
   },
@@ -895,6 +957,34 @@ const mpAdaptationPageMap = {
     ],
   },
 };
+
+function renderMpTechAdaptationCard() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const t = L.api;
+  if (!t.mpTechRules) return "";
+  return `
+    <section class="api-card api-tech-card">
+      <div class="api-kicker">${icon("shield-alert")} ${escapeHtml(t.mpTechKicker)}</div>
+      <h3>${escapeHtml(t.mpTechTitle)}</h3>
+      <p>${escapeHtml(t.mpTechSummary)}</p>
+      <div class="api-domain-example">
+        <strong>${escapeHtml(t.mpTechExample)}</strong>
+      </div>
+      <div class="api-tech-block">
+        <h4>${escapeHtml(t.mpTechDomainTitle)}</h4>
+        <ul class="api-gap-list">
+          ${t.mpTechRules.domain.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("")}
+        </ul>
+      </div>
+      <div class="api-tech-block">
+        <h4>${escapeHtml(t.mpTechClientTitle)}</h4>
+        <ul class="api-gap-list">
+          ${t.mpTechRules.client.map((rule) => `<li>${escapeHtml(rule)}</li>`).join("")}
+        </ul>
+      </div>
+    </section>
+  `;
+}
 
 function getMpAdaptationInfo() {
   const key = getCurrentPageKey();
@@ -1580,7 +1670,7 @@ const apiCatalog = {
     method: "POST",
     path: "/c/v1/ai/answer",
     title: "AI 客服问答",
-    purpose: "提交问题和上下文，返回 AI 问答结果。当前 ChatRepository 在本地模拟流式 chunk。",
+    purpose: "提交问题和上下文，返回 AI 问答结果。",
     repository: "AiRepository.aiAnswer -> RemoteAiRepository.aiAnswer",
     dto: "AiAnswerRequestDto / AiAnswerResponseDto",
     source: "AiApiService.kt",
@@ -2254,187 +2344,187 @@ const suggestedApiDtoMap = {
 const apiPageMap = {
   login: {
     title: "登录页所需 API",
-    summary: "小程序以微信登录为主；账号密码登录可选。下方列 UI 已出现但待实现的接口。",
+    summary: "小程序以微信登录为主；账号密码登录可选。HTTP 域名须预先配置 request 合法域名。",
     apiIds: [],
     suggestedApiIds: ["wechatLogin", "wechatPhone", "authRefresh", "agreementVersions", "agreementContent"],
     gaps: [
+      "POST /c/v1/auth/wechat/login 等接口域名须为 HTTPS 且已备案，并在微信公众平台配置 request 合法域名。",
       "小程序不使用 FCM/HMS；推送改为订阅消息 + subscribe-message 接口。",
       "微信登录替代 OAuth start/complete；Apple/Google 不在小程序内提供。",
     ],
   },
   "tab:map": {
     title: "地图页所需 API",
-    summary: "小程序端按页面封装 wx.request；设备列表与位置数据需重写数据层，不可照搬 Kotlin Repository。地图用原生 map（腾讯底图、GCJ-02）。",
+    summary: "地图总览依赖设备列表、未读告警与租户主题；须配置 request 合法域名，通过 wx.request 调用。",
     apiIds: ["devicesList", "alertUnreadCount", "productManifest", "tenantTheme", "aiInsights"],
     suggestedApiIds: ["deviceLatestLocations", "mapPreferenceUpdate"],
     gaps: [
       "request 合法域名：HTTPS、已备案、不可带端口，否则正式版请求被拦截。",
-      "国内统一原生 map + GCJ-02；海外 Google Maps 仅能 web-view 嵌套，体验受限。",
-      "定位权限拒绝后降级为列表；首次授权前须告知用途并在隐私政策说明。",
-      "全局地图点聚合能力弱，需列表联动高亮或第三方 SDK 聚合。",
-      "DeviceRepository/DeviceDto 为安卓定义，小程序须独立 TS 请求层与页面 setData 驱动。",
+      "国内统一原生 map + GCJ-02；海外 Google Maps 仅能 web-view 嵌套。",
+      "定位权限拒绝后降级为列表；首次授权前须告知用途。",
+      "设备密集时地图标记易重叠，需列表联动高亮或聚合方案。",
     ],
   },
   "tab:devices": {
     title: "设备首页所需 API",
-    summary: "设备首页直接依赖设备列表、未读告警和型号能力信息。",
+    summary: "核心接口 GET /c/v1/devices；域名须配置为 request 合法域名。",
     apiIds: ["devicesList", "alertUnreadCount", "productManifest", "deviceBindPreviews"],
     suggestedApiIds: ["deviceLatestLocations"],
     gaps: [
-      "页面上的添加入口实际接口在“添加设备流程”弹窗中定义。",
+      "添加设备相关接口见「添加设备流程」弹窗说明。",
     ],
   },
   "tab:messages": {
     title: "消息页所需 API",
-    summary: "当前代码把消息页核心落在告警列表和未读数量，分享邀请处理接口尚不完整。",
+    summary: "告警列表、未读数量与告警详情；分享邀请处理接口待补齐。",
     apiIds: ["alertsList", "alertUnreadCount", "alertDetail", "aiAlertExplain"],
     suggestedApiIds: ["notificationsList", "messageMarkRead", "shareInvitationAction", "alertMarkRead"],
     gaps: [
-      "当前 core:remote 没有消息已读、分享邀请接受/拒绝、系统通知分页接口。",
-      "ShareApiService 只有 sharesOf/createShare，没有 accept/reject/revoke/update permission。",
+      "消息已读、分享邀请接受/拒绝、系统通知分页接口待定义。",
+      "分享管理缺少 accept / reject / revoke / 修改权限接口。",
     ],
   },
   "tab:ai": {
     title: "AI 助手页所需 API",
-    summary: "AI 页按 AiRepository 与 ChatRepository 当前代码接口列出。",
+    summary: "健康分析、告警解释、AI 问答与知识库检索。",
     apiIds: ["aiInsights", "aiHealthAnalysis", "aiAlertExplain", "aiAnswer", "quickQuestions", "knowledgeList"],
     suggestedApiIds: ["aiSupportStream", "feedbackSubmit"],
     gaps: [
-      "当前代码没有真实 SSE 接口；ChatRepository.askStream 是本地 chunk 模拟，最终仍调用 /c/v1/ai/answer。",
+      "流式问答接口待定义；当前原型以分片模拟，最终仍调用 /c/v1/ai/answer。",
     ],
   },
   "tab:mine": {
     title: "我的页所需 API",
-    summary: "小程序：登出、订阅消息、租户主题；个人资料、套餐、微信支付等待实现。",
+    summary: "登出、订阅消息、租户主题；个人资料与支付相关接口待实现。",
     apiIds: ["authLogout", "tenantTheme"],
     suggestedApiIds: ["subscribeMessage", "userProfile", "userProfileUpdate", "notificationPrefs", "notificationPrefsUpdate", "mapPreferenceUpdate", "serviceSubscriptions", "wechatPay", "invoices", "feedbackSubmit", "agreementContent", "appVersionCheck"],
     gaps: [
-      "当前 core:remote 没有用户资料更新、修改密码、账号注销、反馈提交、套餐/支付/发票、协议详情接口。",
+      "用户资料更新、修改密码、账号注销、反馈、套餐/支付/发票、协议详情等待定义。",
     ],
   },
   "detail:overview": {
     title: "设备概览所需 API",
-    summary: "设备概览由设备详情、设备告警、健康摘要、AI 分析和 Manifest 共同支撑。",
+    summary: "设备详情、告警、健康摘要、AI 分析与面板配置。",
     apiIds: ["deviceDetail", "deviceAlerts", "healthSummary", "aiHealthAnalysis", "productManifest", "panelManifest", "sharesList"],
     suggestedApiIds: ["recentEvents", "deviceCommand"],
     gaps: [
-      "当前代码没有单独的“最近事件”接口，概览事件来自告警、设备状态和健康数据聚合。",
+      "「最近事件」暂无独立接口，由告警与健康数据聚合展示。",
     ],
   },
   "detail:map": {
     title: "设备地图所需 API",
-    summary: "设备地图页的真实代码链路覆盖轨迹、围栏、单次定位和地点搜索。",
+    summary: "轨迹、围栏、单次定位与地点搜索。",
     apiIds: ["deviceDetail", "track", "locationRefresh", "geofencesList", "geofenceUpsert", "geofenceDelete", "placesSearch"],
     suggestedApiIds: ["deviceCommand"],
     gaps: [
-      "当前轨迹接口没有在 Retrofit 签名里暴露 start/end/limit 查询参数。",
+      "轨迹查询建议补充 start / end / limit 参数。",
     ],
   },
   "detail:health": {
     title: "健康页所需 API",
-    summary: "健康页按 HealthRepository 与 AiRepository 当前合约列出。",
+    summary: "健康摘要、图表数据与 AI 健康分析。",
     apiIds: ["healthSummary", "healthChart", "aiHealthAnalysis", "productManifest", "panelManifest"],
     suggestedApiIds: ["petProfileUpdate"],
     gaps: [
-      "宠物活动是否继续复用 health 模块，当前代码通过 HealthSummary/Manifest 处理，未见独立 activity Service。",
+      "宠物活动数据是否独立接口待产品确认。",
     ],
   },
   "detail:alarms": {
     title: "告警页所需 API",
-    summary: "告警页当前已有列表、详情、未读数量和 AI 解释读取接口。",
+    summary: "告警列表、详情、未读数量与 AI 解释。",
     apiIds: ["deviceAlerts", "alertDetail", "alertUnreadCount", "aiAlertExplain"],
     suggestedApiIds: ["alertMarkRead", "alertAck", "alertFeedback"],
     gaps: [
-      "当前 AlertApiService 没有 mark-read、ack、ignore、误报反馈或处理结果提交接口。",
+      "告警已读、确认、忽略、误报反馈等操作接口待定义。",
     ],
   },
   "detail:config": {
     title: "配置页所需 API",
-    summary: "当前 HTTP 层只有设备详情与 Manifest；具体配置读写在代码里更偏 BLE/协议/设备配置边界。",
+    summary: "设备详情与 Manifest；远程配置读写与 OTA 待补齐。",
     apiIds: ["deviceDetail", "productManifest", "panelManifest", "locationRefresh"],
     suggestedApiIds: ["deviceConfigRead", "deviceConfigSave", "configOperationStatus", "deviceCommand", "otaCheck", "otaStart"],
     gaps: [
-      "当前 core:remote 未见设备配置读取、保存、下发状态、OTA、SIM/APN 等 HTTP API。",
-      "设备配置真实链路应继续核对 core:device-config、core:protocol、core:ble，而不是在这里虚构服务器接口。",
+      "设备配置读取、保存、下发状态、OTA、SIM/APN 等 HTTP 接口待定义。",
+      "近场配置可走 BLE，与 HTTP 配置链路需产品确认边界。",
     ],
   },
   "modal:add-device": {
     title: "添加设备流程 API",
-    summary: "按 AddDeviceUseCase 与 DeviceBindApiService 当前代码列出。",
+    summary: "扫码/BLE/IMEI 识别、面板准备与绑定确认。",
     apiIds: ["deviceBindDetect", "deviceBindPreparePanel", "deviceBindBind", "deviceBindPreviews"],
     gaps: [
-      "BLE 扫描本身是本地近场能力；服务端接口从 detect 接收 BLE/IMEI/扫码识别结果。",
+      "BLE 扫描为本地能力；detect 接口接收扫码或 BLE 识别结果。",
     ],
   },
   "modal:share": {
     title: "设备分享 API",
-    summary: "当前代码只实现分享列表和创建分享。",
+    summary: "分享列表与创建分享；邀请处理待补齐。",
     apiIds: ["sharesList", "shareCreate"],
     suggestedApiIds: ["shareUpdate", "shareRevoke", "shareResend", "shareInvitationAction"],
     gaps: [
-      "原型里的重发、取消分享、修改权限、接受/拒绝邀请，当前 ShareApiService 没有对应 HTTP 接口。",
+      "重发、取消分享、修改权限、接受/拒绝邀请接口待定义。",
     ],
   },
   "modal:edit-device": {
     title: "设备管理 API",
-    summary: "当前代码可以读设备详情，但没有设备资料写接口。",
+    summary: "设备详情读取；资料编辑与解绑待实现。",
     apiIds: ["deviceDetail", "sharesList"],
     suggestedApiIds: ["deviceProfileUpdate", "emergencyContactsSave", "deviceUnbind", "petProfileUpdate"],
     gaps: [
-      "当前 DeviceApiService 没有编辑设备资料、紧急联系人、解绑设备接口。",
+      "编辑设备资料、紧急联系人、解绑设备接口待定义。",
     ],
   },
   "modal:geofence": {
     title: "安全围栏 API",
-    summary: "围栏弹窗按 LocationRepository 的围栏读写和地点搜索列出。",
+    summary: "围栏列表、增删改与地点搜索。",
     apiIds: ["geofencesList", "geofenceUpsert", "geofenceDelete", "placesSearch"],
     gaps: [
-      "当前 GeofenceDto 是否完整支持多边形，需要继续以 LocationDtos.kt 为准核字段。",
+      "多边形围栏字段需与后端 Geofence 模型对齐。",
     ],
   },
   "modal:config-category": {
     title: "配置分类 API",
-    summary: "当前代码没有服务器配置读写接口，只能列出 Manifest 和设备详情作为能力依据。",
+    summary: "Manifest 与设备详情作为能力依据；远程配置读写待实现。",
     apiIds: ["deviceDetail", "productManifest", "panelManifest"],
     suggestedApiIds: ["deviceConfigRead", "deviceConfigSave", "configOperationStatus", "deviceCommand", "otaCheck", "otaStart"],
     gaps: [
-      "当前 core:remote 未见配置读取、配置保存、配置下发、设备确认结果 API。",
+      "配置读取、保存、下发状态接口待定义。",
     ],
   },
   "modal:h5": {
     title: "帮助中心 / H5 API",
-    summary: "帮助内容按 KnowledgeRepository 当前代码列出。",
+    summary: "知识库列表、详情与搜索。",
     apiIds: ["knowledgeList", "knowledgeDetail", "knowledgeSearch", "quickQuestions"],
     suggestedApiIds: ["agreementVersions", "agreementContent", "h5Session", "feedbackSubmit"],
     gaps: [
-      "当前 core:remote 没有协议版本、隐私政策详情、H5 登录态交换接口。",
+      "协议版本、隐私政策详情、H5 登录态交换接口待定义。",
     ],
   },
   "modal:chat": {
     title: "AI 客服 API",
-    summary: "客服弹窗由快捷问题、知识库和 AI 问答接口支撑。",
+    summary: "快捷问题、知识库检索与 AI 问答。",
     apiIds: ["quickQuestions", "knowledgeList", "knowledgeSearch", "knowledgeDetail", "aiAnswer"],
     suggestedApiIds: ["aiSupportStream", "feedbackSubmit"],
     gaps: [
-      "当前 ChatRepository 的流式效果是本地模拟；代码里没有独立 SSE Service。",
+      "流式问答接口待定义；当前以分片模拟。",
     ],
   },
   "modal:ai": {
     title: "AI 分析结果 API",
-    summary: "AI 分析弹窗按告警解释和健康分析两个已存在接口列出。",
+    summary: "告警解释与健康分析。",
     apiIds: ["alertDetail", "aiAlertExplain", "healthSummary", "aiHealthAnalysis"],
     suggestedApiIds: ["alertFeedback"],
     gaps: [
-      "当前代码没有“规则引擎结果详情”独立接口，AI 解释从 AiApiService 读取。",
+      "规则引擎结果详情暂无独立接口，与 AI 解释合并返回。",
     ],
   },
   "modal:logout-confirm": {
     title: "退出登录 API",
-    summary: "退出时按当前代码包含会话退出和推送 token 注销。",
+    summary: "会话退出与推送 token 注销。",
     apiIds: ["authLogout", "pushUnregister"],
     suggestedApiIds: ["authRefresh"],
     gaps: [
-      "当前代码没有 refresh token 失效接口；logout 返回 ApiResponse<Unit>。",
+      "Token 刷新失效策略待与后端确认。",
     ],
   },
 };
@@ -2503,6 +2593,8 @@ function renderApiPanel() {
         <span>${L.api.truthDesc}</span>
       </div>
     </section>
+
+    ${renderMpTechAdaptationCard()}
 
     <section class="api-card">
       <div class="api-card-heading">
@@ -2575,22 +2667,38 @@ function settingsApiPanelInfo() {
     about: ["agreementVersions", "agreementContent", "appVersionCheck"],
   };
   const gapMap = {
-    profile: ["当前 core:remote 没有用户资料读取/更新接口。"],
-    security: ["当前 core:remote 没有修改密码、登录设备列表、第三方账号绑定、账号注销接口。"],
-    notifications: ["当前代码只有推送 token 注册/注销，没有通知偏好保存接口。"],
-    map: ["当前地图 provider 选择是本地偏好 + SDK 适配，未见服务器地图配置接口。"],
-    service: ["当前 core:remote 没有套餐、续费、支付方式、发票接口。"],
-    feedback: ["当前 core:remote 没有意见反馈提交或客服工单接口。"],
-    about: ["当前 core:remote 没有协议版本、隐私政策、权限说明、版本检查接口。"],
+    profile: ["用户资料读取/更新接口待定义。"],
+    security: ["修改密码、登录设备列表、第三方账号绑定、账号注销接口待定义。"],
+    notifications: ["通知偏好保存接口待定义。"],
+    map: ["地图服务与地区偏好配置接口待定义。"],
+    service: ["套餐、续费、支付方式、发票接口待定义。"],
+    feedback: ["意见反馈提交或客服工单接口待定义。"],
+    about: ["协议版本、隐私政策、权限说明、版本检查接口待定义。"],
   };
   const panel = state.settingsPanel || "profile";
   return {
     title: titleMap[panel] || "设置 API",
-    summary: "按当前设置弹窗和现有远端代码列出；没有代码的能力单独标为建议接口。",
+    summary: "按设置弹窗列出相关 HTTP 接口；未标注的为规划中接口。",
     apiIds: apiMap[panel] || [],
     suggestedApiIds: suggestedApiMap[panel] || [],
-    gaps: gapMap[panel] || ["当前设置项没有对应远端接口。"],
+    gaps: gapMap[panel] || ["当前设置项相关接口待补充。"],
   };
+}
+
+function formatSchemaName(name) {
+  if (!name) return "";
+  if (name === "ApiResponse<Unit>") return "{ code, message, data }";
+  return String(name)
+    .replace(/^List<(.+)>$/, "$1[]")
+    .replace(/Dto$/g, "");
+}
+
+function normalizeResponseType(type) {
+  if (!type) return "";
+  return String(type)
+    .split(/\s*\/\s*/)
+    .map((part) => formatSchemaName(part.trim()))
+    .join(" / ");
 }
 
 function renderApiList(apis, options = {}) {
@@ -2613,7 +2721,7 @@ function renderApiDetails(api, open, options = {}) {
       <summary>
         <span class="api-method method-${method.toLowerCase()}">${method}</span>
         <span class="api-summary-text">
-          <strong>${escapeHtml(api.title)}${suggested ? `<span class="api-kind-badge">代码未实现</span>` : ""}</strong>
+          <strong>${escapeHtml(api.title)}${suggested ? `<span class="api-kind-badge">${escapeHtml((LOCALES[state.locale] || LOCALES["zh-CN"]).api.codeNotImpl)}</span>` : ""}</strong>
           <code>${escapeHtml(api.path)}</code>
         </span>
         <span class="api-chevron">${icon("chevron-down")}</span>
@@ -2628,35 +2736,45 @@ function renderApiDetails(api, open, options = {}) {
 }
 
 function renderImplementedApiMeta(api) {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const domainNote = api.path?.startsWith("/c/v1")
+    ? `<div class="api-mp-domain-note"><strong>${escapeHtml(L.api.mpDomainNote)}</strong></div>`
+    : "";
+  const auth = api.auth || L.api.authDefault;
   return `
     <dl class="api-meta">
-      <div><dt>Repository</dt><dd>${escapeHtml(api.repository)}</dd></div>
-      <div><dt>DTO / 返回</dt><dd>${escapeHtml(api.dto)}</dd></div>
-      <div><dt>代码依据</dt><dd>${escapeHtml(api.source)}</dd></div>
+      <div><dt>${escapeHtml(L.api.method)}</dt><dd>${escapeHtml(api.method)}</dd></div>
+      <div><dt>${escapeHtml(L.api.pathLabel)}</dt><dd><code>${escapeHtml(api.path)}</code></dd></div>
+      <div><dt>${escapeHtml(L.api.auth)}</dt><dd>${escapeHtml(auth)}</dd></div>
+      ${api.dto ? `<div><dt>${escapeHtml(L.api.response)}</dt><dd>${escapeHtml(normalizeResponseType(api.dto))}</dd></div>` : ""}
     </dl>
+    ${domainNote}
   `;
 }
 
 function renderSuggestedApiMeta(api) {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   return `
     <dl class="api-meta api-meta-suggested">
-      <div><dt>UI 依据</dt><dd>${escapeHtml(api.uiEvidence)}</dd></div>
-      <div><dt>当前状态</dt><dd>${escapeHtml(api.currentStatus)}</dd></div>
-      <div><dt>建议 DTO</dt><dd>${escapeHtml(api.dto)}</dd></div>
-      <div><dt>性质</dt><dd>建议接口，当前项目代码未实现；路径和字段需要后端评审确认。</dd></div>
+      <div><dt>${escapeHtml(L.api.method)}</dt><dd>${escapeHtml(api.method)}</dd></div>
+      <div><dt>${escapeHtml(L.api.pathLabel)}</dt><dd><code>${escapeHtml(api.path)}</code></dd></div>
+      <div><dt>${escapeHtml(L.api.currentStatus)}</dt><dd>${escapeHtml(L.api.statusPlanned)}</dd></div>
+      ${api.dto ? `<div><dt>${escapeHtml(L.api.response)}</dt><dd>${escapeHtml(normalizeResponseType(api.dto))}</dd></div>` : ""}
+      <div><dt>${escapeHtml(L.api.note)}</dt><dd>${escapeHtml(L.api.suggestedNote)}</dd></div>
     </dl>
   `;
 }
 
 function renderDtoSection(apiId, options = {}) {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const dtoInfo = options.suggested ? suggestedApiDtoMap[apiId] : apiDtoMap[apiId];
   if (!dtoInfo) return "";
-  const requestHtml = renderDtoGroup("请求 DTO", dtoInfo.request || [], options);
-  const responseHtml = renderDtoGroup("响应 DTO", dtoInfo.response || [], options);
+  const requestHtml = renderDtoGroup(L.api.requestBody, dtoInfo.request || [], options);
+  const responseHtml = renderDtoGroup(L.api.responseBody, dtoInfo.response || [], options);
   if (!requestHtml && !responseHtml) return "";
   return `
     <div class="dto-section ${options.suggested ? "dto-section-suggested" : ""}">
-      <div class="dto-section-title">${icon("braces")} ${options.suggested ? "建议 DTO 实体设计" : "DTO 实体设计"}</div>
+      <div class="dto-section-title">${icon("braces")} ${escapeHtml(L.api.schemaTitle)}</div>
       ${requestHtml}
       ${responseHtml}
     </div>
@@ -2675,28 +2793,28 @@ function renderDtoGroup(title, dtoNames, options = {}) {
 }
 
 function renderDtoClass(dtoName, options = {}) {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const schema = options.suggested ? (suggestedDtoCatalog[dtoName] || dtoCatalog[dtoName]) : dtoCatalog[dtoName];
+  const displayName = formatSchemaName(dtoName);
   if (!schema) {
     return `
       <details class="dto-class">
         <summary>
-          <strong>${escapeHtml(dtoName)}</strong>
-          <span>${options.suggested ? "建议返回类型" : "代码返回类型"}</span>
+          <strong>${escapeHtml(displayName)}</strong>
         </summary>
-        <div class="dto-empty">${options.suggested ? "该类型是建议阶段的包装或基础返回类型，当前项目尚未定义 data class。" : "该类型不是当前 core:remote 的 data class DTO；通常是 ApiResponse<Unit> 或 Kotlin 基础类型。"}</div>
+        <div class="dto-empty">${escapeHtml(L.api.emptySchema)}</div>
       </details>
     `;
   }
   return `
     <details class="dto-class">
       <summary>
-        <strong>${escapeHtml(schema.name)}</strong>
-        <span>${escapeHtml(schema.source)}</span>
+        <strong>${escapeHtml(displayName || schema.name)}</strong>
+        <span>${schema.fields.length} fields</span>
       </summary>
       <div class="dto-fields">
         <div class="dto-field dto-field-head">
-          <span>JSON 字段</span>
-          <span>Kotlin 属性</span>
+          <span>字段</span>
           <span>类型</span>
           <span>默认</span>
         </div>
@@ -2710,9 +2828,8 @@ function renderDtoField(field) {
   return `
     <div class="dto-field">
       <code>${escapeHtml(field.wire)}</code>
-      <span>${escapeHtml(field.name)}</span>
       <code>${escapeHtml(field.type)}</code>
-      <span>${field.defaultValue ? escapeHtml(field.defaultValue) : "无"}</span>
+      <span>${field.defaultValue ? escapeHtml(field.defaultValue) : "—"}</span>
     </div>
   `;
 }
@@ -2897,7 +3014,7 @@ function tabPanelInfo() {
       ],
       backend: [
         "全部设备最新位置、设备状态、围栏范围、告警状态、设备分类。",
-        "wx.request 合法域名配置；小程序端独立请求层，非安卓 Repository。",
+        "request 合法域名配置；按页面拆分 services 封装 wx.request。",
         "订阅消息推送告警；onShareAppMessage 分享设备给家人。",
       ],
     },
