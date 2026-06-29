@@ -3726,7 +3726,7 @@ function renderGlobalMap() {
         <div class="map-result-header">
           <div>
             <strong>${mapFilterLabel()} · ${devices.length} 台</strong>
-            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "点击设备卡高亮地图标记，点击标记进入详情"}</span>
+            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "点击卡片高亮地图标记，点击右侧箭头进入详情"}</span>
           </div>
         </div>
         <div class="map-device-strip compact" aria-label="筛选后的设备">
@@ -3805,15 +3805,17 @@ function renderMapDeviceCard(device) {
   const highlighted = state.highlightedMapDeviceId === device.id;
   return `
     <div class="map-device-card-wrap ${highlighted ? "highlighted" : ""}">
-      <button class="map-device-card hoverable ${device.status} ${alarms.length ? "has-alert" : ""}" type="button" data-action="highlight-map-device" data-device-id="${device.id}">
-        <div class="map-device-avatar ${device.color}">${icon(deviceIcon(device))}</div>
-        <div>
-          <strong>${deviceDisplayName(device)}</strong>
-          <span>${device.categoryLabel} · ${statusLabel(device.status)} · ${devicePlace(device)}</span>
-          <small>${device.battery}% · ${device.model}${alarms[0] ? ` · ${alarms[0].type}` : ""}</small>
-        </div>
-      </button>
-      <button class="map-card-open hoverable" type="button" data-action="open-device-from-card" data-open-device="${device.id}" data-detail-tab="map" aria-label="进入详情">${icon("chevron-right")}</button>
+      <article class="map-device-card hoverable ${device.status} ${alarms.length ? "has-alert" : ""}">
+        <button class="map-device-card-main" type="button" data-action="highlight-map-device" data-device-id="${device.id}" aria-label="高亮 ${deviceDisplayName(device)}">
+          <div class="map-device-avatar ${device.color}">${icon(deviceIcon(device))}</div>
+          <div class="map-device-card-copy">
+            <strong>${deviceDisplayName(device)}</strong>
+            <span>${device.categoryLabel} · ${statusLabel(device.status)} · ${devicePlace(device)}</span>
+            <small>${device.battery}% · ${device.model}${alarms[0] ? ` · ${alarms[0].type}` : ""}</small>
+          </div>
+        </button>
+        <button class="map-device-card-go hoverable" type="button" data-action="open-device-from-card" data-open-device="${device.id}" data-detail-tab="map" aria-label="进入 ${deviceDisplayName(device)} 详情">${icon("chevron-right")}</button>
+      </article>
     </div>
   `;
 }
@@ -5255,7 +5257,7 @@ function bindEvents() {
     });
   }
 
-  document.querySelectorAll(".map-card-open").forEach((button) => {
+  document.querySelectorAll(".map-device-card-go").forEach((button) => {
     button.addEventListener("click", (event) => event.stopPropagation());
   });
 
