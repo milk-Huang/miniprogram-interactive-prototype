@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Evmars · 微信小程序可交互原型</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="prototype-stage">
+      <aside id="api-panel" class="api-panel" aria-label="服务端 API 与微信能力"></aside>
+
+      <main class="phone-shell" aria-label="Evmars Mini Program">
+        <section id="app" class="phone-screen" aria-live="polite"></section>
+      </main>
+
+      <aside id="demo-panel" class="demo-panel" aria-label="界面说明"></aside>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
