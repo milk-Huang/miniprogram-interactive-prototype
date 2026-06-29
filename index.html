@@ -8,7 +8,13 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="prototype-stage">
+    <header class="layout-toolbar" id="layout-toolbar" aria-label="布局工具栏"></header>
+
+    <div class="prototype-stage mode-dev" id="prototype-stage">
+      <button type="button" class="panel-reopen panel-reopen-api" data-action="toggle-api-panel" aria-label="展开 API 面板">
+        <span>API</span>
+      </button>
+
       <aside id="api-panel" class="api-panel" aria-label="服务端 API 与微信能力"></aside>
 
       <main class="phone-shell" aria-label="Evmars Mini Program">
@@ -16,6 +22,10 @@
       </main>
 
       <aside id="demo-panel" class="demo-panel" aria-label="界面说明"></aside>
+
+      <button type="button" class="panel-reopen panel-reopen-guide" data-action="toggle-demo-panel" aria-label="展开说明面板">
+        <span>说明</span>
+      </button>
     </div>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>

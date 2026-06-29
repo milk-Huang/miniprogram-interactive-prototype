@@ -399,7 +399,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.1.2";
+const PROTOTYPE_VERSION = "0.1.3";
 
 const LOCALES = {
   "zh-CN": {
@@ -413,6 +413,16 @@ const LOCALES = {
       switchLocale: "切换语言",
       localeZh: "中文",
       localeEn: "English",
+    },
+    layout: {
+      toolbar: "布局",
+      devMode: "开发",
+      demoMode: "演示",
+      apiPanel: "API",
+      guidePanel: "说明",
+      expandApi: "展开 API",
+      expandGuide: "展开说明",
+      version: "原型",
     },
     guide: {
       intro: "面向前后端协作：确认页面流程、小程序路径、HTTP 接口、微信原生能力与 i18n。",
@@ -520,6 +530,16 @@ const LOCALES = {
       switchLocale: "Language",
       localeZh: "中文",
       localeEn: "English",
+    },
+    layout: {
+      toolbar: "Layout",
+      devMode: "Dev",
+      demoMode: "Demo",
+      apiPanel: "API",
+      guidePanel: "Guide",
+      expandApi: "Show API",
+      expandGuide: "Show guide",
+      version: "Prototype",
     },
     guide: {
       intro: "For FE/BE alignment: flows, mini program paths, HTTP & WeChat APIs, i18n keys.",
@@ -847,11 +867,90 @@ const state = {
   dialog: null,
   toast: "",
   chat: [],
+  viewMode: "dev",
+  apiPanelOpen: true,
+  demoPanelOpen: true,
 };
 
 const app = document.getElementById("app");
 const apiPanel = document.getElementById("api-panel");
 const demoPanel = document.getElementById("demo-panel");
+const prototypeStage = document.getElementById("prototype-stage");
+const layoutToolbar = document.getElementById("layout-toolbar");
+
+function initFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get("view");
+  if (view === "demo") {
+    state.viewMode = "demo";
+    state.apiPanelOpen = false;
+    state.demoPanelOpen = false;
+  } else if (view === "dev") {
+    state.viewMode = "dev";
+  }
+  const lang = params.get("lang");
+  if (lang === "en") state.locale = "en-US";
+  if (lang === "zh") state.locale = "zh-CN";
+  if (params.has("api")) state.apiPanelOpen = params.get("api") !== "0";
+  if (params.has("guide")) state.demoPanelOpen = params.get("guide") !== "0";
+}
+
+function syncUrl() {
+  const params = new URLSearchParams();
+  if (state.viewMode === "demo") {
+    params.set("view", "demo");
+  } else {
+    if (!state.apiPanelOpen) params.set("api", "0");
+    if (!state.demoPanelOpen) params.set("guide", "0");
+  }
+  if (state.locale === "en-US") params.set("lang", "en");
+  const qs = params.toString();
+  const next = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+  history.replaceState(null, "", next);
+}
+
+function applyLayoutState() {
+  if (!prototypeStage) return;
+  const isDemo = state.viewMode === "demo";
+  const apiOpen = !isDemo && state.apiPanelOpen;
+  const guideOpen = !isDemo && state.demoPanelOpen;
+
+  prototypeStage.classList.toggle("mode-demo", isDemo);
+  prototypeStage.classList.toggle("mode-dev", !isDemo);
+  prototypeStage.classList.toggle("api-collapsed", !apiOpen);
+  prototypeStage.classList.toggle("demo-collapsed", !guideOpen);
+  prototypeStage.classList.toggle("api-open", apiOpen);
+  prototypeStage.classList.toggle("demo-open", guideOpen);
+
+  renderLayoutToolbar();
+  syncUrl();
+}
+
+function renderLayoutToolbar() {
+  if (!layoutToolbar) return;
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const isDemo = state.viewMode === "demo";
+  layoutToolbar.innerHTML = `
+    <div class="layout-toolbar-brand">
+      <strong>Evmars</strong>
+      <span>${L.layout.version} v${PROTOTYPE_VERSION}</span>
+    </div>
+    <div class="layout-toolbar-actions">
+      <div class="layout-mode-switch" role="group" aria-label="${L.layout.toolbar}">
+        <button type="button" class="layout-chip ${!isDemo ? "active" : ""}" data-action="set-view-dev">${L.layout.devMode}</button>
+        <button type="button" class="layout-chip ${isDemo ? "active" : ""}" data-action="set-view-demo">${L.layout.demoMode}</button>
+      </div>
+      <div class="layout-panel-switch ${isDemo ? "hidden" : ""}" role="group" aria-label="${L.layout.toolbar}">
+        <button type="button" class="layout-chip ${state.apiPanelOpen ? "active" : ""}" data-action="toggle-api-panel">${L.layout.apiPanel}</button>
+        <button type="button" class="layout-chip ${state.demoPanelOpen ? "active" : ""}" data-action="toggle-demo-panel">${L.layout.guidePanel}</button>
+      </div>
+      <div class="locale-bar layout-locale" role="group" aria-label="${L.demo.switchLocale}">
+        <button type="button" class="locale-btn ${state.locale === "zh-CN" ? "active" : ""}" data-locale="zh-CN">${L.demo.localeZh}</button>
+        <button type="button" class="locale-btn ${state.locale === "en-US" ? "active" : ""}" data-locale="en-US">${L.demo.localeEn}</button>
+      </div>
+    </div>
+  `;
+}
 
 function $(selector, root = document) {
   return root.querySelector(selector);
@@ -2208,6 +2307,7 @@ function render() {
   }
   renderApiPanel();
   renderDemoPanel();
+  applyLayoutState();
   bindEvents();
   refreshIcons();
 }
@@ -2504,7 +2604,6 @@ function renderDemoPanel() {
   const info = getDemoPanelInfo();
   const pagePath = getCurrentPagePath();
   demoPanel.innerHTML = `
-    ${renderLocaleSwitcher()}
     <div class="demo-card demo-card-primary">
       <div class="demo-kicker">${L.demo.kicker}</div>
       <h1>${info.title}</h1>
@@ -4755,6 +4854,38 @@ function bindEvents() {
 
 function handleAction(action, element, event) {
   const actions = {
+    "set-view-dev"() {
+      state.viewMode = "dev";
+      state.apiPanelOpen = true;
+      state.demoPanelOpen = true;
+      render();
+    },
+    "set-view-demo"() {
+      state.viewMode = "demo";
+      state.modal = null;
+      state.dialog = null;
+      render();
+    },
+    "toggle-api-panel"() {
+      if (state.viewMode === "demo") {
+        state.viewMode = "dev";
+        state.apiPanelOpen = true;
+        state.demoPanelOpen = false;
+      } else {
+        state.apiPanelOpen = !state.apiPanelOpen;
+      }
+      render();
+    },
+    "toggle-demo-panel"() {
+      if (state.viewMode === "demo") {
+        state.viewMode = "dev";
+        state.demoPanelOpen = true;
+        state.apiPanelOpen = false;
+      } else {
+        state.demoPanelOpen = !state.demoPanelOpen;
+      }
+      render();
+    },
     reset() {
       state.loggedIn = false;
       state.route = "login";
@@ -5058,4 +5189,5 @@ function refreshIcons() {
   }
 }
 
+initFromUrl();
 render();
