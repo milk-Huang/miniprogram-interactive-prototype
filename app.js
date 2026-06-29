@@ -399,7 +399,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.1.3";
+const PROTOTYPE_VERSION = "0.1.4";
 
 const LOCALES = {
   "zh-CN": {
@@ -418,6 +418,7 @@ const LOCALES = {
       toolbar: "布局",
       devMode: "开发",
       demoMode: "演示",
+      exitDemo: "退出演示",
       apiPanel: "API",
       guidePanel: "说明",
       expandApi: "展开 API",
@@ -535,6 +536,7 @@ const LOCALES = {
       toolbar: "Layout",
       devMode: "Dev",
       demoMode: "Demo",
+      exitDemo: "Exit demo",
       apiPanel: "API",
       guidePanel: "Guide",
       expandApi: "Show API",
@@ -921,6 +923,7 @@ function applyLayoutState() {
   prototypeStage.classList.toggle("demo-collapsed", !guideOpen);
   prototypeStage.classList.toggle("api-open", apiOpen);
   prototypeStage.classList.toggle("demo-open", guideOpen);
+  document.body.classList.toggle("is-demo-mode", isDemo);
 
   renderLayoutToolbar();
   syncUrl();
@@ -930,6 +933,22 @@ function renderLayoutToolbar() {
   if (!layoutToolbar) return;
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const isDemo = state.viewMode === "demo";
+
+  if (isDemo) {
+    layoutToolbar.className = "layout-toolbar layout-toolbar--demo";
+    layoutToolbar.innerHTML = `
+      <button type="button" class="demo-exit-btn" data-action="set-view-dev" title="${L.layout.exitDemo}">
+        ${icon("minimize-2")}<span>${L.layout.exitDemo}</span>
+      </button>
+      <div class="locale-bar layout-locale layout-locale-compact" role="group" aria-label="${L.demo.switchLocale}">
+        <button type="button" class="locale-btn ${state.locale === "zh-CN" ? "active" : ""}" data-locale="zh-CN">${L.demo.localeZh}</button>
+        <button type="button" class="locale-btn ${state.locale === "en-US" ? "active" : ""}" data-locale="en-US">${L.demo.localeEn}</button>
+      </div>
+    `;
+    return;
+  }
+
+  layoutToolbar.className = "layout-toolbar";
   layoutToolbar.innerHTML = `
     <div class="layout-toolbar-brand">
       <strong>Evmars</strong>
