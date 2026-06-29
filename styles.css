@@ -833,6 +833,33 @@ body.is-demo-mode .prototype-stage {
   min-height: 44px;
 }
 
+.mp-nav-bar.has-back {
+  position: relative;
+}
+
+.mp-nav-bar.has-back .back-button {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.mp-nav-bar.has-back .mp-nav-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  flex: none;
+  max-width: calc(100% - 168px);
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.mp-nav-bar.has-back .mp-capsule-mock {
+  z-index: 1;
+}
+
 .mp-nav-title {
   flex: 1;
   min-width: 0;
@@ -843,19 +870,15 @@ body.is-demo-mode .prototype-stage {
   letter-spacing: 0;
 }
 
-.mp-nav-subtitle {
-  margin: 0 0 4px;
-  padding-left: 52px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.35;
-}
-
 .header-page-actions {
   display: flex;
   gap: 8px;
   align-items: center;
   padding: 6px 0 2px;
+}
+
+.header-page-actions.is-detail {
+  justify-content: flex-end;
 }
 
 .header-row {
@@ -1637,9 +1660,12 @@ body.is-demo-mode .prototype-stage {
   display: grid;
   gap: 8px;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 12px;
   text-align: left;
   color: inherit;
+  overflow: hidden;
 }
 
 .device-card {
@@ -1659,8 +1685,29 @@ body.is-demo-mode .prototype-stage {
 .share-row {
   display: flex;
   gap: 10px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+}
+
+.list-row > div:first-child,
+.share-row > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.list-row > div:first-child span,
+.share-row > div:first-child span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-row .status-pill,
+.share-row .status-pill {
+  flex: 0 0 auto;
+  align-self: center;
+  white-space: nowrap;
 }
 
 .home-summary {
@@ -2699,6 +2746,60 @@ body.is-demo-mode .prototype-stage {
   border-left: 4px solid var(--line);
 }
 
+.alarm-card-top,
+.message-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.alarm-card-top strong,
+.message-card-top strong {
+  min-width: 0;
+  flex: 1;
+}
+
+.alarm-card-top .status-pill,
+.message-card-top .status-pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.alarm-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.alarm-card-body > span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alarm-card-body .lucide,
+.alarm-card-body [data-lucide] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+}
+
+.message-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .alarm-card.high {
   border-left-color: var(--coral);
 }
@@ -2973,7 +3074,15 @@ body.is-demo-mode .prototype-stage {
 }
 
 .inline-actions {
-  margin-top: 4px;
+  margin-top: 8px;
+  gap: 16px;
+}
+
+.inline-actions .mp-link-btn {
+  min-height: 44px;
+  padding: 8px 4px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .message-card {

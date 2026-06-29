@@ -3492,23 +3492,22 @@ function renderMpCapsule() {
   `;
 }
 
-function renderHeader(title, subtitle = "", back = false) {
+function renderHeader(title, back = false) {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const showAddDevice = !back && ["map", "devices"].includes(state.tab);
   const showRefresh = back || state.tab !== "mine";
   const showPageActions = showAddDevice || showRefresh;
-  const showSubtitle = back && subtitle;
+  const pageActionsClass = back ? "header-page-actions is-detail" : "header-page-actions";
   return `
     <header class="app-header mp-custom-nav">
       <div class="status-bar"><span>09:41</span><span>${icon("wifi")} ${icon("battery-medium")}</span></div>
-      <div class="mp-nav-bar">
+      <div class="mp-nav-bar${back ? " has-back" : ""}">
         ${back ? `<button class="back-button hoverable" type="button" data-action="back" aria-label="返回">${icon("chevron-left")}</button>` : ""}
         <h1 class="mp-nav-title">${title}</h1>
         ${renderMpCapsule()}
       </div>
-      ${showSubtitle ? `<p class="mp-nav-subtitle">${subtitle}</p>` : ""}
       ${showPageActions ? `
-        <div class="header-page-actions">
+        <div class="${pageActionsClass}">
           ${showAddDevice ? `<button class="icon-button hoverable" type="button" data-action="open-add-device" aria-label="${L.common.addDevice}" title="${L.common.addDevice}">${icon("plus")}</button>` : ""}
           ${showRefresh ? `<button class="icon-button hoverable" type="button" data-action="toast-sync" aria-label="同步数据" title="同步">${icon("refresh-cw")}</button>` : ""}
         </div>
@@ -3718,7 +3717,7 @@ function renderDeviceCard(device) {
 function renderDetail() {
   const device = getDevice();
   return `
-    ${renderHeader(device.name, `${device.model} · ${device.scenario}`, true)}
+    ${renderHeader(device.name, true)}
     <div class="screen-body with-detail-tabs">
       ${renderDeviceHero(device)}
       <div class="tab-strip" aria-label="设备详情标签">
@@ -4006,14 +4005,16 @@ function renderAlarmSection(device) {
 }
 
 function renderAlarmCard(alarm) {
+  const pillClass = alarm.severity === "high" ? "offline" : "warning";
   return `
     <button class="list-card alarm-card ${alarm.severity}" type="button" data-action="alarm-ai" data-alarm-id="${alarm.id}">
-      <div class="list-row">
-        <div>
-          <strong>${alarm.type}</strong>
-          <span>${alarm.time} · ${alarm.description}</span>
-        </div>
-        <span class="status-pill ${alarm.severity === "high" ? "offline" : "warning"}">${alarm.status}</span>
+      <div class="alarm-card-top">
+        <strong>${alarm.type}</strong>
+        <span class="status-pill ${pillClass}">${alarm.status}</span>
+      </div>
+      <div class="alarm-card-body">
+        <span>${alarm.time} · ${alarm.description}</span>
+        ${icon("chevron-right")}
       </div>
     </button>
   `;
@@ -4104,14 +4105,15 @@ function renderMessages() {
       <div class="card-list">
         ${mock.systemMessages.map((message) => `
           <div class="list-card message-card">
-            <div class="list-row">
-              <div><strong>${message.title}</strong><span>${message.desc}</span></div>
+            <div class="message-card-top">
+              <strong>${message.title}</strong>
               <span class="status-pill ${message.type === "share" ? "warning" : "info"}">${message.status}</span>
             </div>
+            <p class="message-desc">${message.desc}</p>
             <div class="inline-actions">
               ${message.type === "share"
-                ? `<button class="ghost-button" type="button" data-action="accept-share">${icon("check")}接受</button><button class="text-button" type="button" data-action="reject-share">拒绝</button>`
-                : `<button class="text-button" type="button" data-action="mark-read">标为已读</button>`}
+                ? `<button class="mp-link-btn hoverable" type="button" data-action="accept-share">接受</button><button class="mp-link-btn warn hoverable" type="button" data-action="reject-share">拒绝</button>`
+                : `<button class="mp-link-btn hoverable" type="button" data-action="mark-read">标为已读</button>`}
             </div>
           </div>
         `).join("")}
