@@ -399,7 +399,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.1.1";
+const PROTOTYPE_VERSION = "0.1.2";
 
 const LOCALES = {
   "zh-CN": {
@@ -488,9 +488,10 @@ const LOCALES = {
       submit: "提交", done: "完成",
     },
     dialog: {
-      logoutTitle: "退出登录",
-      logoutContent: "退出后将返回登录页，设备告警需重新登录后查看。",
-      unbindTitle: "解绑设备",
+      logoutTitle: "提示",
+      logoutContent: "确定退出登录？",
+      logoutConfirm: "退出",
+      unbindTitle: "提示",
       unbindContent: "解绑后设备将从账号移除，是否继续？",
     },
     toast: {
@@ -594,10 +595,11 @@ const LOCALES = {
       submit: "Submit", done: "Done",
     },
     dialog: {
-      logoutTitle: "Sign out",
-      logoutContent: "You will return to login. Alerts require sign-in.",
-      unbindTitle: "Unbind device",
-      unbindContent: "Device will be removed from your account. Continue?",
+      logoutTitle: "Notice",
+      logoutContent: "Sign out now?",
+      logoutConfirm: "Sign out",
+      unbindTitle: "Notice",
+      unbindContent: "Device will be removed. Continue?",
     },
     toast: {
       wechatLogin: "wx.login OK → POST /c/v1/auth/wechat/login",
@@ -750,6 +752,13 @@ const wxApiCatalog = {
     returns: "latitude, longitude",
     needBackend: "可选，纯客户端",
   },
+  wxShowModal: {
+    api: "wx.showModal",
+    title: "模态对话框",
+    purpose: "二次确认场景：退出登录、解绑设备等。居中弹窗 + 全屏遮罩，非底部弹层。",
+    returns: "confirm / cancel",
+    needBackend: "确认后调用 HTTP API（如 auth/logout）",
+  },
   openSetting: {
     api: "wx.openSetting",
     title: "打开设置页",
@@ -764,7 +773,7 @@ const wxApiPageMap = {
   "tab:map": ["getLocation", "chooseLocation", "requestSubscribeMessage"],
   "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery"],
   "tab:messages": ["requestSubscribeMessage"],
-  "tab:mine": ["openSetting", "requestSubscribeMessage"],
+  "tab:mine": ["openSetting", "requestSubscribeMessage", "wxShowModal"],
   "detail:map": ["chooseLocation", "getLocation"],
   "detail:config": ["openBluetooth"],
   "modal:add-device": ["scanCode", "openBluetooth", "startBleDiscovery"],
@@ -899,16 +908,16 @@ function icon(name) {
   return `<i data-lucide="${name}"></i>`;
 }
 
-/** 模拟 wx.showModal 居中对话框 */
+/** 模拟 wx.showModal 居中对话框（非底部弹层） */
 function renderMpDialog({ title, content, confirmAction, cancelAction = "close-dialog", confirmText, cancelText, confirmDanger = false }) {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   return `
-    <div class="mp-dialog-mask" data-action="${cancelAction}">
-      <div class="mp-dialog" data-sheet role="alertdialog" aria-modal="true">
-        <div class="mp-dialog-title">${escapeHtml(title)}</div>
+    <div class="mp-dialog-mask" data-action="${cancelAction}" role="presentation">
+      <div class="mp-dialog" role="alertdialog" aria-modal="true" aria-labelledby="mp-dialog-title">
+        <div class="mp-dialog-title" id="mp-dialog-title">${escapeHtml(title)}</div>
         <div class="mp-dialog-content">${escapeHtml(content)}</div>
         <div class="mp-dialog-footer">
-          <button type="button" class="mp-dialog-btn" data-action="${cancelAction}">${escapeHtml(cancelText || L.common.cancel)}</button>
+          <button type="button" class="mp-dialog-btn cancel" data-action="${cancelAction}">${escapeHtml(cancelText || L.common.cancel)}</button>
           <button type="button" class="mp-dialog-btn ${confirmDanger ? "warn" : "confirm"}" data-action="${confirmAction}">${escapeHtml(confirmText || L.common.confirm)}</button>
         </div>
       </div>
@@ -952,7 +961,7 @@ function renderDialog() {
       content: L.dialog.logoutContent,
       confirmAction: "logout",
       confirmDanger: true,
-      confirmText: L.dialog.logoutTitle,
+      confirmText: L.dialog.logoutConfirm,
     });
   }
   if (state.dialog === "unbind-confirm") {
@@ -2855,7 +2864,6 @@ function modalPanelInfo() {
     geofence: geofencePanelInfo(),
     "config-category": configCategoryPanelInfo(),
     settings: settingsPanelInfo(),
-    "logout-confirm": logoutPanelInfo(),
     h5: h5PanelInfo(),
     chat: chatPanelInfo(),
     ai: aiResultPanelInfo(),
@@ -4704,6 +4712,15 @@ function bindEvents() {
 
   document.querySelectorAll(".mp-dialog").forEach((el) => {
     el.addEventListener("click", (e) => e.stopPropagation());
+  });
+
+  document.querySelectorAll(".mp-dialog-mask").forEach((mask) => {
+    mask.addEventListener("click", (e) => {
+      if (e.target === mask) {
+        state.dialog = null;
+        render();
+      }
+    });
   });
 
   const loginForm = document.querySelector("[data-form='login']");

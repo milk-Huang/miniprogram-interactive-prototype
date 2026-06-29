@@ -3082,19 +3082,77 @@ textarea:focus-visible {
 .mp-link-btn.warn { color: #fa5151; }
 
 .mp-dialog-mask {
-  position: absolute; inset: 0; z-index: 50;
-  display: grid; place-items: center; padding: 28px;
-  background: rgba(0,0,0,0.55);
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 28px;
+  background: rgba(0, 0, 0, 0.6);
 }
-.mp-dialog { width: 100%; max-width: 320px; border-radius: 12px; background: #fff; overflow: hidden; }
-.mp-dialog-title { padding: 24px 24px 8px; text-align: center; font-size: 17px; font-weight: 600; }
-.mp-dialog-content { padding: 0 24px 20px; text-align: center; font-size: 15px; color: #888; line-height: 1.5; }
-.mp-dialog-footer { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(0,0,0,0.08); }
-.mp-dialog-btn { min-height: 48px; border: 0; background: #fff; font-size: 16px; cursor: pointer; }
-.mp-dialog-btn + .mp-dialog-btn { border-left: 1px solid rgba(0,0,0,0.08); }
-.mp-dialog-btn.confirm, .mp-dialog-btn.warn { font-weight: 600; }
-.mp-dialog-btn.confirm { color: #576b95; }
-.mp-dialog-btn.warn { color: #fa5151; }
+
+.mp-dialog {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mp-dialog-title {
+  padding: 20px 20px 6px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: #000;
+}
+
+.mp-dialog-content {
+  padding: 0 20px 20px;
+  text-align: center;
+  font-size: 15px;
+  color: #888;
+  line-height: 1.5;
+}
+
+.mp-dialog-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mp-dialog-btn {
+  min-height: 50px;
+  border: 0;
+  background: #fff;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.mp-dialog-btn + .mp-dialog-btn {
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mp-dialog-btn.cancel {
+  color: #000;
+  font-weight: 400;
+}
+
+.mp-dialog-btn.confirm {
+  color: #576b95;
+  font-weight: 600;
+}
+
+.mp-dialog-btn.warn {
+  color: #fa5151;
+  font-weight: 600;
+}
+
+.mp-dialog-btn:active {
+  background: #ececec;
+}
 
 .mp-sheet { display: flex; flex-direction: column; max-height: 88%; padding: 0; border-radius: 12px 12px 0 0; }
 .mp-sheet-handle { width: 36px; height: 4px; margin: 8px auto 4px; border-radius: 2px; background: #e5e5e5; }
