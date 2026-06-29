@@ -330,11 +330,11 @@ const mock = {
     { title: "系统通知", desc: "国内地图与定位权限将在首次使用地图时申请", status: "未读", type: "system" },
   ],
   discoveredDevices: [
-    { name: "EV05-9A31", model: "EV05", signal: "强", id: "imei 863450071234001" },
-    { name: "EV07B-22F0", model: "EV07B", signal: "中", id: "imei 863450071234188" },
-    { name: "EV04-A810", model: "EV04", signal: "弱", id: "imei 863450071234236" },
-    { name: "EV201-PET", model: "EV201", signal: "强", id: "imei 863450071234502" },
-    { name: "EV99 SmartBand", model: "EV99", signal: "强", id: "imei 863450071299990" },
+    { id: "ble-ev05-9a31", name: "EV05-9A31", model: "EV05", signal: "强", imei: "863450071234001" },
+    { id: "ble-ev07b-22f0", name: "EV07B-22F0", model: "EV07B", signal: "中", imei: "863450071234188" },
+    { id: "ble-ev04-a810", name: "EV04-A810", model: "EV04", signal: "弱", imei: "863450071234236" },
+    { id: "ble-ev201-pet", name: "EV201-PET", model: "EV201", signal: "强", imei: "863450071234502" },
+    { id: "ble-ev99-band", name: "EV99 SmartBand", model: "EV99", signal: "强", imei: "863450071299990" },
   ],
   devicePlugins: {
     EV05: { tsl: "ev05.tsl v1.2.0", panel: "ev05.panel v3.4.1", provider: "Eview Official", enabled: ["定位", "健康", "围栏", "SIM"], extensible: "血氧（固件 V2.0+ 才支持）" },
@@ -432,7 +432,7 @@ const LOCALES = {
       structure: [
         "登录页：微信登录、手机号、协议",
         "地图首页：设备位置、状态、围栏、告警",
-        "设备页：列表、扫码/BLE 添加",
+        "设备页：列表、扫码/IMEI 添加",
         "设备详情：概览、地图、健康、告警、配置",
         "消息：告警、分享邀请、系统通知",
         "我的：资料、安全、通知、地区地图、帮助",
@@ -893,7 +893,7 @@ const wxApiCatalog = {
 const wxApiPageMap = {
   login: ["wxLogin", "getPhoneNumber"],
   "tab:map": ["getLocation", "getMenuButtonBoundingClientRect", "onPullDownRefresh", "openSetting", "requestSubscribeMessage", "shareAppMessage"],
-  "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery", "onPullDownRefresh"],
+  "tab:devices": ["scanCode", "onPullDownRefresh"],
   "tab:messages": ["onPullDownRefresh", "requestSubscribeMessage"],
   "tab:mine": ["openSetting", "requestSubscribeMessage", "wxShowModal", "onPullDownRefresh"],
   "detail:overview": ["onPullDownRefresh"],
@@ -901,7 +901,7 @@ const wxApiPageMap = {
   "detail:health": ["onPullDownRefresh"],
   "detail:alarms": ["onPullDownRefresh"],
   "detail:config": ["openBluetooth", "onPullDownRefresh"],
-  "modal:add-device": ["scanCode", "openBluetooth", "startBleDiscovery"],
+  "modal:add-device": ["scanCode"],
   "modal:geofence": ["chooseLocation"],
   "modal:share": ["shareAppMessage"],
   "modal:settings": ["openSetting", "requestSubscribeMessage"],
@@ -949,7 +949,7 @@ const mpAdaptationPageMap = {
     items: [
       { title: "胶囊避让", desc: "标题行仅放标题 + 胶囊；操作按钮在页面内第二行。", status: "demo" },
       { title: "下拉刷新", desc: "onPullDownRefresh 同步设备列表与状态。", status: "demo" },
-      { title: "扫码绑定", desc: "wx.scanCode → POST /c/v1/device-bind/detect。", status: "demo" },
+      { title: "扫码绑定", desc: "主路径 wx.scanCode → detect；次入口手动 IMEI。", status: "demo" },
     ],
   },
   "tab:messages": {
@@ -1094,7 +1094,8 @@ const state = {
   mapFilter: "all",
   healthRange: "week",
   brandTheme: "care",
-  addMode: "scan",
+  addDeviceView: "scan",
+  bindCandidate: null,
   configCategory: "home",
   settingsPanel: "profile",
   agreedToTerms: false,
@@ -2473,10 +2474,10 @@ const apiPageMap = {
   },
   "modal:add-device": {
     title: "添加设备流程 API",
-    summary: "扫码/BLE/IMEI 识别、面板准备与绑定确认。",
+    summary: "扫码为主、IMEI 为辅的两步绑定：识别 → 确认绑定。",
     apiIds: ["deviceBindDetect", "deviceBindPreparePanel", "deviceBindBind", "deviceBindPreviews"],
     gaps: [
-      "BLE 扫描为本地能力；detect 接口接收扫码或 BLE 识别结果。",
+      "detect 统一接收 wx.scanCode 结果或手动 IMEI；面板准备在识别成功后进行。",
     ],
   },
   "modal:share": {
@@ -3048,7 +3049,7 @@ function tabPanelInfo() {
       goals: [
         "确认用户能一眼看懂有几台设备、几台在线、有没有待处理提醒。",
         "确认设备卡片信息足够判断电量、定位方式、信号和最近事件。",
-        "确认添加设备入口足够明显，能承接扫码、IMEI 和 BLE 绑定。",
+        "确认添加设备入口足够明显，能承接扫码与 IMEI 绑定。",
       ],
       actions: [
         "点击顶部扫码按钮或添加设备卡片，打开添加设备流程。",
@@ -3286,25 +3287,25 @@ function modalPanelInfo() {
 function addDevicePanelInfo() {
   return {
     title: "添加设备流程",
-    summary: "弹窗用于验证扫码、手动 IMEI 和 BLE 扫描三种绑定路径，覆盖历史 APP 的添加设备能力。",
-    tags: ["扫码绑定", "IMEI", "BLE 扫描"],
+    summary: "首期扫码为主、IMEI 为辅：主屏扫一扫，次入口手动输入；识别成功后确认绑定。",
+    tags: ["扫码绑定", "IMEI", "两步流程"],
     goals: [
-      "确认用户能理解三种添加方式的差异。",
-      "确认 BLE 扫描可以承接近场绑定和参数读取。",
-      "确认绑定前校验提示不会显得太技术化。",
+      "确认扫码是默认主路径，IMEI 为清晰次入口。",
+      "确认识别成功后才展示面板准备与 IMEI 信息。",
+      "确认绑定前检查说明简洁可理解。",
     ],
     actions: [
-      "切换扫码、IMEI、BLE 三个分段按钮。",
-      "点击模拟扫码成功或连接 BLE 设备。",
-      "关闭弹窗返回设备首页。",
+      "主屏点击「扫一扫添加设备」模拟 wx.scanCode。",
+      "点击「无法扫码？手动输入 IMEI」进入备用表单。",
+      "识别成功后确认绑定或重新识别。",
     ],
     review: [
-      "扫码和手动 IMEI 是普通用户主路径，BLE 更偏现场辅助。",
+      "扫码应覆盖绝大多数用户场景。",
+      "IMEI 输入需 15 位校验与明确错误提示。",
       "绑定失败原因要给用户可执行的解释。",
-      "设备是否属于当前可绑定范围需要后端校验。",
     ],
     backend: [
-      "IMEI 校验、设备是否已绑定、设备型号能力、绑定设备、BLE 设备发现。",
+      "IMEI 校验、设备是否已绑定、detect / prepare-panel / bind 接口。",
       "绑定成功后需要刷新设备列表和权限数据。",
     ],
   };
@@ -3841,7 +3842,7 @@ function renderDevices() {
       <div class="device-list">
         ${mock.devices.length
           ? mock.devices.map(renderDeviceCard).join("")
-          : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码、输入 IMEI 或 BLE 绑定</div>`}
+          : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码或输入 IMEI 绑定</div>`}
       </div>
     </section>
   `;
@@ -4524,91 +4525,146 @@ function renderShareModal() {
   return wrapMpSheet(`分享 ${deviceDisplayName(device)}`, body, footer);
 }
 
+function resetAddDeviceState() {
+  state.addDeviceView = "scan";
+  state.bindCandidate = null;
+}
+
+function findDeviceByImei(imei) {
+  return mock.devices.find((device) => device.hardware?.imei === imei) || null;
+}
+
+function buildBindCandidate({ imei, method, displayName = "" }) {
+  const device = findDeviceByImei(imei);
+  const model = device?.model || "EV05";
+  const plugin = mock.devicePlugins[model] || {
+    tsl: `${model.toLowerCase()}.tsl v1.0.0`,
+    panel: `${model.toLowerCase()}.panel v1.0.0`,
+  };
+  return {
+    method,
+    imei,
+    model,
+    productName: device ? `${device.model} · ${device.categoryLabel}` : `${model} 智能设备`,
+    displayName: displayName.trim() || (device ? deviceDisplayName(device) : "我的设备"),
+    categoryLabel: device?.categoryLabel || "家人",
+    color: device?.color || "blue",
+    icon: device ? deviceIcon(device) : "radio-receiver",
+    tsl: plugin.tsl,
+    panel: plugin.panel,
+  };
+}
+
 function renderAddDeviceModal() {
-  const body = `
-    <div class="mp-tabs" role="tablist" aria-label="添加设备方式">
-      <button class="mp-tab ${state.addMode === "scan" ? "active" : ""}" type="button" data-add-mode="scan" role="tab">${icon("scan-line")}扫码</button>
-      <button class="mp-tab ${state.addMode === "imei" ? "active" : ""}" type="button" data-add-mode="imei" role="tab">${icon("keyboard")}IMEI</button>
-      <button class="mp-tab ${state.addMode === "ble" ? "active" : ""}" type="button" data-add-mode="ble" role="tab">${icon("bluetooth")}BLE</button>
-    </div>
-    ${renderAutoPanelDownload()}
-    ${renderAddDeviceContent()}
-    <div class="panel-card">
-      <h3>${icon("badge-check")}绑定前确认</h3>
-      <p>系统会自动确认设备是否可用、是否已被其他账号绑定，以及当前账号是否可以添加这台设备。</p>
+  if (state.bindCandidate) {
+    return wrapMpSheet("确认绑定", renderBindConfirmBody(), renderBindConfirmFooter());
+  }
+  if (state.addDeviceView === "imei") {
+    return wrapMpSheet("输入 IMEI", renderBindImeiBody(), renderBindImeiFooter());
+  }
+  return wrapMpSheet("添加设备", renderBindScanBody(), renderBindScanFooter());
+}
+
+function renderBindScanBody() {
+  return `
+    <div class="bind-flow">
+      <div class="bind-hero">
+        <div class="bind-scan-frame" aria-hidden="true">${icon("scan-line")}</div>
+        <h3>扫描设备二维码</h3>
+        <p>请扫描机身或包装盒上的二维码<br>通常位于设备背面、铭牌或说明书内</p>
+      </div>
+      <ol class="bind-steps-hint">
+        <li><span>1</span>扫描二维码</li>
+        <li><span>2</span>确认设备信息</li>
+        <li><span>3</span>完成绑定</li>
+      </ol>
+      <button class="bind-alt-link hoverable" type="button" data-action="switch-add-imei">无法扫码？手动输入 IMEI</button>
     </div>
   `;
-  const footer = renderAddDeviceFooter();
-  return wrapMpSheet("添加设备", body, footer);
 }
 
-function renderAddDeviceFooter() {
-  if (state.addMode === "imei") {
-    return mpBtn("primary", `${icon("badge-check")} 校验并绑定`, "bind-device", "mp-btn-block");
-  }
-  if (state.addMode === "ble") {
-    return mpBtn("default", `${icon("bluetooth")} 连接并识别`, "connect-ble", "mp-btn-block");
-  }
-  return mpBtn("primary", `${icon("scan-line")} 扫码添加`, "toast-scan", "mp-btn-block");
+function renderBindScanFooter() {
+  return mpBtn("primary", `${icon("scan-line")} 扫一扫添加设备`, "detect-scan", "mp-btn-block");
 }
 
-function renderAddDeviceContent() {
-  if (state.addMode === "imei") {
-    return `
-      <div class="sheet-section">
+function renderBindImeiBody() {
+  return `
+    <div class="bind-flow">
+      <button class="bind-back-link hoverable" type="button" data-action="switch-add-scan">${icon("chevron-left")} 返回扫码添加</button>
+      <div class="bind-imei-form">
         <div class="field">
           <label for="manual-imei">设备 IMEI</label>
-          <input id="manual-imei" inputmode="numeric" value="863450071234001" />
+          <input id="manual-imei" inputmode="numeric" maxlength="15" placeholder="请输入 15 位数字" value="" />
+          <p class="field-hint">可在机身标签、包装盒或说明书上找到，共 15 位</p>
         </div>
         <div class="field">
-          <label for="device-name">设备名称</label>
-          <input id="device-name" value="妈妈手表" />
+          <label for="device-name">设备名称 <small>（可选）</small></label>
+          <input id="device-name" placeholder="如：妈妈手表" value="" />
         </div>
-      </div>
-    `;
-  }
-  if (state.addMode === "ble") {
-    return `
-      <div class="sheet-section">
-        <div class="scan-status">
-          ${icon("bluetooth-searching")}
-          <div><strong>已发现附近设备</strong><span>用于近场绑定、参数读取和出厂配置验证</span></div>
-        </div>
-        <div class="card-list">
-          ${mock.discoveredDevices.map((device) => `
-            <div class="list-card">
-              <div class="list-row">
-                <div><strong>${device.name}</strong><span>${device.model} · ${device.id} · 信号${device.signal}</span></div>
-                <button class="mp-btn mp-btn-default mp-btn-mini" type="button" data-action="connect-ble">${icon("link")}连接</button>
-              </div>
-            </div>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  }
-  return `
-    <div class="sheet-section">
-      <div class="qr-placeholder">
-        ${icon("scan-qr-code")}
-        <strong>扫描设备二维码</strong>
-        <span>调用 wx.scanCode，识别 IMEI 后进入绑定</span>
       </div>
     </div>
   `;
 }
 
-function renderAutoPanelDownload() {
+function renderBindImeiFooter() {
+  return mpBtn("primary", `${icon("search")} 识别设备`, "detect-imei", "mp-btn-block");
+}
+
+function renderBindCandidateCard(candidate) {
+  const methodLabel = candidate.method === "scan" ? "扫码识别" : "IMEI 识别";
+  return `
+    <div class="bind-candidate-card">
+      <div class="bind-candidate-avatar ${candidate.color}">${icon(candidate.icon)}</div>
+      <div class="bind-candidate-copy">
+        <strong>${candidate.displayName}</strong>
+        <span>${candidate.productName}</span>
+        <span class="bind-method-tag">${methodLabel}</span>
+        <p class="bind-candidate-imei">IMEI ${candidate.imei}</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderBindConfirmBody() {
+  const candidate = state.bindCandidate;
+  return `
+    <div class="bind-flow">
+      ${renderBindCandidateCard(candidate)}
+      ${renderAutoPanelDownload(candidate)}
+      <div class="panel-card bind-checklist">
+        <h3>${icon("shield-check")}绑定前检查</h3>
+        <ul class="bind-check-list">
+          <li>设备未被其他账号绑定</li>
+          <li>设备在可绑定范围内</li>
+          <li>当前账号有添加权限</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+function renderBindConfirmFooter() {
+  return `
+    <div class="bind-confirm-actions">
+      ${mpBtn("default", "重新识别", "reset-bind-candidate", "mp-btn-block")}
+      ${mpBtn("primary", `${icon("badge-check")} 确认绑定`, "confirm-bind-device", "mp-btn-block")}
+    </div>
+  `;
+}
+
+function renderAutoPanelDownload(candidate = null) {
+  const productName = candidate?.productName || "EV05 · 家人";
+  const tsl = candidate?.tsl || "ev05.tsl v1.2.0";
   const steps = [
-    "识别到设备型号 EV99 SmartBand",
-    "物模型 ev99.tsl 已下载",
+    `识别到设备型号 ${productName}`,
+    `物模型 ${tsl} 已下载`,
     "设备面板已就绪",
   ];
   return `
     <div class="plugin-download-card">
       <div class="plugin-detail-title">
         ${icon("package-check")}
-        <div><strong>新型号面板准备</strong><span>添加新设备无需更新 App</span></div>
+        <div><strong>设备能力已准备</strong><span>识别成功后自动加载，无需更新小程序</span></div>
       </div>
       <div class="download-step-list">
         ${steps.map((step) => `
@@ -5207,14 +5263,6 @@ function bindEvents() {
     });
   });
 
-  document.querySelectorAll("[data-add-mode]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      state.addMode = button.dataset.addMode;
-      render();
-    });
-  });
-
   document.querySelectorAll("[data-config-category]").forEach((button) => {
     button.addEventListener("click", () => {
       state.configCategory = button.dataset.configCategory;
@@ -5323,7 +5371,8 @@ function handleAction(action, element, event) {
       state.mapFilter = "all";
       state.healthRange = "week";
       state.brandTheme = "care";
-      state.addMode = "scan";
+      state.addDeviceView = "scan";
+      state.bindCandidate = null;
       state.configCategory = "home";
       state.settingsPanel = "profile";
       state.agreedToTerms = false;
@@ -5376,8 +5425,8 @@ function handleAction(action, element, event) {
       render();
     },
     "open-add-device"() {
+      resetAddDeviceState();
       state.modal = "add-device";
-      state.addMode = "scan";
       render();
     },
     "open-edit-device"() {
@@ -5405,6 +5454,7 @@ function handleAction(action, element, event) {
       const isBackdrop = element.classList.contains("modal-backdrop");
       const isSheetAction = element.closest(".mp-sheet-footer, .mp-nav-text");
       if (isSheetAction || !isBackdrop || event?.target === element) {
+        if (state.modal === "add-device") resetAddDeviceState();
         state.modal = null;
         render();
       }
@@ -5463,6 +5513,50 @@ function handleAction(action, element, event) {
         render();
       }, 1000);
     },
+    "detect-scan"() {
+      state.bindCandidate = buildBindCandidate({
+        imei: "863450071234001",
+        method: "scan",
+        displayName: "妈妈手表",
+      });
+      showToast("wx.scanCode 成功 → POST /device-bind/detect");
+      render();
+    },
+    "detect-imei"() {
+      const imeiInput = document.getElementById("manual-imei");
+      const nameInput = document.getElementById("device-name");
+      const imei = imeiInput?.value?.replace(/\s/g, "") || "";
+      if (!/^\d{15}$/.test(imei)) {
+        showToast("请输入 15 位 IMEI");
+        return;
+      }
+      state.bindCandidate = buildBindCandidate({
+        imei,
+        method: "imei",
+        displayName: nameInput?.value || "",
+      });
+      showToast("设备识别成功");
+      render();
+    },
+    "switch-add-imei"() {
+      state.addDeviceView = "imei";
+      render();
+    },
+    "switch-add-scan"() {
+      state.addDeviceView = "scan";
+      render();
+    },
+    "reset-bind-candidate"() {
+      state.bindCandidate = null;
+      render();
+    },
+    "confirm-bind-device"() {
+      if (!state.bindCandidate) return;
+      state.modal = null;
+      resetAddDeviceState();
+      showToast("设备绑定成功");
+      render();
+    },
     "toast-scan"() {
       showToast(t("toast.scan"));
     },
@@ -5499,10 +5593,6 @@ function handleAction(action, element, event) {
     },
     "mark-read"() {
       showToast("消息已标为已读");
-    },
-    "bind-device"() {
-      state.modal = null;
-      showToast("设备校验通过，已进入绑定成功流程");
     },
     "connect-ble"() {
       showToast("BLE 已连接，正在读取设备参数");
