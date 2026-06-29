@@ -937,12 +937,14 @@ function renderLayoutToolbar() {
   if (isDemo) {
     layoutToolbar.className = "layout-toolbar layout-toolbar--demo";
     layoutToolbar.innerHTML = `
-      <button type="button" class="demo-exit-btn" data-action="set-view-dev" title="${L.layout.exitDemo}">
-        ${icon("minimize-2")}<span>${L.layout.exitDemo}</span>
-      </button>
-      <div class="locale-bar layout-locale layout-locale-compact" role="group" aria-label="${L.demo.switchLocale}">
-        <button type="button" class="locale-btn ${state.locale === "zh-CN" ? "active" : ""}" data-locale="zh-CN">${L.demo.localeZh}</button>
-        <button type="button" class="locale-btn ${state.locale === "en-US" ? "active" : ""}" data-locale="en-US">${L.demo.localeEn}</button>
+      <div class="layout-toolbar-group layout-toolbar-group--demo" role="group">
+        <button type="button" class="layout-chip demo-exit-chip" data-action="set-view-dev" title="${L.layout.exitDemo}">
+          ${icon("minimize-2")}<span>${L.layout.exitDemo}</span>
+        </button>
+      </div>
+      <div class="layout-toolbar-group" role="group" aria-label="${L.demo.switchLocale}">
+        <button type="button" class="layout-chip ${state.locale === "zh-CN" ? "active" : ""}" data-locale="zh-CN">${L.demo.localeZh}</button>
+        <button type="button" class="layout-chip ${state.locale === "en-US" ? "active" : ""}" data-locale="en-US">${L.demo.localeEn}</button>
       </div>
     `;
     return;
@@ -955,17 +957,17 @@ function renderLayoutToolbar() {
       <span>${L.layout.version} v${PROTOTYPE_VERSION}</span>
     </div>
     <div class="layout-toolbar-actions">
-      <div class="layout-mode-switch" role="group" aria-label="${L.layout.toolbar}">
+      <div class="layout-toolbar-group" role="group" aria-label="${L.layout.toolbar}">
         <button type="button" class="layout-chip ${!isDemo ? "active" : ""}" data-action="set-view-dev">${L.layout.devMode}</button>
         <button type="button" class="layout-chip ${isDemo ? "active" : ""}" data-action="set-view-demo">${L.layout.demoMode}</button>
       </div>
-      <div class="layout-panel-switch ${isDemo ? "hidden" : ""}" role="group" aria-label="${L.layout.toolbar}">
+      <div class="layout-toolbar-group ${isDemo ? "hidden" : ""}" role="group" aria-label="${L.layout.toolbar}">
         <button type="button" class="layout-chip ${state.apiPanelOpen ? "active" : ""}" data-action="toggle-api-panel">${L.layout.apiPanel}</button>
         <button type="button" class="layout-chip ${state.demoPanelOpen ? "active" : ""}" data-action="toggle-demo-panel">${L.layout.guidePanel}</button>
       </div>
-      <div class="locale-bar layout-locale" role="group" aria-label="${L.demo.switchLocale}">
-        <button type="button" class="locale-btn ${state.locale === "zh-CN" ? "active" : ""}" data-locale="zh-CN">${L.demo.localeZh}</button>
-        <button type="button" class="locale-btn ${state.locale === "en-US" ? "active" : ""}" data-locale="en-US">${L.demo.localeEn}</button>
+      <div class="layout-toolbar-group" role="group" aria-label="${L.demo.switchLocale}">
+        <button type="button" class="layout-chip ${state.locale === "zh-CN" ? "active" : ""}" data-locale="zh-CN">${L.demo.localeZh}</button>
+        <button type="button" class="layout-chip ${state.locale === "en-US" ? "active" : ""}" data-locale="en-US">${L.demo.localeEn}</button>
       </div>
     </div>
   `;
