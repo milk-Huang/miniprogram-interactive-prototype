@@ -530,6 +530,14 @@ const LOCALES = {
       allDevices: "全部设备", family: "家人", pet: "宠物", item: "物品",
       submit: "提交", done: "完成",
     },
+    pullRefresh: {
+      simulate: "模拟下拉",
+      map: { idle: "下拉刷新最新位置 · onPullDownRefresh", loading: "正在刷新设备位置…", done: "设备位置已更新" },
+      messages: { idle: "下拉刷新消息列表 · onPullDownRefresh", loading: "正在刷新消息…", done: "消息列表已更新" },
+      devices: { idle: "下拉刷新设备列表 · onPullDownRefresh", loading: "正在刷新设备…", done: "设备列表已更新" },
+      mine: { idle: "下拉刷新 · onPullDownRefresh", loading: "正在刷新…", done: "账号信息已更新" },
+      detail: { idle: "下拉刷新设备数据 · onPullDownRefresh", loading: "正在刷新设备详情…", done: "设备数据已更新" },
+    },
     dialog: {
       logoutTitle: "提示",
       logoutContent: "确定退出登录？",
@@ -678,6 +686,14 @@ const LOCALES = {
       addDevice: "Add device", sync: "Sync", online: "Online", offline: "Offline",
       allDevices: "All", family: "Family", pet: "Pet", item: "Items",
       submit: "Submit", done: "Done",
+    },
+    pullRefresh: {
+      simulate: "Simulate pull",
+      map: { idle: "Pull to refresh locations · onPullDownRefresh", loading: "Refreshing locations…", done: "Locations updated" },
+      messages: { idle: "Pull to refresh messages · onPullDownRefresh", loading: "Refreshing messages…", done: "Messages updated" },
+      devices: { idle: "Pull to refresh devices · onPullDownRefresh", loading: "Refreshing devices…", done: "Devices updated" },
+      mine: { idle: "Pull to refresh · onPullDownRefresh", loading: "Refreshing…", done: "Profile updated" },
+      detail: { idle: "Pull to refresh device · onPullDownRefresh", loading: "Refreshing device…", done: "Device data updated" },
     },
     dialog: {
       logoutTitle: "Notice",
@@ -877,11 +893,14 @@ const wxApiCatalog = {
 const wxApiPageMap = {
   login: ["wxLogin", "getPhoneNumber"],
   "tab:map": ["getLocation", "getMenuButtonBoundingClientRect", "onPullDownRefresh", "openSetting", "requestSubscribeMessage", "shareAppMessage"],
-  "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery"],
-  "tab:messages": ["requestSubscribeMessage"],
-  "tab:mine": ["openSetting", "requestSubscribeMessage", "wxShowModal"],
-  "detail:map": ["chooseLocation", "getLocation", "openLocation"],
-  "detail:config": ["openBluetooth"],
+  "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery", "onPullDownRefresh"],
+  "tab:messages": ["onPullDownRefresh", "requestSubscribeMessage"],
+  "tab:mine": ["openSetting", "requestSubscribeMessage", "wxShowModal", "onPullDownRefresh"],
+  "detail:overview": ["onPullDownRefresh"],
+  "detail:map": ["chooseLocation", "getLocation", "openLocation", "onPullDownRefresh"],
+  "detail:health": ["onPullDownRefresh"],
+  "detail:alarms": ["onPullDownRefresh"],
+  "detail:config": ["openBluetooth", "onPullDownRefresh"],
   "modal:add-device": ["scanCode", "openBluetooth", "startBleDiscovery"],
   "modal:geofence": ["chooseLocation"],
   "modal:share": ["shareAppMessage"],
@@ -920,29 +939,32 @@ const mpAdaptationPageMap = {
       { title: "列表地图联动", desc: "点击设备卡高亮地图标记；重叠标记可放大或弹出列表。", status: "demo" },
       { title: "下拉刷新", desc: "onPullDownRefresh 同步最新位置。", status: "demo" },
       { title: "地图底图", desc: "国内用原生 map（腾讯底图、GCJ-02）；海外 Google 仅 web-view。", status: "todo" },
-      { title: "扫码添加", desc: "右上角 + 优先 wx.scanCode 绑定设备。", status: "demo" },
+      { title: "扫码添加", desc: "页面内「添加设备」按钮优先 wx.scanCode 绑定。", status: "demo" },
       { title: "订阅与分享", desc: "告警订阅消息；地图/详情 onShareAppMessage 分享给家人。", status: "todo" },
     ],
   },
   "tab:devices": {
     title: "设备页适配",
-    summary: "顶栏操作避开胶囊；添加设备首选扫码。",
+    summary: "顶栏仅保留添加设备；列表刷新使用下拉刷新。",
     items: [
-      { title: "胶囊避让", desc: "与地图页一致，自定义导航栏右侧留白。", status: "demo" },
+      { title: "胶囊避让", desc: "标题行仅放标题 + 胶囊；操作按钮在页面内第二行。", status: "demo" },
+      { title: "下拉刷新", desc: "onPullDownRefresh 同步设备列表与状态。", status: "demo" },
       { title: "扫码绑定", desc: "wx.scanCode → POST /c/v1/device-bind/detect。", status: "demo" },
     ],
   },
   "tab:messages": {
     title: "消息页适配",
-    summary: "告警触达优先订阅消息，触达率高于 App 推送。",
+    summary: "告警触达优先订阅消息；列表刷新使用下拉刷新，不用顶栏同步按钮。",
     items: [
+      { title: "下拉刷新", desc: "onPullDownRefresh 同步告警与通知。", status: "demo" },
       { title: "订阅消息", desc: "越围栏/低电/离线引导 wx.requestSubscribeMessage。", status: "todo" },
     ],
   },
   "tab:mine": {
     title: "合规入口",
-    summary: "我的页须提供解绑、账号注销、协议与隐私政策入口。",
+    summary: "我的页须提供解绑、账号注销、协议与隐私政策入口；刷新使用下拉刷新。",
     items: [
+      { title: "下拉刷新", desc: "onPullDownRefresh 同步账号与设置摘要。", status: "demo" },
       { title: "设备解绑", desc: "设备编辑弹窗内解绑，wx.showModal 二次确认。", status: "done" },
       { title: "账号注销", desc: "账号与安全 → 申请注销。", status: "done" },
       { title: "协议隐私", desc: "登录页与关于页可查看用户协议、隐私政策。", status: "demo" },
@@ -951,8 +973,9 @@ const mpAdaptationPageMap = {
   },
   "detail:map": {
     title: "设备地图详情",
-    summary: "导航用 wx.openLocation，勿自研路线规划。",
+    summary: "导航用 wx.openLocation；数据刷新使用下拉刷新。",
     items: [
+      { title: "下拉刷新", desc: "onPullDownRefresh 同步位置与围栏。", status: "demo" },
       { title: "唤起导航", desc: "wx.openLocation 打开微信内置地图。", status: "todo" },
     ],
   },
@@ -3001,7 +3024,7 @@ function tabPanelInfo() {
       actions: [
         "点击地图上的设备标记进入该设备地图详情。",
         "点击筛选结果中的设备定位卡进入单台设备详情。",
-        "点击右上角添加按钮打开添加设备流程。",
+        "点击「添加设备」打开绑定流程；位置刷新使用下拉刷新。",
       ],
       review: [
         "地图页应该作为全局位置总览，不替代单台设备的轨迹、围栏和配置详情。",
@@ -3100,7 +3123,7 @@ function tabPanelInfo() {
         "确认退出登录放在底部且有二次确认，减少误触。",
       ],
       actions: [
-        "点击账号资料编辑昵称、邮箱、手机号和地区。",
+        "点击顶部资料卡右侧编辑按钮修改昵称、邮箱、手机号和地区。",
         "点击通知设置查看告警推送和免打扰。",
         "点击关于与协议查看协议、隐私、权限和版本入口。",
       ],
@@ -3609,12 +3632,25 @@ function renderMpCapsule() {
   `;
 }
 
+function getPullRefreshCopy(scope = "map") {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  return L.pullRefresh?.[scope] || L.pullRefresh.map;
+}
+
+function renderPullRefreshBar(scope = "map") {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const copy = getPullRefreshCopy(scope);
+  return `
+    <div class="mp-pull-refresh ${state.pullRefreshing ? "refreshing" : ""}" aria-label="下拉刷新">
+      <span>${state.pullRefreshing ? copy.loading : copy.idle}</span>
+      ${!state.pullRefreshing ? `<button class="mp-link-btn hoverable" type="button" data-action="pull-refresh" data-pull-scope="${scope}">${L.pullRefresh.simulate}</button>` : ""}
+    </div>
+  `;
+}
+
 function renderHeader(title, back = false) {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const showAddDevice = !back && ["map", "devices"].includes(state.tab);
-  const showRefresh = back || state.tab !== "mine";
-  const showPageActions = showAddDevice || showRefresh;
-  const pageActionsClass = back ? "header-page-actions is-detail" : "header-page-actions";
   return `
     <header class="app-header mp-custom-nav">
       <div class="status-bar"><span>09:41</span><span>${icon("wifi")} ${icon("battery-medium")}</span></div>
@@ -3623,10 +3659,9 @@ function renderHeader(title, back = false) {
         <h1 class="mp-nav-title">${title}</h1>
         ${renderMpCapsule()}
       </div>
-      ${showPageActions ? `
-        <div class="${pageActionsClass}">
-          ${showAddDevice ? `<button class="icon-button hoverable" type="button" data-action="open-add-device" aria-label="${L.common.addDevice}" title="${L.common.addDevice}">${icon("plus")}</button>` : ""}
-          ${showRefresh ? `<button class="icon-button hoverable" type="button" data-action="toast-sync" aria-label="同步数据" title="同步">${icon("refresh-cw")}</button>` : ""}
+      ${showAddDevice ? `
+        <div class="header-page-actions">
+          <button class="header-action-btn hoverable" type="button" data-action="open-add-device" aria-label="${L.common.addDevice}">${icon("plus")}<span>${L.common.addDevice}</span></button>
         </div>
       ` : ""}
     </header>
@@ -3667,10 +3702,7 @@ function renderGlobalMap() {
 
   return `
     <section class="section map-home-section">
-      <div class="mp-pull-refresh ${state.pullRefreshing ? "refreshing" : ""}" aria-label="下拉刷新">
-        <span>${state.pullRefreshing ? "正在刷新设备位置…" : "下拉刷新最新位置 · onPullDownRefresh"}</span>
-        ${!state.pullRefreshing ? `<button class="mp-link-btn hoverable" type="button" data-action="pull-refresh">模拟下拉</button>` : ""}
-      </div>
+      ${renderPullRefreshBar("map")}
       <div class="category-filter" aria-label="设备筛选">
         ${mapFilters().map((filter) => `
           <button class="hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}">
@@ -3779,6 +3811,7 @@ function renderDevices() {
   const onlineCount = mock.devices.filter((device) => device.status === "online").length;
   const alertCount = mock.alarms.filter((alarm) => alarm.status !== "已处理").length;
   return `
+    ${renderPullRefreshBar("devices")}
     <section class="section">
       <div class="home-summary">
         <button class="summary-tile" type="button" data-action="toast-sync">
@@ -3836,6 +3869,7 @@ function renderDetail() {
   return `
     ${renderHeader(device.name, true)}
     <div class="screen-body with-detail-tabs">
+      ${renderPullRefreshBar("detail")}
       ${renderDeviceHero(device)}
       <div class="tab-strip" aria-label="设备详情标签">
         ${[
@@ -4212,6 +4246,7 @@ function renderConfig(device) {
 
 function renderMessages() {
   return `
+    ${renderPullRefreshBar("messages")}
     <section class="section">
       <div class="section-header">
         <div>
@@ -4279,7 +4314,6 @@ function renderMine() {
     {
       title: "账号",
       items: [
-        ["profile", "user-round-pen", "账号资料", "头像、昵称、邮箱和手机号"],
         ["security", "shield-check", "账号与安全", "修改密码、登录设备和账号注销"],
       ],
     },
@@ -4306,6 +4340,7 @@ function renderMine() {
     },
   ];
   return `
+    ${renderPullRefreshBar("mine")}
     <section class="section">
       <div class="profile-card">
         <div class="profile-avatar">${icon("user-round")}</div>
@@ -5402,12 +5437,14 @@ function handleAction(action, element, event) {
       render();
     },
     "pull-refresh"() {
+      const scope = element.dataset.pullScope || state.tab;
+      const copy = getPullRefreshCopy(scope);
       state.pullRefreshing = true;
       render();
       window.setTimeout(() => {
         state.pullRefreshing = false;
-        state.mapLoadState = "ready";
-        showToast("设备位置已更新");
+        if (scope === "map") state.mapLoadState = "ready";
+        showToast(copy.done);
         render();
       }, 1200);
     },
