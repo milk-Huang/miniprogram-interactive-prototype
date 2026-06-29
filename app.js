@@ -3642,8 +3642,8 @@ function renderPullRefreshBar(scope = "map") {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const copy = getPullRefreshCopy(scope);
   return `
-    <div class="mp-pull-refresh ${state.pullRefreshing ? "refreshing" : ""}" aria-label="下拉刷新">
-      <span>${state.pullRefreshing ? copy.loading : copy.idle}</span>
+    <div class="mp-refresh-hint ${state.pullRefreshing ? "refreshing" : ""}" aria-label="下拉刷新">
+      <span>${state.pullRefreshing ? copy.loading : "下拉可刷新"}</span>
       ${!state.pullRefreshing ? `<button class="mp-link-btn hoverable" type="button" data-action="pull-refresh" data-pull-scope="${scope}">${L.pullRefresh.simulate}</button>` : ""}
     </div>
   `;
@@ -3716,18 +3716,16 @@ function renderGlobalMap() {
   return `
     ${renderPageTop("map", { addDevice: true })}
     <section class="section map-home-section">
-      <div class="category-filter" aria-label="设备筛选">
+      <div class="mp-tabs mp-tabs-scroll map-filter-tabs" role="tablist" aria-label="设备筛选">
         ${mapFilters().map((filter) => `
-          <button class="hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}">
-            ${filter.label}
-          </button>
+          <button class="mp-tab hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}" role="tab">${filter.label}</button>
         `).join("")}
       </div>
       <div class="map-result-panel">
         <div class="map-result-header">
           <div>
             <strong>${mapFilterLabel()} · ${devices.length} 台</strong>
-            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "点击卡片高亮地图标记，点击右侧箭头进入详情"}</span>
+            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "点击设备查看详情，地图标记同步高亮"}</span>
           </div>
         </div>
         <div class="map-device-strip compact" aria-label="筛选后的设备">
@@ -3802,22 +3800,16 @@ function renderGlobalMapPin(device) {
 }
 
 function renderMapDeviceCard(device) {
-  const alarms = deviceAlarms(device.id);
   const highlighted = state.highlightedMapDeviceId === device.id;
   return `
-    <div class="map-device-card-wrap ${highlighted ? "highlighted" : ""}">
-      <article class="map-device-card hoverable ${device.status} ${alarms.length ? "has-alert" : ""}">
-        <button class="map-device-card-main" type="button" data-action="highlight-map-device" data-device-id="${device.id}" aria-label="高亮 ${deviceDisplayName(device)}">
-          <div class="map-device-avatar ${device.color}">${icon(deviceIcon(device))}</div>
-          <div class="map-device-card-copy">
-            <strong>${deviceDisplayName(device)}</strong>
-            <span>${device.categoryLabel} · ${statusLabel(device.status)} · ${devicePlace(device)}</span>
-            <small>${device.battery}% · ${device.model}${alarms[0] ? ` · ${alarms[0].type}` : ""}</small>
-          </div>
-        </button>
-        <button class="map-device-card-go hoverable" type="button" data-action="open-device-from-card" data-open-device="${device.id}" data-detail-tab="map" aria-label="进入 ${deviceDisplayName(device)} 详情">${icon("chevron-right")}</button>
-      </article>
-    </div>
+    <button class="map-device-cell hoverable${highlighted ? " active" : ""}" type="button" data-action="open-map-device" data-open-device="${device.id}" data-device-id="${device.id}" data-detail-tab="map">
+      <span class="map-device-cell-avatar ${device.color}">${icon(deviceIcon(device))}</span>
+      <span class="map-device-cell-body">
+        <strong>${deviceDisplayName(device)}</strong>
+        <span>${device.categoryLabel} · ${statusLabel(device.status)}</span>
+      </span>
+      <span class="map-device-cell-ft">${icon("chevron-right")}</span>
+    </button>
   `;
 }
 
@@ -3827,19 +3819,17 @@ function renderDevices() {
   return `
     ${renderPageTop("devices", { addDevice: true })}
     <section class="section">
-      <div class="home-summary">
-        <button class="summary-tile" type="button" data-action="toast-sync">
-          ${icon("activity")}
-          <span>在线设备</span>
-          <strong>${onlineCount}/${mock.devices.length}</strong>
-        </button>
-        <button class="summary-tile" type="button" data-tab="messages">
-          ${icon("bell")}
-          <span>待处理提醒</span>
-          <strong>${alertCount}</strong>
+      <div class="mp-cells">
+        <div class="mp-cell mp-cell_access">
+          <span class="mp-cell__bd">在线设备</span>
+          <span class="mp-cell__ft">${onlineCount}/${mock.devices.length}</span>
+        </div>
+        <button class="mp-cell mp-cell_access hoverable" type="button" data-tab="messages">
+          <span class="mp-cell__bd">待处理提醒</span>
+          <span class="mp-cell__ft">${alertCount} ${icon("chevron-right")}</span>
         </button>
       </div>
-      <div class="device-list">
+      <div class="mp-cells device-list-cells">
         ${mock.devices.length
           ? mock.devices.map(renderDeviceCard).join("")
           : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码或输入 IMEI 绑定</div>`}
@@ -3850,23 +3840,14 @@ function renderDevices() {
 
 function renderDeviceCard(device) {
   return `
-    <button class="device-card ${device.status}" type="button" data-open-device="${device.id}">
-      <div class="device-top">
-        <div class="device-name">
-          <strong>${deviceDisplayName(device)}</strong>
-          <span>${device.model} · ${device.scenario}</span>
-        </div>
-        <span class="status-pill ${statusClass(device.status)}">${statusLabel(device.status)}</span>
-      </div>
-      <div class="device-meta-grid">
-        <span>${icon("battery-medium")}<strong>${device.battery}%</strong><small>电量</small></span>
-        <span>${icon("navigation")}<strong>${device.locateType}</strong><small>定位</small></span>
-        <span>${icon("signal")}<strong>${device.signal}</strong><small>信号</small></span>
-      </div>
-      <div class="device-bottom">
-        <span>${device.location}</span>
-        <span>${device.lastEvent}</span>
-      </div>
+    <button class="mp-cell mp-cell_access hoverable device-cell" type="button" data-open-device="${device.id}">
+      <span class="mp-cell__hd device-cell-icon ${device.color}">${icon(deviceIcon(device))}</span>
+      <span class="mp-cell__bd">
+        <strong>${deviceDisplayName(device)}</strong>
+        <span>${device.model} · ${statusLabel(device.status)} · 电量 ${device.battery}%</span>
+        <small>${device.location}</small>
+      </span>
+      <span class="mp-cell__ft">${icon("chevron-right")}</span>
     </button>
   `;
 }
@@ -3875,10 +3856,10 @@ function renderDetail() {
   const device = getDevice();
   return `
     ${renderHeader(device.name, true)}
-    <div class="screen-body with-detail-tabs">
+    <div class="screen-body detail-screen with-detail-tabs">
       ${renderPageTop("detail")}
       ${renderDeviceHero(device)}
-      <div class="tab-strip" aria-label="设备详情标签">
+      <div class="mp-tabs mp-tabs-scroll detail-tabs" role="tablist" aria-label="设备详情标签">
         ${[
           ["overview", "概览"],
           ["map", "地图"],
@@ -3886,7 +3867,7 @@ function renderDetail() {
           ["alarms", "告警"],
           ["config", "配置"],
         ]
-          .map(([tab, label]) => `<button class="tab-button ${state.detailTab === tab ? "active" : ""}" type="button" data-detail-tab="${tab}">${label}</button>`)
+          .map(([tab, label]) => `<button class="mp-tab hoverable ${state.detailTab === tab ? "active" : ""}" type="button" data-detail-tab="${tab}" role="tab">${label}</button>`)
           .join("")}
       </div>
       ${state.detailTab === "overview" ? renderOverview(device) : ""}
@@ -3895,7 +3876,6 @@ function renderDetail() {
       ${state.detailTab === "alarms" ? renderAlarmSection(device) : ""}
       ${state.detailTab === "config" ? renderConfig(device) : ""}
     </div>
-    ${renderBottomNav()}
   `;
 }
 
@@ -3944,7 +3924,7 @@ function renderOverview(device) {
     <section class="section">
       <div class="section-header">
         <h2>最近事件</h2>
-        <button class="text-button" type="button" data-detail-tab="alarms">查看全部</button>
+        <button class="mp-link-btn hoverable" type="button" data-detail-tab="alarms">查看全部</button>
       </div>
       <div class="card-list">
         ${(alarms.length ? alarms : mock.alarms.slice(0, 1)).map(renderAlarmCard).join("")}
@@ -3983,10 +3963,10 @@ function renderMap(device) {
         </div>
         <span class="pill">3 个关键点</span>
       </div>
-      <div class="segmented-control" aria-label="轨迹时间筛选">
-        <button class="active" type="button">今天</button>
-        <button type="button">昨天</button>
-        <button type="button">自定义</button>
+      <div class="mp-tabs mp-tabs-scroll mp-tabs-inline" aria-label="轨迹时间筛选">
+        <button class="mp-tab active hoverable" type="button">今天</button>
+        <button class="mp-tab hoverable" type="button">昨天</button>
+        <button class="mp-tab hoverable" type="button">自定义</button>
       </div>
       <div class="timeline">
         ${mock.track.map((item) => `
@@ -4003,7 +3983,7 @@ function renderMap(device) {
           <h2>安全围栏</h2>
           <p>圆形 / 多边形，支持进出提醒</p>
         </div>
-        <button class="text-button" type="button" data-action="open-geofence">新建</button>
+        <button class="mp-link-btn hoverable" type="button" data-action="open-geofence">新建</button>
       </div>
       <div class="card-list">
         ${mock.geofences.map((fence) => `
@@ -4065,8 +4045,8 @@ function renderHealthRangeTabs() {
     ["month", "月"],
   ];
   return `
-    <div class="segmented-control" aria-label="健康数据周期">
-      ${ranges.map(([id, label]) => `<button class="${state.healthRange === id ? "active" : ""}" type="button" data-health-range="${id}">${label}</button>`).join("")}
+    <div class="mp-tabs mp-tabs-scroll mp-tabs-inline" aria-label="健康数据周期">
+      ${ranges.map(([id, label]) => `<button class="mp-tab hoverable ${state.healthRange === id ? "active" : ""}" type="button" data-health-range="${id}">${label}</button>`).join("")}
     </div>
   `;
 }
@@ -4084,7 +4064,7 @@ function renderPetHealth(device) {
             <strong>${deviceDisplayName(device)}</strong>
             <span>${pet.species} · ${pet.breed} · ${pet.gender}${pet.neutered ? ` · ${pet.neutered}` : ""}</span>
           </div>
-          <button class="small-icon-button" type="button" data-action="toast-pet-edit" aria-label="编辑档案">${icon("pencil")}</button>
+          <button class="mp-link-btn hoverable" type="button" data-action="toast-pet-edit">编辑</button>
         </div>
         <div class="pet-profile-grid">
           <div><span>年龄</span><strong>${pet.ageLabel}</strong><small>${pet.birthday}</small></div>
@@ -4149,7 +4129,7 @@ function renderAlarmSection(device) {
   const alarms = deviceAlarms(device.id);
   return `
     <section class="section">
-      <div class="card-list">
+      <div class="mp-cells">
         ${(alarms.length ? alarms : mock.alarms).map(renderAlarmCard).join("")}
       </div>
     </section>
@@ -4165,15 +4145,13 @@ function renderAlarmSection(device) {
 function renderAlarmCard(alarm) {
   const pillClass = alarm.severity === "high" ? "offline" : "warning";
   return `
-    <button class="list-card alarm-card ${alarm.severity}" type="button" data-action="alarm-ai" data-alarm-id="${alarm.id}">
-      <div class="alarm-card-top">
+    <button class="mp-cell mp-cell_access hoverable alarm-cell ${alarm.severity}" type="button" data-action="alarm-ai" data-alarm-id="${alarm.id}">
+      <span class="mp-cell__bd">
         <strong>${alarm.type}</strong>
-        <span class="status-pill ${pillClass}">${alarm.status}</span>
-      </div>
-      <div class="alarm-card-body">
         <span>${alarm.time} · ${alarm.description}</span>
-        ${icon("chevron-right")}
-      </div>
+        <em class="status-pill ${pillClass}">${alarm.status}</em>
+      </span>
+      <span class="mp-cell__ft">${icon("chevron-right")}</span>
     </button>
   `;
 }
@@ -4199,7 +4177,7 @@ function renderConfig(device) {
         <div class="plugin-chip-row">
           ${plugin.enabled.map((item) => `<span class="mini-chip">${item}</span>`).join("")}
         </div>
-        <button class="ghost-button full-width" type="button" data-action="toast-panel-update">${icon("refresh-cw")}检查面板更新</button>
+        <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="toast-panel-update">${icon("refresh-cw")}检查面板更新</button>
       </div>
       <div class="config-category-grid">
         ${mock.configCategories.map((item) => `
@@ -4234,7 +4212,7 @@ function renderConfig(device) {
                 ${mock.devices.filter((item) => item.id !== device.id).map((item) => `<option>${item.name} · ${item.model}</option>`).join("")}
               </select>
             </div>
-            <button class="primary-button" type="button" data-action="copy-config">${icon("copy-check")}复制 Home WiFi / Home Beacon</button>
+            <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="copy-config">${icon("copy-check")}复制 Home WiFi / Home Beacon</button>
           </div>
         </div>
       </div>
@@ -4245,7 +4223,7 @@ function renderConfig(device) {
           <strong>设备管理</strong>
           <span>编辑名称、使用者信息，或解绑当前设备</span>
         </div>
-        <button class="ghost-button" type="button" data-action="open-edit-device">${icon("settings-2")}管理</button>
+        <button class="mp-btn mp-btn-default hoverable" type="button" data-action="open-edit-device">${icon("settings-2")}管理</button>
       </div>
     </section>
   `;
@@ -4255,37 +4233,27 @@ function renderMessages() {
   return `
     ${renderPageTop("messages")}
     <section class="section">
-      <div class="section-header">
-        <div>
-          <h2>待处理</h2>
-          <p>分享邀请、系统通知和设备提醒</p>
-        </div>
-      </div>
-      <div class="card-list">
+      <div class="settings-group-title">待处理</div>
+      <div class="mp-cells">
         ${mock.systemMessages.map((message) => `
-          <div class="list-card message-card">
-            <div class="message-card-top">
+          <div class="mp-cell mp-cell_vertical message-cell">
+            <span class="mp-cell__bd">
               <strong>${message.title}</strong>
-              <span class="status-pill ${message.type === "share" ? "warning" : "info"}">${message.status}</span>
-            </div>
-            <p class="message-desc">${message.desc}</p>
-            <div class="inline-actions">
+              <span>${message.desc}</span>
+              <em class="status-pill ${message.type === "share" ? "warning" : "info"}">${message.status}</em>
+            </span>
+            <span class="mp-cell__actions">
               ${message.type === "share"
                 ? `<button class="mp-link-btn hoverable" type="button" data-action="accept-share">接受</button><button class="mp-link-btn warn hoverable" type="button" data-action="reject-share">拒绝</button>`
                 : `<button class="mp-link-btn hoverable" type="button" data-action="mark-read">标为已读</button>`}
-            </div>
+            </span>
           </div>
         `).join("")}
       </div>
     </section>
     <section class="section">
-      <div class="section-header">
-        <div>
-          <h2>设备告警</h2>
-          <p>跌倒、离线、低电量等消息</p>
-        </div>
-      </div>
-      <div class="card-list">
+      <div class="settings-group-title">设备告警</div>
+      <div class="mp-cells">
         ${mock.alarms.map(renderAlarmCard).join("")}
       </div>
     </section>
@@ -4349,19 +4317,21 @@ function renderMine() {
   return `
     ${renderPageTop("mine")}
     <section class="section">
-      <div class="profile-card">
-        <div class="profile-avatar">${icon("user-round")}</div>
-        <div>
-          <strong>${mock.user.name}</strong>
-          <span>${mock.user.account} · ${mock.user.email}</span>
-        </div>
-        <button class="small-icon-button" type="button" data-action="open-settings" data-settings="profile" aria-label="编辑资料">${icon("pencil")}</button>
+      <div class="mp-cells profile-cells">
+        <button class="mp-cell mp-cell_access hoverable" type="button" data-action="open-settings" data-settings="profile">
+          <span class="mp-cell__hd profile-avatar-mini">${icon("user-round")}</span>
+          <span class="mp-cell__bd">
+            <strong>${mock.user.name}</strong>
+            <span>${mock.user.account}</span>
+          </span>
+          <span class="mp-cell__ft">${icon("chevron-right")}</span>
+        </button>
       </div>
     </section>
     ${mineGroups.map((group) => `
       <section class="section">
         <div class="settings-group-title">${group.title}</div>
-        <div class="settings-list">
+        <div class="mp-cells">
           ${group.items.map(([panel, iconName, title, desc]) => renderSettingsItem(panel, iconName, title, desc)).join("")}
         </div>
       </section>
@@ -4369,13 +4339,11 @@ function renderMine() {
     ${renderCapabilityLibrary()}
     ${renderBrandThemeDemo()}
     <section class="section">
-      <button class="logout-card" type="button" data-action="logout-confirm">
-        <div>
-          <strong>退出登录</strong>
-          <span>退出后需要重新登录账号</span>
-        </div>
-        ${icon("log-out")}
-      </button>
+      <div class="mp-cells">
+        <button class="mp-cell mp-cell-danger hoverable" type="button" data-action="logout-confirm">
+          <span class="mp-cell__bd">退出登录</span>
+        </button>
+      </div>
     </section>
   `;
 }
@@ -4400,8 +4368,8 @@ function renderCapabilityLibrary() {
           `).join("")}
         </div>
         <div class="inline-actions">
-          <button class="ghost-button" type="button" data-action="toast-supported-models">${icon("list-checks")}支持的设备型号清单</button>
-          <button class="ghost-button" type="button" data-action="toast-third-party-device">${icon("plug-zap")}接入第三方设备</button>
+          <button class="mp-btn mp-btn-default hoverable" type="button" data-action="toast-supported-models">${icon("list-checks")}支持的设备型号清单</button>
+          <button class="mp-btn mp-btn-default hoverable" type="button" data-action="toast-third-party-device">${icon("plug-zap")}接入第三方设备</button>
         </div>
       </div>
     </section>
@@ -4433,7 +4401,7 @@ function renderBrandThemeDemo() {
             </div>
           `).join("")}
         </div>
-        <button class="ghost-button full-width" type="button" data-action="switch-brand-theme">${icon("paintbrush")}切换品牌主题</button>
+        <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="switch-brand-theme">${icon("paintbrush")}切换品牌主题</button>
       </div>
     </section>
   `;
@@ -4443,13 +4411,13 @@ function renderSettingsItem(panel, iconName, title, desc) {
   const action = panel === "help" ? "open-h5" : "open-settings";
   const settingsAttr = panel === "help" ? "" : ` data-settings="${panel}"`;
   return `
-    <button class="settings-item" type="button" data-action="${action}"${settingsAttr}>
-      <span class="settings-icon">${icon(iconName)}</span>
-      <div>
+    <button class="mp-cell mp-cell_access hoverable" type="button" data-action="${action}"${settingsAttr}>
+      <span class="mp-cell__hd settings-icon">${icon(iconName)}</span>
+      <span class="mp-cell__bd">
         <strong>${title}</strong>
-        <small>${desc}</small>
-      </div>
-      ${icon("chevron-right")}
+        <span>${desc}</span>
+      </span>
+      <span class="mp-cell__ft">${icon("chevron-right")}</span>
     </button>
   `;
 }
@@ -4756,7 +4724,7 @@ function renderCallContent() {
             <h3>${icon("contact")}紧急联系人</h3>
             <p>按优先级依次拨打，触发场景独立配置</p>
           </div>
-          <button class="text-button" type="button" data-action="toast-add-contact">${icon("plus")}添加</button>
+          <button class="mp-link-btn hoverable" type="button" data-action="toast-add-contact">${icon("plus")}添加</button>
         </div>
         <div class="contact-list">
           ${mock.emergencyContacts.map((contact) => `
@@ -4800,8 +4768,8 @@ function renderNetworkContent(device) {
           <div class="info-row"><span>套餐状态</span><strong>${sub.status}</strong></div>
         </div>
         <div class="sheet-actions">
-          <button class="primary-button" type="button" data-action="toast-renew">${icon("refresh-cw")}立即续费</button>
-          <button class="ghost-button" type="button" data-action="open-settings" data-settings="service">${icon("credit-card")}查看全部订单</button>
+          <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="toast-renew">${icon("refresh-cw")}立即续费</button>
+          <button class="mp-btn mp-btn-default hoverable" type="button" data-action="open-settings" data-settings="service">${icon("credit-card")}查看全部订单</button>
         </div>
       </div>
       ` : `
@@ -4857,7 +4825,7 @@ function renderPluginDetailCard(device) {
           </div>
         `).join("")}
       </div>
-      <button class="ghost-button full-width" type="button" data-action="toast-panel-update">${icon("refresh-cw")}检查面板更新</button>
+      <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="toast-panel-update">${icon("refresh-cw")}检查面板更新</button>
     </div>
   `;
 }
@@ -4901,7 +4869,7 @@ function renderConfigCategoryContent(id) {
         <div class="config-card">
           <h3>${icon("bluetooth")}Home Beacon</h3>
           <div class="field"><label for="beacon-id">Beacon UUID</label><input id="beacon-id" value="FDA5-1201" /></div>
-          <button class="ghost-button full-width" type="button" data-action="copy-config">${icon("copy-check")}从其他设备复制</button>
+          <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="copy-config">${icon("copy-check")}从其他设备复制</button>
         </div>
       </div>
     `,
@@ -4937,8 +4905,8 @@ function renderConfigCategoryContent(id) {
     ble: `
       <div class="config-list">
         <div class="scan-status">${icon("bluetooth-connected")}<div><strong>蓝牙已就绪</strong><span>用于近场读取、写入配置和设备升级</span></div></div>
-        <button class="ghost-button full-width" type="button" data-action="connect-ble">${icon("download")}读取当前参数</button>
-        <button class="ghost-button full-width" type="button" data-action="ota-check">${icon("upload-cloud")}检查 OTA 固件</button>
+        <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="connect-ble">${icon("download")}读取当前参数</button>
+        <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="ota-check">${icon("upload-cloud")}检查 OTA 固件</button>
       </div>
     `,
     network: renderNetworkContent(device),
@@ -4974,36 +4942,28 @@ function renderProfileSettings() {
 }
 
 function renderSecuritySettings() {
-  const oauthBindings = oauthProviders();
   return `
-    <div class="card-list">
-      <button class="list-card" type="button" data-action="toast-change-password"><div class="list-row"><div><strong>修改密码</strong><span>通过旧密码或邮箱验证码修改</span></div>${icon("chevron-right")}</div></button>
-      <button class="list-card" type="button" data-action="toast-bind-email"><div class="list-row"><div><strong>邮箱与手机号</strong><span>用于登录、找回密码和接收安全通知</span></div>${icon("chevron-right")}</div></button>
-      <button class="list-card" type="button" data-action="toast-login-devices"><div class="list-row"><div><strong>登录设备</strong><span>查看最近登录记录，发现异常可退出</span></div>${icon("chevron-right")}</div></button>
+    <div class="mp-cells">
+      <button class="mp-cell mp-cell_access hoverable" type="button" data-action="toast-change-password">
+        <span class="mp-cell__bd"><strong>修改密码</strong><span>通过旧密码或邮箱验证码修改</span></span>
+        <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      </button>
+      <button class="mp-cell mp-cell_access hoverable" type="button" data-action="toast-bind-email">
+        <span class="mp-cell__bd"><strong>手机号</strong><span>用于登录、找回密码和接收安全通知</span></span>
+        <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      </button>
+      <button class="mp-cell mp-cell_access hoverable" type="button" data-action="toast-login-devices">
+        <span class="mp-cell__bd"><strong>登录设备管理</strong><span>查看最近登录记录，发现异常可退出</span></span>
+        <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      </button>
     </div>
-
-    <div class="oauth-section">
-      <div class="settings-group-title">第三方账号绑定</div>
-      <div class="oauth-account-list">
-      ${oauthBindings.map((item) => `
-        <button class="oauth-provider-card account ${item.id}" type="button" data-action="toast-oauth-bind" data-provider="${item.id}">
-          <div class="oauth-provider-main">
-            ${renderOauthBrandIcon(item)}
-            <span class="oauth-provider-text">
-              <strong>${item.name}</strong>
-              <small>${item.bound ? item.account : "绑定后可用于快捷登录"}</small>
-            </span>
-          </div>
-          <span class="oauth-status ${item.bound ? "bound" : "unbound"}">${item.bound ? "已绑定" : "未绑定"}</span>
+    <section class="section">
+      <div class="mp-cells">
+        <button class="mp-cell mp-cell-danger hoverable" type="button" data-action="toast-delete-account">
+          <span class="mp-cell__bd">申请注销账号</span>
         </button>
-      `).join("")}
       </div>
-    </div>
-
-    <div class="danger-zone account-danger">
-      <div><strong>注销账号</strong><span>注销前需要确认设备、分享和数据处理方式</span></div>
-      <button class="danger-button" type="button" data-action="toast-delete-account">${icon("trash-2")}申请注销</button>
-    </div>
+    </section>
   `;
 }
 
@@ -5016,8 +4976,13 @@ function renderNotificationSettings() {
     ["系统通知", "服务更新、协议变更和账号安全提醒"],
   ];
   return `
-    <div class="toggle-list">
-      ${rows.map(([title, desc]) => `<label class="toggle-row"><span><strong>${title}</strong><small>${desc}</small></span><input type="checkbox" checked /></label>`).join("")}
+    <div class="mp-cells">
+      ${rows.map(([title, desc]) => `
+        <label class="mp-cell mp-cell_switch">
+          <span class="mp-cell__bd"><strong>${title}</strong><span>${desc}</span></span>
+          <span class="mp-switch"><input type="checkbox" checked /><i></i></span>
+        </label>
+      `).join("")}
     </div>
     <div class="form-grid">
       <div class="field"><label for="quiet-hours">免打扰时段</label><select id="quiet-hours"><option>22:00 - 08:00</option><option>关闭</option><option>自定义</option></select></div>
@@ -5062,8 +5027,8 @@ function renderServiceSettings() {
             <span class="status-pill ${sub.status === "正常" ? "online" : "warning"}">${sub.status}</span>
           </div>
           <div class="inline-actions">
-            <button class="ghost-button" type="button" data-action="toast-renew">${icon("refresh-cw")}续费</button>
-            <button class="text-button" type="button" data-action="toast-change-plan">更换套餐</button>
+            <button class="mp-btn mp-btn-default hoverable" type="button" data-action="toast-renew">${icon("refresh-cw")}续费</button>
+            <button class="mp-link-btn hoverable" type="button" data-action="toast-change-plan">更换套餐</button>
           </div>
         </div>
       `).join("")}
@@ -5130,9 +5095,9 @@ function renderFeedbackSettings() {
       <div class="field"><label for="feedback-type">问题类型</label><select id="feedback-type"><option>设备离线或定位不准</option><option>账号与登录</option><option>分享与权限</option><option>其他建议</option></select></div>
       <div class="field"><label for="feedback-content">问题描述</label><textarea id="feedback-content" rows="4">设备偶尔定位不准，希望帮忙排查。</textarea></div>
     </div>
-    <div class="sheet-actions">
-      <button class="primary-button" type="button" data-action="send-feedback">${icon("send")}提交反馈</button>
-      <button class="ghost-button" type="button" data-action="open-chat">${icon("bot")}AI 客服</button>
+    <div class="bind-confirm-actions">
+      <button class="mp-btn mp-btn-primary mp-btn-block hoverable" type="button" data-action="send-feedback">${icon("send")}提交反馈</button>
+      <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="open-chat">${icon("bot")}联系客服</button>
     </div>
   `;
 }
@@ -5305,10 +5270,6 @@ function bindEvents() {
     });
   }
 
-  document.querySelectorAll(".map-device-card-go").forEach((button) => {
-    button.addEventListener("click", (event) => event.stopPropagation());
-  });
-
   document.querySelectorAll("[data-action]").forEach((element) => {
     element.addEventListener("click", (event) => {
       const action = element.dataset.action;
@@ -5480,6 +5441,14 @@ function handleAction(action, element, event) {
     },
     "open-location-settings"() {
       showToast("wx.openSetting：请在设置中开启位置信息");
+    },
+
+    "open-map-device"() {
+      state.highlightedMapDeviceId = element.dataset.deviceId || null;
+      state.selectedDeviceId = element.dataset.openDevice;
+      state.detailTab = element.dataset.detailTab || "map";
+      state.route = "detail";
+      render();
     },
     "highlight-map-device"() {
       state.highlightedMapDeviceId = element.dataset.deviceId || null;
