@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0] - 2026-06-29
+
+### 新增
+
+- 小程序落地清单：左栏 API 面板按页面展示 UI 适配、合规、技术选型要点
+- 地图页：微信胶囊占位、定位权限引导与拒绝降级、加载/空/错态、列表地图联动高亮、下拉刷新演示
+- 顶栏操作区避让胶囊；地图底图文案改为原生 map（腾讯底图、GCJ-02）
+- URL 演示参数：`?location=denied`、`?map=loading|error|empty`
+- 微信 API 补充：`getMenuButtonBoundingClientRect`、`onPullDownRefresh`、`openLocation`
+
 ## [0.1.4] - 2026-06-29
 
 ### 优化

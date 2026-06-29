@@ -5,9 +5,10 @@ const mock = {
     region: "全球服务",
   },
   user: {
-    id: "u-lily",
-    name: "Lily Chen",
-    email: "lily.chen@email.com",
+    id: "u-zuobin",
+    account: "zuobin",
+    name: "zuobin",
+    email: "zuobin@email.com",
     role: "设备拥有者",
   },
   devices: [
@@ -367,7 +368,7 @@ const mock = {
     ],
   },
   emergencyContacts: [
-    { name: "Lily Chen（本人）", relation: "本人", phone: "+86 138 0000 1234", priority: 1, triggers: "SOS · 跌倒 · 离线" },
+    { name: "zuobin（本人）", relation: "本人", phone: "+86 138 0000 1234", priority: 1, triggers: "SOS · 跌倒 · 离线" },
     { name: "Jason Chen", relation: "配偶", phone: "+86 139 0000 5678", priority: 2, triggers: "SOS · 跌倒" },
     { name: "Michael Chen", relation: "兄弟", phone: "+86 137 0000 4321", priority: 3, triggers: "SOS" },
     { name: "社区医院 24h", relation: "医疗机构", phone: "+86 0755 1234 5678", priority: 4, triggers: "SOS · 跌倒未响应" },
@@ -399,7 +400,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.1.4";
+const PROTOTYPE_VERSION = "0.2.0";
 
 const LOCALES = {
   "zh-CN": {
@@ -472,6 +473,7 @@ const LOCALES = {
       wxPurpose: "场景",
       wxReturns: "返回值/回调",
       wxNeedBackend: "需后端配合",
+      mpAdaptKicker: "小程序落地清单",
     },
     nav: { map: "地图", devices: "设备", messages: "消息", mine: "我的" },
     navSub: {
@@ -742,7 +744,7 @@ const wxApiCatalog = {
   chooseLocation: {
     api: "wx.chooseLocation / map 组件",
     title: "地图选点",
-    purpose: "围栏编辑、地点搜索辅助。",
+    purpose: "围栏编辑、地点搜索；map 组件默认腾讯底图（GCJ-02）。",
     returns: "latitude, longitude, name, address",
     needBackend: "GET /c/v1/places/search",
   },
@@ -788,15 +790,36 @@ const wxApiCatalog = {
     returns: "authSetting",
     needBackend: "—",
   },
+  getMenuButtonBoundingClientRect: {
+    api: "wx.getMenuButtonBoundingClientRect",
+    title: "胶囊按钮位置",
+    purpose: "自定义导航栏时计算右上角胶囊占位，操作按钮右侧预留约 90px 安全区。",
+    returns: "top, right, bottom, left, width, height",
+    needBackend: "—",
+  },
+  onPullDownRefresh: {
+    api: "onPullDownRefresh / wx.stopPullDownRefresh",
+    title: "下拉刷新",
+    purpose: "地图总览页下拉同步设备最新位置，比右上角刷新更符合用户习惯。",
+    returns: "页面 json 配置 enablePullDownRefresh: true",
+    needBackend: "devicesList / deviceLatestLocations",
+  },
+  openLocation: {
+    api: "wx.openLocation",
+    title: "打开微信地图导航",
+    purpose: "设备详情页唤起微信内置地图导航，无需自研导航能力。",
+    returns: "latitude, longitude, name, address, scale",
+    needBackend: "—",
+  },
 };
 
 const wxApiPageMap = {
   login: ["wxLogin", "getPhoneNumber"],
-  "tab:map": ["getLocation", "chooseLocation", "requestSubscribeMessage"],
+  "tab:map": ["getLocation", "getMenuButtonBoundingClientRect", "onPullDownRefresh", "openSetting", "requestSubscribeMessage", "shareAppMessage"],
   "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery"],
   "tab:messages": ["requestSubscribeMessage"],
   "tab:mine": ["openSetting", "requestSubscribeMessage", "wxShowModal"],
-  "detail:map": ["chooseLocation", "getLocation"],
+  "detail:map": ["chooseLocation", "getLocation", "openLocation"],
   "detail:config": ["openBluetooth"],
   "modal:add-device": ["scanCode", "openBluetooth", "startBleDiscovery"],
   "modal:geofence": ["chooseLocation"],
@@ -805,6 +828,102 @@ const wxApiPageMap = {
   "modal:chat": [],
   "modal:service": ["requestPayment"],
 };
+
+const mpAdaptationPageMap = {
+  global: {
+    title: "通用小程序适配",
+    summary: "原型按 375px 设计，落地须统一 rpx（750rpx 满屏）；HTTP 请求封装 wx.request，配置 request 合法域名（HTTPS、备案、无端口）。",
+    items: [
+      { title: "尺寸单位", desc: "布局与字号统一使用 rpx，避免 px 在不同屏宽错位。", status: "todo" },
+      { title: "请求层", desc: "Kotlin Repository/DTO 不可复用；需 TS 封装 Token、错误码与网络异常。", status: "todo" },
+      { title: "合法域名", desc: "/c/v1/* 对应域名须在微信公众平台配置 request 合法域名。", status: "todo" },
+      { title: "原生 TabBar", desc: "4 个 Tab 符合 ≤5 限制，建议用 app.json tabBar，性能优于自定义。", status: "demo" },
+    ],
+  },
+  login: {
+    title: "登录与合规",
+    summary: "协议默认不勾选；登录前展示《用户协议》《隐私政策》入口。",
+    items: [
+      { title: "协议勾选", desc: "未勾选不可登录，符合审核要求。", status: "done" },
+      { title: "微信登录", desc: "wx.login + getPhoneNumber 换服务端 session。", status: "demo" },
+    ],
+  },
+  "tab:map": {
+    title: "地图页系统适配",
+    summary: "自定义顶栏须避让胶囊；底部固定元素加 safe-area-inset-bottom；补全权限/加载/空/错态。",
+    items: [
+      { title: "胶囊避让", desc: "标题行仅放标题 + 胶囊；操作按钮下移到页面内第二行，避免与胶囊同高。", status: "demo" },
+      { title: "定位权限", desc: "首次进入轻量引导；拒绝后隐藏地图、保留列表与「去开启权限」。", status: "demo", demo: "?location=denied" },
+      { title: "边界态", desc: "骨架屏 / 空设备引导添加 / 网络错误重试。", status: "demo", demo: "?map=loading|error|empty" },
+      { title: "列表地图联动", desc: "点击设备卡高亮地图标记；重叠标记可放大或弹出列表。", status: "demo" },
+      { title: "下拉刷新", desc: "onPullDownRefresh 同步最新位置。", status: "demo" },
+      { title: "地图底图", desc: "国内用原生 map（腾讯底图、GCJ-02）；海外 Google 仅 web-view。", status: "todo" },
+      { title: "扫码添加", desc: "右上角 + 优先 wx.scanCode 绑定设备。", status: "demo" },
+      { title: "订阅与分享", desc: "告警订阅消息；地图/详情 onShareAppMessage 分享给家人。", status: "todo" },
+    ],
+  },
+  "tab:devices": {
+    title: "设备页适配",
+    summary: "顶栏操作避开胶囊；添加设备首选扫码。",
+    items: [
+      { title: "胶囊避让", desc: "与地图页一致，自定义导航栏右侧留白。", status: "demo" },
+      { title: "扫码绑定", desc: "wx.scanCode → POST /c/v1/device-bind/detect。", status: "demo" },
+    ],
+  },
+  "tab:messages": {
+    title: "消息页适配",
+    summary: "告警触达优先订阅消息，触达率高于 App 推送。",
+    items: [
+      { title: "订阅消息", desc: "越围栏/低电/离线引导 wx.requestSubscribeMessage。", status: "todo" },
+    ],
+  },
+  "tab:mine": {
+    title: "合规入口",
+    summary: "我的页须提供解绑、账号注销、协议与隐私政策入口。",
+    items: [
+      { title: "设备解绑", desc: "设备编辑弹窗内解绑，wx.showModal 二次确认。", status: "done" },
+      { title: "账号注销", desc: "账号与安全 → 申请注销。", status: "done" },
+      { title: "协议隐私", desc: "登录页与关于页可查看用户协议、隐私政策。", status: "demo" },
+      { title: "位置合规", desc: "隐私政策单独说明位置收集；后台定位需额外申请。", status: "todo" },
+    ],
+  },
+  "detail:map": {
+    title: "设备地图详情",
+    summary: "导航用 wx.openLocation，勿自研路线规划。",
+    items: [
+      { title: "唤起导航", desc: "wx.openLocation 打开微信内置地图。", status: "todo" },
+    ],
+  },
+};
+
+function getMpAdaptationInfo() {
+  const key = getCurrentPageKey();
+  const detailKey = state.route === "detail" ? `detail:${state.detailTab}` : key;
+  return mpAdaptationPageMap[detailKey] || mpAdaptationPageMap[key] || mpAdaptationPageMap.global;
+}
+
+function renderMpAdaptationCard() {
+  const info = getMpAdaptationInfo();
+  if (!info?.items?.length) return "";
+  const label = state.locale === "en-US" ? "Mini program checklist" : "小程序落地清单";
+  return `
+    <section class="api-card api-adapt-card">
+      <div class="api-kicker">${icon("clipboard-check")} ${label}</div>
+      <h3>${escapeHtml(info.title)}</h3>
+      <p>${escapeHtml(info.summary)}</p>
+      <ul class="mp-adapt-list">
+        ${info.items.map((item) => `
+          <li class="mp-adapt-item status-${item.status}">
+            <span class="mp-adapt-badge">${item.status === "done" ? "已实现" : item.status === "demo" ? "原型演示" : "待开发"}</span>
+            <strong>${escapeHtml(item.title)}</strong>
+            <span>${escapeHtml(item.desc)}</span>
+            ${item.demo ? `<code>${escapeHtml(item.demo)}</code>` : ""}
+          </li>
+        `).join("")}
+      </ul>
+    </section>
+  `;
+}
 
 function getWxApiPanelInfo() {
   const key = getCurrentPageKey();
@@ -872,6 +991,11 @@ const state = {
   viewMode: "dev",
   apiPanelOpen: true,
   demoPanelOpen: true,
+  locationPermission: "unknown",
+  mapLoadState: "ready",
+  highlightedMapDeviceId: null,
+  pullRefreshing: false,
+  pendingLocationGuide: false,
 };
 
 const app = document.getElementById("app");
@@ -895,6 +1019,11 @@ function initFromUrl() {
   if (lang === "zh") state.locale = "zh-CN";
   if (params.has("api")) state.apiPanelOpen = params.get("api") !== "0";
   if (params.has("guide")) state.demoPanelOpen = params.get("guide") !== "0";
+  if (params.get("location") === "denied") state.locationPermission = "denied";
+  const mapState = params.get("map");
+  if (mapState === "loading" || mapState === "error" || mapState === "empty") {
+    state.mapLoadState = mapState;
+  }
 }
 
 function syncUrl() {
@@ -906,6 +1035,8 @@ function syncUrl() {
     if (!state.demoPanelOpen) params.set("guide", "0");
   }
   if (state.locale === "en-US") params.set("lang", "en");
+  if (state.locationPermission === "denied") params.set("location", "denied");
+  if (state.mapLoadState !== "ready") params.set("map", state.mapLoadState);
   const qs = params.toString();
   const next = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
   history.replaceState(null, "", next);
@@ -1120,7 +1251,7 @@ function nextBrandTheme() {
 
 function oauthProviders() {
   return [
-    { id: "wechat", name: "微信", icon: "message-circle-more", hint: "微信授权", bound: true, account: "weixin · liaojar" },
+    { id: "wechat", name: "微信", icon: "message-circle-more", hint: "微信授权", bound: true, account: "weixin · zuobin" },
     { id: "apple", name: "Apple", icon: "apple", hint: "Apple ID", bound: false, account: "未绑定" },
     { id: "google", name: "Google", icon: "chrome", hint: "Google 账号", bound: false, account: "未绑定" },
   ];
@@ -2133,12 +2264,15 @@ const apiPageMap = {
   },
   "tab:map": {
     title: "地图页所需 API",
-    summary: "按 DashboardRepository 与地图总览链路反推；地图 SDK provider 选择在当前代码中是本地/SDK 边界。",
+    summary: "小程序端按页面封装 wx.request；设备列表与位置数据需重写数据层，不可照搬 Kotlin Repository。地图用原生 map（腾讯底图、GCJ-02）。",
     apiIds: ["devicesList", "alertUnreadCount", "productManifest", "tenantTheme", "aiInsights"],
     suggestedApiIds: ["deviceLatestLocations", "mapPreferenceUpdate"],
     gaps: [
-      "RemoteMapProviderRepository 没有 HTTP API，它通过 MapSdkAdapter 和本地偏好选择地图 provider。",
-      "全局地图最新位置当前随 DeviceDto 返回，代码里没有单独“全部设备最新位置”接口。",
+      "request 合法域名：HTTPS、已备案、不可带端口，否则正式版请求被拦截。",
+      "国内统一原生 map + GCJ-02；海外 Google Maps 仅能 web-view 嵌套，体验受限。",
+      "定位权限拒绝后降级为列表；首次授权前须告知用途并在隐私政策说明。",
+      "全局地图点聚合能力弱，需列表联动高亮或第三方 SDK 聚合。",
+      "DeviceRepository/DeviceDto 为安卓定义，小程序须独立 TS 请求层与页面 setData 驱动。",
     ],
   },
   "tab:devices": {
@@ -2309,6 +2443,18 @@ function render() {
   if (!state.chat.length) {
     state.chat = [{ role: "assistant", text: t("mock.chatWelcome") }];
   }
+  if (
+    state.loggedIn
+    && state.route === "home"
+    && state.tab === "map"
+    && state.pendingLocationGuide
+    && state.locationPermission === "unknown"
+    && !state.modal
+    && !state.dialog
+  ) {
+    state.pendingLocationGuide = false;
+    state.modal = "location-guide";
+  }
   app.dataset.theme = state.brandTheme;
   if (!state.loggedIn || state.route === "login") {
     app.innerHTML = renderLogin();
@@ -2384,6 +2530,8 @@ function renderApiPanel() {
       </div>
       ${renderWxApiList(wxApis)}
     </section>
+
+    ${renderMpAdaptationCard()}
 
     ${renderApiGapList(info.gaps || [])}
   `;
@@ -2740,13 +2888,17 @@ function tabPanelInfo() {
       ],
       review: [
         "地图页应该作为全局位置总览，不替代单台设备的轨迹、围栏和配置详情。",
-        "地图上的设备标签需要显示具体位置，并避免在全部设备模式下重叠遮挡。",
-        "家人、宠物、物品是完整 App 的设备分类，宠物设备需要覆盖 EV201 / EV206 的定位、围栏和活动场景。",
-        "国内地图、海外 Google Maps 和无 GMS 手机需要在正式开发前确定方案。",
+        "自定义顶栏须通过 getMenuButtonBoundingClientRect 避让右上角胶囊，操作区右侧预留约 90px。",
+        "定位权限：首次轻量引导；拒绝后隐藏地图、保留设备列表并提供「去开启权限」。",
+        "列表与地图联动：点击设备卡居中高亮标记；标记重叠时放大地图或弹出设备列表。",
+        "补全加载骨架屏、无设备空状态（引导添加）、网络错误重试；支持下拉刷新。",
+        "国内用原生 map（腾讯底图、GCJ-02）；海外 Google 仅能通过 web-view 实现。",
+        "可点击区域热区 ≥ 44px，筛选标签与卡片需 hover-class 点击态。",
       ],
       backend: [
         "全部设备最新位置、设备状态、围栏范围、告警状态、设备分类。",
-        "地图 SDK、坐标系转换、定位权限、推送刷新和地图费用需要统一评估。",
+        "wx.request 合法域名配置；小程序端独立请求层，非安卓 Repository。",
+        "订阅消息推送告警；onShareAppMessage 分享设备给家人。",
       ],
     },
     devices: {
@@ -3312,14 +3464,14 @@ function renderLogin() {
 function renderShell() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const titleMap = {
-    map: [L.nav.map, L.navSub.map],
-    devices: [L.nav.devices, L.navSub.devices],
-    messages: [L.nav.messages, L.navSub.messages],
-    mine: [L.nav.mine, L.navSub.mine],
+    map: L.nav.map,
+    devices: L.nav.devices,
+    messages: L.nav.messages,
+    mine: L.nav.mine,
   };
-  const [title, subtitle] = titleMap[state.tab];
+  const title = titleMap[state.tab];
   return `
-    ${renderHeader(title, subtitle)}
+    ${renderHeader(title)}
     <div class="screen-body">
       ${state.tab === "map" ? renderGlobalMap() : ""}
       ${state.tab === "devices" ? renderDevices() : ""}
@@ -3330,23 +3482,37 @@ function renderShell() {
   `;
 }
 
-function renderHeader(title, subtitle, back = false) {
+function renderMpCapsule() {
+  return `
+    <div class="mp-capsule-mock" aria-hidden="true" title="wx.getMenuButtonBoundingClientRect()">
+      <span class="mp-capsule-dot"></span>
+      <span class="mp-capsule-divider"></span>
+      <span class="mp-capsule-ring"></span>
+    </div>
+  `;
+}
+
+function renderHeader(title, subtitle = "", back = false) {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const showAddDevice = !back && ["map", "devices"].includes(state.tab);
   const showRefresh = back || state.tab !== "mine";
+  const showPageActions = showAddDevice || showRefresh;
+  const showSubtitle = back && subtitle;
   return `
-    <header class="app-header">
+    <header class="app-header mp-custom-nav">
       <div class="status-bar"><span>09:41</span><span>${icon("wifi")} ${icon("battery-medium")}</span></div>
-      <div class="header-row">
-        ${back ? `<button class="back-button" type="button" data-action="back" aria-label="返回">${icon("chevron-left")}</button>` : ""}
-        <div class="header-title">
-          <h1>${title}</h1>
-          <p>${subtitle}</p>
-        </div>
-        <div class="header-actions">
-          ${showAddDevice ? `<button class="icon-button" type="button" data-action="open-add-device" aria-label="${(LOCALES[state.locale]||LOCALES['zh-CN']).common.addDevice}" title="${(LOCALES[state.locale]||LOCALES['zh-CN']).common.addDevice}">${icon("plus")}</button>` : ""}
-          ${showRefresh ? `<button class="icon-button" type="button" data-action="toast-sync" aria-label="同步数据" title="同步">${icon("refresh-cw")}</button>` : ""}
-        </div>
+      <div class="mp-nav-bar">
+        ${back ? `<button class="back-button hoverable" type="button" data-action="back" aria-label="返回">${icon("chevron-left")}</button>` : ""}
+        <h1 class="mp-nav-title">${title}</h1>
+        ${renderMpCapsule()}
       </div>
+      ${showSubtitle ? `<p class="mp-nav-subtitle">${subtitle}</p>` : ""}
+      ${showPageActions ? `
+        <div class="header-page-actions">
+          ${showAddDevice ? `<button class="icon-button hoverable" type="button" data-action="open-add-device" aria-label="${L.common.addDevice}" title="${L.common.addDevice}">${icon("plus")}</button>` : ""}
+          ${showRefresh ? `<button class="icon-button hoverable" type="button" data-action="toast-sync" aria-label="同步数据" title="同步">${icon("refresh-cw")}</button>` : ""}
+        </div>
+      ` : ""}
     </header>
   `;
 }
@@ -3360,13 +3526,13 @@ function renderBottomNav() {
     ["mine", "user-round", L.nav.mine],
   ];
   return `
-    <nav class="bottom-nav" aria-label="底部导航">
+    <nav class="bottom-nav mp-tabbar" aria-label="底部导航">
       ${nav
         .map(
           ([tab, iconName, label]) => `
-            <button class="nav-button ${state.tab === tab ? "active" : ""}" type="button" data-tab="${tab}">
+            <button class="nav-button ${state.tab === tab ? "active" : ""}" type="button" data-tab="${tab}" aria-current="${state.tab === tab ? "page" : "false"}">
               ${icon(iconName)}
-              <span>${label}</span>
+              <span class="nav-label">${label}</span>
             </button>
           `,
         )
@@ -3376,12 +3542,22 @@ function renderBottomNav() {
 }
 
 function renderGlobalMap() {
-  const devices = filteredMapDevices();
+  const isDemoEmpty = state.mapLoadState === "empty";
+  const devices = isDemoEmpty ? [] : filteredMapDevices();
+  const locationDenied = state.locationPermission === "denied";
+  const isLoading = state.mapLoadState === "loading" || state.pullRefreshing;
+  const isError = state.mapLoadState === "error";
+  const showEmpty = isDemoEmpty || (state.mapFilter === "all" && !devices.length && state.mapLoadState === "ready");
+
   return `
     <section class="section map-home-section">
+      <div class="mp-pull-refresh ${state.pullRefreshing ? "refreshing" : ""}" aria-label="下拉刷新">
+        <span>${state.pullRefreshing ? "正在刷新设备位置…" : "下拉刷新最新位置 · onPullDownRefresh"}</span>
+        ${!state.pullRefreshing ? `<button class="mp-link-btn hoverable" type="button" data-action="pull-refresh">模拟下拉</button>` : ""}
+      </div>
       <div class="category-filter" aria-label="设备筛选">
         ${mapFilters().map((filter) => `
-          <button class="${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}">
+          <button class="hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}">
             ${filter.label}
           </button>
         `).join("")}
@@ -3390,23 +3566,63 @@ function renderGlobalMap() {
         <div class="map-result-header">
           <div>
             <strong>${mapFilterLabel()} · ${devices.length} 台</strong>
-            <span>点击设备卡或地图标记进入详情</span>
+            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "点击设备卡高亮地图标记，点击标记进入详情"}</span>
           </div>
         </div>
         <div class="map-device-strip compact" aria-label="筛选后的设备">
-          ${devices.length ? devices.map(renderMapDeviceCard).join("") : `<div class="map-empty-card">当前筛选无设备</div>`}
+          ${showEmpty ? renderMapEmptyState() : devices.length ? devices.map(renderMapDeviceCard).join("") : `<div class="map-empty-card">当前筛选无设备</div>`}
         </div>
       </div>
-      <div class="global-map-card" role="img" aria-label="全局地图，展示全部设备位置、围栏和告警状态">
+      ${locationDenied ? renderLocationDeniedMap() : renderGlobalMapCard(devices, isLoading, isError)}
+    </section>
+  `;
+}
+
+function renderMapEmptyState() {
+  return `
+    <div class="map-empty-state">
+      <strong>${icon("radio-receiver")} 还没有绑定设备</strong>
+      <p>添加第一台设备后即可在地图查看位置与安全状态</p>
+      <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="open-add-device">${icon("plus")} 添加设备</button>
+    </div>
+  `;
+}
+
+function renderLocationDeniedMap() {
+  return `
+    <div class="global-map-card location-denied-card" role="region" aria-label="定位权限未开启">
+      <div class="location-denied-body">
+        ${icon("map-pin-off")}
+        <strong>未开启位置权限</strong>
+        <p>无法展示您与设备的相对位置。设备列表仍可使用，开启权限后可恢复地图。</p>
+        <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="open-location-settings">${icon("settings")} 去开启权限</button>
+        <button class="mp-link-btn hoverable" type="button" data-action="request-location">重新授权</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGlobalMapCard(devices, isLoading, isError) {
+  return `
+    <div class="global-map-card ${isLoading ? "is-loading" : ""} ${isError ? "is-error" : ""}" role="img" aria-label="全局地图">
+      ${isLoading ? `<div class="map-skeleton" aria-busy="true"><span></span><span></span><span></span></div>` : ""}
+      ${isError ? `
+        <div class="map-state-overlay error">
+          <strong>${icon("wifi-off")} 加载失败</strong>
+          <p>网络异常，无法获取设备位置</p>
+          <button class="mp-btn mp-btn-default hoverable" type="button" data-action="retry-map-load">重试</button>
+        </div>
+      ` : ""}
+      ${!isLoading && !isError ? `
         <div class="global-zone zone-home"></div>
         <div class="global-zone zone-school"></div>
         <div class="global-road road-one"></div>
         <div class="global-road road-two"></div>
         ${devices.map(renderGlobalMapPin).join("")}
-        <button class="map-fab layer" type="button" data-action="toast-map-layer" aria-label="地图图层">${icon("layers")}</button>
-        <div class="map-provider-note">${icon("map")} 国内暂定高德 / 海外 Google · 实时 10 分钟前</div>
-      </div>
-    </section>
+        <button class="map-fab layer hoverable" type="button" data-action="toast-map-layer" aria-label="地图图层">${icon("layers")}</button>
+        <div class="map-provider-note">${icon("map")} 原生 map · 腾讯底图 · GCJ-02 · ${state.highlightedMapDeviceId ? "已高亮选中设备" : "实时 10 分钟前"}</div>
+      ` : ""}
+    </div>
   `;
 }
 
@@ -3415,8 +3631,9 @@ function renderGlobalMapPin(device) {
   const severityClass = device.status === "offline" ? "offline" : alarms.some((alarm) => alarm.severity === "high") ? "urgent" : alarms.length ? "warning" : "";
   const statusText = alarms[0]?.type || statusLabel(device.status);
   const expandedClass = shouldExpandMapPin(device) ? "expanded" : "compact-pin";
+  const highlighted = state.highlightedMapDeviceId === device.id;
   return `
-    <button class="global-map-pin ${device.mapClass} ${severityClass} category-${device.category} ${expandedClass}" type="button" data-open-device="${device.id}" data-detail-tab="map" aria-label="${deviceDisplayName(device)} ${devicePlace(device)} ${statusText}">
+    <button class="global-map-pin hoverable ${device.mapClass} ${severityClass} category-${device.category} ${expandedClass} ${highlighted ? "highlighted" : ""}" type="button" data-open-device="${device.id}" data-detail-tab="map" aria-label="${deviceDisplayName(device)} ${devicePlace(device)} ${statusText}">
       <span>${icon(deviceIcon(device))}</span>
       <strong>${deviceDisplayName(device)}</strong>
       <small>${devicePlace(device)} · ${statusText}</small>
@@ -3426,15 +3643,19 @@ function renderGlobalMapPin(device) {
 
 function renderMapDeviceCard(device) {
   const alarms = deviceAlarms(device.id);
+  const highlighted = state.highlightedMapDeviceId === device.id;
   return `
-    <button class="map-device-card ${device.status} ${alarms.length ? "has-alert" : ""}" type="button" data-open-device="${device.id}" data-detail-tab="map">
-      <div class="map-device-avatar ${device.color}">${icon(deviceIcon(device))}</div>
-      <div>
-        <strong>${deviceDisplayName(device)}</strong>
-        <span>${device.categoryLabel} · ${statusLabel(device.status)} · ${devicePlace(device)}</span>
-        <small>${device.battery}% · ${device.model}${alarms[0] ? ` · ${alarms[0].type}` : ""}</small>
-      </div>
-    </button>
+    <div class="map-device-card-wrap ${highlighted ? "highlighted" : ""}">
+      <button class="map-device-card hoverable ${device.status} ${alarms.length ? "has-alert" : ""}" type="button" data-action="highlight-map-device" data-device-id="${device.id}">
+        <div class="map-device-avatar ${device.color}">${icon(deviceIcon(device))}</div>
+        <div>
+          <strong>${deviceDisplayName(device)}</strong>
+          <span>${device.categoryLabel} · ${statusLabel(device.status)} · ${devicePlace(device)}</span>
+          <small>${device.battery}% · ${device.model}${alarms[0] ? ` · ${alarms[0].type}` : ""}</small>
+        </div>
+      </button>
+      <button class="map-card-open hoverable" type="button" data-action="open-device-from-card" data-open-device="${device.id}" data-detail-tab="map" aria-label="进入详情">${icon("chevron-right")}</button>
+    </div>
   `;
 }
 
@@ -3585,15 +3806,16 @@ function renderMap(device) {
         <div class="map-pin alert">${icon("triangle-alert")}</div>
         <div class="map-caption">
           <span>${deviceDisplayName(device)} · ${device.locateType}</span>
-          <span>国内暂定高德 / 海外 Google</span>
+          <span>原生 map · 腾讯底图 · GCJ-02</span>
         </div>
       </div>
     </section>
     <section class="section">
       <div class="map-action-grid">
-        <button class="quick-action compact" type="button" data-action="toast-locate">${icon("crosshair")}实时定位</button>
-        <button class="quick-action compact" type="button" data-action="toast-track">${icon("route")}轨迹回放</button>
-        <button class="quick-action compact" type="button" data-action="open-geofence">${icon("shield-plus")}新增围栏</button>
+        <button class="quick-action compact hoverable" type="button" data-action="toast-locate">${icon("crosshair")}实时定位</button>
+        <button class="quick-action compact hoverable" type="button" data-action="toast-open-location">${icon("navigation")}微信导航</button>
+        <button class="quick-action compact hoverable" type="button" data-action="toast-track">${icon("route")}轨迹回放</button>
+        <button class="quick-action compact hoverable" type="button" data-action="open-geofence">${icon("shield-plus")}新增围栏</button>
       </div>
     </section>
     <section class="section">
@@ -3970,7 +4192,7 @@ function renderMine() {
         <div class="profile-avatar">${icon("user-round")}</div>
         <div>
           <strong>${mock.user.name}</strong>
-          <span>${mock.user.email}</span>
+          <span>${mock.user.account} · ${mock.user.email}</span>
         </div>
         <button class="small-icon-button" type="button" data-action="open-settings" data-settings="profile" aria-label="编辑资料">${icon("pencil")}</button>
       </div>
@@ -4072,6 +4294,7 @@ function renderSettingsItem(panel, iconName, title, desc) {
 }
 
 function renderModal() {
+  if (state.modal === "location-guide") return renderLocationGuideModal();
   if (state.modal === "share") return renderShareModal();
   if (state.modal === "add-device") return renderAddDeviceModal();
   if (state.modal === "edit-device") return renderEditDeviceModal();
@@ -4082,6 +4305,23 @@ function renderModal() {
   if (state.modal === "chat") return renderChatModal();
   if (state.modal === "ai") return renderAiModal();
   return "";
+}
+
+function renderLocationGuideModal() {
+  const body = `
+    <p>需要位置权限以展示您与设备的相对位置。我们仅在您使用地图时获取<strong>前台定位</strong>，不会在后台持续追踪。</p>
+    <div class="panel-card">
+      <h3>${icon("shield-check")}合规说明</h3>
+      <p>首次授权前明确告知用途；《隐私政策》单独说明位置信息的收集与存储规则。后台定位需额外向微信申请。</p>
+    </div>
+  `;
+  const footer = `
+    <div class="mp-sheet-footer-row">
+      ${mpBtn("default", "暂不开启", "deny-location")}
+      ${mpBtn("primary", `${icon("map-pin")} 允许使用位置`, "request-location")}
+    </div>
+  `;
+  return wrapMpSheet("开启位置权限", body, footer);
 }
 
 function renderShareModal() {
@@ -4454,7 +4694,7 @@ function renderConfigCategoryContent(id) {
         <div class="field"><label for="loc-mode">定位方式</label><select id="loc-mode"><option>GPS + WiFi + LBS 自动</option><option>GPS 优先</option><option>省电定位</option></select></div>
         <div class="field"><label for="upload-interval">上报间隔</label><select id="upload-interval"><option>5 分钟</option><option>1 分钟</option><option>15 分钟</option></select></div>
         <div class="field"><label for="agps">AGPS</label><select id="agps"><option>开启</option><option>关闭</option></select></div>
-        <div class="field"><label for="map-engine">地图方案</label><select id="map-engine"><option>国内高德 / 海外 Google</option><option>国内百度 / 海外 Google</option><option>OSM 备选</option></select></div>
+        <div class="field"><label for="map-engine">地图方案</label><select id="map-engine"><option>小程序原生 map（腾讯底图）</option><option>海外 web-view + Google</option></select></div>
       </div>
     `,
     alerts: `
@@ -4507,6 +4747,7 @@ function renderSettingsModal() {
 function renderProfileSettings() {
   return `
     <div class="form-grid">
+      <div class="field"><label for="profile-account">账号</label><input id="profile-account" value="${mock.user.account}" readonly /></div>
       <div class="field"><label for="profile-name">昵称</label><input id="profile-name" value="${mock.user.name}" /></div>
       <div class="field"><label for="profile-email">邮箱</label><input id="profile-email" type="email" value="${mock.user.email}" /></div>
       <div class="field"><label for="profile-phone">手机号</label><input id="profile-phone" value="+86 138 0000 1234" /></div>
@@ -4573,7 +4814,7 @@ function renderMapSettings() {
   return `
     <div class="form-grid">
       <div class="field"><label for="map-region">当前使用地区</label><select id="map-region"><option>中国大陆</option><option>海外</option></select></div>
-      <div class="field"><label for="map-provider">地图服务</label><select id="map-provider"><option>国内高德 / 海外 Google</option><option>国内百度 / 海外 Google</option><option>OpenStreetMap 备选</option></select></div>
+      <div class="field"><label for="map-provider">地图服务</label><select id="map-provider"><option>小程序原生 map（腾讯底图、GCJ-02）</option><option>海外 web-view 嵌套 Google</option></select></div>
       <div class="field"><label for="location-permission">定位权限</label><select id="location-permission"><option>使用 App 期间允许</option><option>始终允许</option><option>暂不允许</option></select></div>
     </div>
     <div class="panel-card">
@@ -4850,9 +5091,15 @@ function bindEvents() {
       state.loggedIn = true;
       state.route = "home";
       state.tab = "map";
+      state.pendingLocationGuide = true;
+      state.locationPermission = "unknown";
       render();
     });
   }
+
+  document.querySelectorAll(".map-card-open").forEach((button) => {
+    button.addEventListener("click", (event) => event.stopPropagation());
+  });
 
   document.querySelectorAll("[data-action]").forEach((element) => {
     element.addEventListener("click", (event) => {
@@ -4922,6 +5169,11 @@ function handleAction(action, element, event) {
       state.agreedToTerms = false;
       state.dialog = null;
       state.chat = [{ role: "assistant", text: t("mock.chatWelcome") }];
+      state.locationPermission = "unknown";
+      state.mapLoadState = "ready";
+      state.highlightedMapDeviceId = null;
+      state.pullRefreshing = false;
+      state.pendingLocationGuide = false;
       render();
     },
     "wechat-login"() {
@@ -4933,7 +5185,10 @@ function handleAction(action, element, event) {
       state.route = "home";
       state.tab = "map";
       state.modal = null;
+      state.pendingLocationGuide = true;
+      state.locationPermission = "unknown";
       showToast(t("toast.wechatLogin"));
+      render();
     },
     "phone-login"() {
       if (!state.agreedToTerms) {
@@ -4947,7 +5202,10 @@ function handleAction(action, element, event) {
       state.route = "home";
       state.tab = "map";
       state.modal = null;
+      state.pendingLocationGuide = true;
+      state.locationPermission = "unknown";
       showToast(t("toast.guest"));
+      render();
     },
     back() {
       state.route = "home";
@@ -4998,6 +5256,51 @@ function handleAction(action, element, event) {
     "toast-sync"() {
       showToast("设备状态、告警和健康摘要已同步");
     },
+    "request-location"() {
+      state.locationPermission = "granted";
+      state.modal = null;
+      showToast("已授权位置权限，地图已恢复");
+      render();
+    },
+    "deny-location"() {
+      state.locationPermission = "denied";
+      state.modal = null;
+      showToast("已拒绝位置权限，地图已降级为列表模式");
+      render();
+    },
+    "open-location-settings"() {
+      showToast("wx.openSetting：请在设置中开启位置信息");
+    },
+    "highlight-map-device"() {
+      state.highlightedMapDeviceId = element.dataset.deviceId || null;
+      showToast("地图已居中并高亮该设备标记");
+      render();
+    },
+    "open-device-from-card"() {
+      state.selectedDeviceId = element.dataset.openDevice;
+      state.detailTab = element.dataset.detailTab || "overview";
+      state.route = "detail";
+      render();
+    },
+    "pull-refresh"() {
+      state.pullRefreshing = true;
+      render();
+      window.setTimeout(() => {
+        state.pullRefreshing = false;
+        state.mapLoadState = "ready";
+        showToast("设备位置已更新");
+        render();
+      }, 1200);
+    },
+    "retry-map-load"() {
+      state.mapLoadState = "loading";
+      render();
+      window.setTimeout(() => {
+        state.mapLoadState = "ready";
+        showToast("设备位置加载成功");
+        render();
+      }, 1000);
+    },
     "toast-scan"() {
       showToast(t("toast.scan"));
     },
@@ -5009,6 +5312,9 @@ function handleAction(action, element, event) {
     },
     "toast-locate"() {
       showToast("已发送单次定位指令，等待设备上报");
+    },
+    "toast-open-location"() {
+      showToast("wx.openLocation：唤起微信内置地图导航至设备位置");
     },
     "toast-find"() {
       showToast("已发送查找设备指令");
