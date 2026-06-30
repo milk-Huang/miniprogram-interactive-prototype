@@ -3494,6 +3494,7 @@ body.is-demo-mode .prototype-stage {
 .bind-candidate-avatar.amber { background: var(--amber); }
 .bind-candidate-avatar.coral { background: var(--coral); }
 .bind-candidate-avatar.green { background: var(--green); }
+.bind-candidate-avatar.slate { background: #8a96a3; }
 
 .bind-candidate-copy strong {
   display: block;
@@ -3517,7 +3518,8 @@ body.is-demo-mode .prototype-stage {
   font-weight: 600;
 }
 
-.bind-candidate-imei {
+.bind-candidate-imei,
+.bind-candidate-device-id {
   margin: 6px 0 0;
   font-size: 12px;
   color: var(--text);

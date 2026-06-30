@@ -390,7 +390,7 @@ const mock = {
     },
   ],
   configCategories: [
-    { id: "info", icon: "circle-gauge", title: "设备信息", desc: "IMEI、MAC、固件、ICCID、激活时间" },
+    { id: "info", icon: "circle-gauge", title: "设备信息", desc: "设备ID、MAC、固件、ICCID、激活时间" },
     { id: "home", icon: "house-wifi", title: "Home WiFi / Home Beacon", desc: "家庭 WiFi、信标、配置复制" },
     { id: "location", icon: "map-pinned", title: "定位与上报", desc: "定位方式、上报间隔、AGPS" },
     { id: "alerts", icon: "shield-alert", title: "告警阈值", desc: "跌倒、离线、低电量、超速" },
@@ -432,8 +432,9 @@ const MINI_PROGRAM_PLATFORMS = {
 };
 
 const BIND_DETECT_DEMO_IMEI = {
-  UNREGISTERED: "100000000000001",
+  NEW_DEVICE: "100000000000001",
   ALREADY_BOUND: "100000000000002",
+  REGISTER_FAIL: "100000000000003",
 };
 
 const LOCALES = {
@@ -466,7 +467,7 @@ const LOCALES = {
       structure: [
         "登录页：多平台一键登录、账号/邮箱密码、协议",
         "地图首页：设备位置、状态、围栏、告警",
-        "设备页：列表、扫码/IMEI/蓝牙添加",
+        "设备页：列表、扫码/设备ID/蓝牙添加",
         "设备详情：概览、地图、健康、告警、配置",
         "消息：告警、分享邀请、系统通知",
         "我的：资料、安全、通知、地区地图、帮助",
@@ -588,7 +589,7 @@ const LOCALES = {
     addDevice: {
       title: "添加设备",
       confirmTitle: "确认绑定",
-      imeiTitle: "输入设备编号",
+      deviceIdTitle: "输入设备ID",
       bleTitle: "蓝牙添加",
       scanTitle: "扫描设备码",
       scanDesc: "请扫描机身或包装盒上的设备码",
@@ -596,26 +597,30 @@ const LOCALES = {
       stepScan: "扫描设备码",
       stepConfirm: "确认设备信息",
       stepDone: "完成绑定",
-      imeiLink: "无法扫码？手动输入编号",
+      deviceIdLink: "无法扫码？手动输入设备ID",
       bleLink: "蓝牙添加设备",
       scanLink: "返回扫码添加",
       scanBtn: "扫一扫添加",
-      imeiLabel: "设备 IMEI / SN",
-      imeiPlaceholder: "请输入设备编号",
-      imeiHint: "可在机身标签、包装盒或说明书上找到；演示：100…001 未注册，100…002 已绑定",
+      deviceIdLabel: "设备ID",
+      deviceIdPlaceholder: "请输入 15 位设备ID",
+      deviceIdHint: "可在机身标签、包装盒或说明书上找到；演示：100…001 新设备，100…002 已绑定，100…003 写入失败",
+      manualEntry: "手动输入",
       nameLabel: "设备名称",
       nameOptional: "（可选）",
       namePlaceholder: "如：妈妈手表",
+      phoneLabel: "联系手机号",
+      phonePlaceholder: "用于设备通知与找回",
       detectBtn: "识别设备",
       bindBtn: "确认绑定",
       retryBtn: "重新识别",
-      unregisteredTitle: "补充设备信息",
-      unregisteredDesc: "该设备尚未在平台注册，请补充信息后提交审核或继续绑定",
+      newDeviceTitle: "完善设备信息",
+      newDeviceDesc: "服务器暂无该设备档案，仅识别到设备ID。请补充必要信息后绑定。",
+      newDeviceFlow: "将依次执行：写入设备信息 → 绑定到当前账号",
+      registerFail: "写入设备信息失败，请检查信息后重试",
+      bindFail: "绑定失败，请稍后重试",
       modelLabel: "设备型号",
       modelPlaceholder: "如 EV05 / EV07B",
-      serialLabel: "序列号 / SN",
-      serialOptional: "（可选）",
-      submitSupplement: "提交并继续",
+      modelOptional: "（可选，未知可留空）",
       alreadyBoundTitle: "设备已被绑定",
       alreadyBoundDesc: "该设备已绑定到其他账号，无法直接添加",
       boundOwner: "绑定账号",
@@ -623,10 +628,10 @@ const LOCALES = {
       contactSupport: "联系客服",
       requestUnbind: "申请解绑",
       bleScanning: "正在搜索附近设备…",
-      bleHint: "请打开手机蓝牙并靠近设备；识别成功后将展示编号与面板准备进度",
+      bleHint: "请打开手机蓝牙并靠近设备；识别成功后将展示设备ID与面板准备进度",
       bleBindBtn: "绑定选中设备",
       statusReady: "可绑定",
-      statusUnregistered: "未注册",
+      statusNewDevice: "待完善",
       statusAlreadyBound: "已绑定",
       checkUnbound: "设备未被其他账号绑定",
       checkInRange: "设备在可绑定范围内",
@@ -821,7 +826,7 @@ const LOCALES = {
     addDevice: {
       title: "Add device",
       confirmTitle: "Confirm binding",
-      imeiTitle: "Enter device ID",
+      deviceIdTitle: "Enter device ID",
       bleTitle: "Bluetooth",
       scanTitle: "Scan device code",
       scanDesc: "Scan the code on the device or packaging",
@@ -829,26 +834,30 @@ const LOCALES = {
       stepScan: "Scan code",
       stepConfirm: "Confirm device",
       stepDone: "Complete binding",
-      imeiLink: "Can't scan? Enter ID manually",
+      deviceIdLink: "Can't scan? Enter device ID",
       bleLink: "Add via Bluetooth",
       scanLink: "Back to scan",
       scanBtn: "Scan to add",
-      imeiLabel: "IMEI / SN",
-      imeiPlaceholder: "Enter device ID",
-      imeiHint: "On device label or box; demo: 100…001 unregistered, 100…002 already bound",
+      deviceIdLabel: "Device ID",
+      deviceIdPlaceholder: "Enter 15-digit device ID",
+      deviceIdHint: "On device label or box; demo: 100…001 new, 100…002 bound, 100…003 register fail",
+      manualEntry: "Manual entry",
       nameLabel: "Device name",
       nameOptional: "(optional)",
       namePlaceholder: "e.g. Mom's watch",
+      phoneLabel: "Contact phone",
+      phonePlaceholder: "For alerts and recovery",
       detectBtn: "Identify device",
       bindBtn: "Confirm binding",
       retryBtn: "Scan again",
-      unregisteredTitle: "Complete device info",
-      unregisteredDesc: "Device is not registered on the platform. Add details to continue.",
+      newDeviceTitle: "Complete device info",
+      newDeviceDesc: "No server record for this device ID. Add required info before binding.",
+      newDeviceFlow: "Steps: register device info → bind to your account",
+      registerFail: "Failed to save device info. Check and retry.",
+      bindFail: "Binding failed. Please try again later.",
       modelLabel: "Model",
       modelPlaceholder: "e.g. EV05",
-      serialLabel: "Serial / SN",
-      serialOptional: "(optional)",
-      submitSupplement: "Submit & continue",
+      modelOptional: "(optional)",
       alreadyBoundTitle: "Already bound",
       alreadyBoundDesc: "This device is bound to another account",
       boundOwner: "Bound account",
@@ -856,10 +865,10 @@ const LOCALES = {
       contactSupport: "Contact support",
       requestUnbind: "Request unbind",
       bleScanning: "Searching nearby devices…",
-      bleHint: "Turn on Bluetooth and stay close; ID shown after identify",
+      bleHint: "Turn on Bluetooth and stay close; device ID shown after identify",
       bleBindBtn: "Bind selected device",
       statusReady: "Ready to bind",
-      statusUnregistered: "Not registered",
+      statusNewDevice: "Needs info",
       statusAlreadyBound: "Already bound",
       checkUnbound: "Not bound to another account",
       checkInRange: "Device is bindable",
@@ -1336,6 +1345,8 @@ const state = {
   brandTheme: "care",
   addDeviceView: "scan",
   bindCandidate: null,
+  bindError: "",
+  bindSubmitting: false,
   miniPlatform: "wechat",
   loginView: "platform",
   selectedBleDeviceId: null,
@@ -2748,12 +2759,12 @@ const apiPageMap = {
   },
   "modal:add-device": {
     title: "添加设备流程 API",
-    summary: "扫码 / IMEI / BLE 三路进入 detect；按 ready、unregistered、already_bound 分支处理。",
+    summary: "扫码 / 设备ID / BLE → detect；有档案 ready，无档案 new_device → register → bind。",
     apiIds: ["deviceBindDetect", "deviceBindPreparePanel", "deviceBindBind", "deviceBindPreviews"],
     gaps: [
-      "detect 统一接收扫码结果、手动 IMEI 或 BLE 广播数据。",
-      "unregistered：补充型号/SN 后 register 再 detect；already_bound：展示脱敏账号 + 客服/解绑申请。",
-      "各平台扫码 API 不同，HTTP detect 契约保持一致。",
+      "detect 返回 ready（服务器有型号/能力）或 new_device（仅设备ID）。",
+      "new_device：确认绑定时先 POST register 再 bind；失败报错，弹窗不关闭。",
+      "用户可见文案统一「设备ID」。",
     ],
   },
   "modal:share": {
@@ -3618,18 +3629,18 @@ function addDevicePanelInfo() {
   const platform = getCurrentPlatform();
   return {
     title: "添加设备流程",
-    summary: "扫码为主、IMEI/蓝牙为辅；detect 后按状态分支：可绑定 / 未注册补资料 / 已绑定冲突处理。",
-    tags: ["扫码", "IMEI", "蓝牙", "detect 分支"],
+    summary: "detect 分支：ready 确认绑定；new_device 补资料 register→bind；already_bound 冲突。",
+    tags: ["扫码", "设备ID", "蓝牙", "register+bind"],
     goals: [
-      "确认扫码为默认主路径，IMEI 与蓝牙为清晰次入口。",
-      "确认 detect 返回 ready / unregistered / already_bound 三类 UI。",
-      "未注册时引导补充型号等信息；已绑定时展示账号并提供客服/解绑申请。",
-      "蓝牙添加为核心能力，不可省略。",
+      "服务器有档案时保留确认绑定 UI。",
+      "仅设备ID时填名称、手机号等，一键 register → bind。",
+      "失败报错且弹窗不关闭；文案统一设备ID。",
+      "蓝牙添加为核心能力。",
     ],
     actions: [
       `主屏「扫一扫」→ ${platform.scanApi} → detect。`,
-      "IMEI 演示：100…001 未注册、100…002 已绑定。",
-      "蓝牙页选择设备 → 识别 → 确认绑定。",
+      "演示：100…001 新设备、100…002 已绑定、100…003 写入失败。",
+      "蓝牙识别后同样走 detect 分支。",
     ],
     review: [
       "各平台扫码 API 不同（wx / my / tt），detect 入参统一。",
@@ -4191,7 +4202,7 @@ function renderDevices() {
       <div class="mp-cells device-list-cells">
         ${mock.devices.length
           ? mock.devices.map(renderDeviceCard).join("")
-          : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码或输入 IMEI 绑定</div>`}
+          : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码或输入设备ID绑定</div>`}
       </div>
     </section>
   `;
@@ -4877,7 +4888,13 @@ function renderShareModal() {
 function resetAddDeviceState() {
   state.addDeviceView = "scan";
   state.bindCandidate = null;
+  state.bindError = "";
+  state.bindSubmitting = false;
   state.selectedBleDeviceId = null;
+}
+
+function getCandidateDeviceId(candidate) {
+  return candidate?.deviceId || candidate?.imei || "";
 }
 
 function findDeviceByImei(imei) {
@@ -4907,26 +4924,30 @@ function buildBindCandidate({ imei, method, displayName = "" }) {
 }
 
 function mockDeviceDetect({ imei, method, displayName = "" }) {
-  if (imei === BIND_DETECT_DEMO_IMEI.UNREGISTERED) {
-    return {
-      status: "unregistered",
-      method,
-      imei,
-      displayName: displayName.trim(),
-      model: "",
-      serial: "",
-    };
-  }
-  if (imei === BIND_DETECT_DEMO_IMEI.ALREADY_BOUND) {
+  const deviceId = imei;
+  if (deviceId === BIND_DETECT_DEMO_IMEI.ALREADY_BOUND) {
     return {
       status: "already_bound",
       method,
-      imei,
+      deviceId,
+      imei: deviceId,
       ownerMask: "张**",
       boundAt: "2025-08-12",
     };
   }
-  return buildBindCandidate({ imei, method, displayName });
+  const known = findDeviceByImei(deviceId);
+  if (known) {
+    return buildBindCandidate({ imei: deviceId, method, displayName });
+  }
+  return {
+    status: "new_device",
+    method,
+    deviceId,
+    imei: deviceId,
+    displayName: displayName.trim(),
+    phone: "",
+    model: "",
+  };
 }
 
 function getBleDiscoveredDevice(deviceId = state.selectedBleDeviceId) {
@@ -4935,14 +4956,22 @@ function getBleDiscoveredDevice(deviceId = state.selectedBleDeviceId) {
 
 function bindMethodLabel(method) {
   if (method === "ble") return "BLE";
-  if (method === "imei") return "IMEI";
+  if (method === "imei") return t("addDevice.manualEntry");
   return t("addDevice.stepScan");
+}
+
+function bindStatusKey(status) {
+  return {
+    ready: "addDevice.statusReady",
+    new_device: "addDevice.statusNewDevice",
+    already_bound: "addDevice.statusAlreadyBound",
+  }[status] || "addDevice.statusReady";
 }
 
 function renderAddDeviceModal() {
   const candidate = state.bindCandidate;
-  if (candidate?.status === "unregistered") {
-    return wrapMpSheet(t("addDevice.unregisteredTitle"), renderBindSupplementBody(candidate), renderBindSupplementFooter());
+  if (candidate?.status === "new_device") {
+    return wrapMpSheet(t("addDevice.confirmTitle"), renderNewDeviceBindBody(candidate), renderNewDeviceBindFooter());
   }
   if (candidate?.status === "already_bound") {
     return wrapMpSheet(t("addDevice.alreadyBoundTitle"), renderBindAlreadyBoundBody(candidate), renderBindAlreadyBoundFooter());
@@ -4954,7 +4983,7 @@ function renderAddDeviceModal() {
     return wrapMpSheet(t("addDevice.bleTitle"), renderBindBleBody(), renderBindBleFooter());
   }
   if (state.addDeviceView === "imei") {
-    return wrapMpSheet(t("addDevice.imeiTitle"), renderBindImeiBody(), renderBindImeiFooter());
+    return wrapMpSheet(t("addDevice.deviceIdTitle"), renderBindImeiBody(), renderBindImeiFooter());
   }
   return wrapMpSheet(t("addDevice.title"), renderBindScanBody(), renderBindScanFooter());
 }
@@ -4973,7 +5002,7 @@ function renderBindScanBody() {
         <li><span>3</span>${t("addDevice.stepDone")}</li>
       </ol>
       <div class="bind-alt-links">
-        <button class="bind-alt-link hoverable" type="button" data-action="switch-add-imei">${t("addDevice.imeiLink")}</button>
+        <button class="bind-alt-link hoverable" type="button" data-action="switch-add-imei">${t("addDevice.deviceIdLink")}</button>
         <button class="bind-alt-link hoverable" type="button" data-action="switch-add-ble">${t("addDevice.bleLink")}</button>
       </div>
     </div>
@@ -4991,9 +5020,9 @@ function renderBindImeiBody() {
       <button class="bind-back-link hoverable" type="button" data-action="switch-add-scan">${icon("chevron-left")} ${t("addDevice.scanLink")}</button>
       <div class="bind-imei-form">
         <div class="field">
-          <label for="manual-imei">${t("addDevice.imeiLabel")}</label>
-          <input id="manual-imei" inputmode="numeric" maxlength="15" placeholder="${t("addDevice.imeiPlaceholder")}" value="" />
-          <p class="field-hint">${t("addDevice.imeiHint")}</p>
+          <label for="manual-device-id">${t("addDevice.deviceIdLabel")}</label>
+          <input id="manual-device-id" inputmode="numeric" maxlength="15" placeholder="${t("addDevice.deviceIdPlaceholder")}" value="" />
+          <p class="field-hint">${t("addDevice.deviceIdHint")}</p>
         </div>
         <div class="field">
           <label for="device-name">${t("addDevice.nameLabel")} <small>${t("addDevice.nameOptional")}</small></label>
@@ -5037,15 +5066,16 @@ function renderBindBleFooter() {
 }
 
 function renderBindCandidateCard(candidate) {
-  const statusClass = candidate.status === "ready" ? "ready" : candidate.status;
+  const deviceId = getCandidateDeviceId(candidate);
+  const isNew = candidate.status === "new_device";
   return `
     <div class="bind-candidate-card">
-      <div class="bind-candidate-avatar ${candidate.color || "blue"}">${icon(candidate.icon || "radio-receiver")}</div>
+      <div class="bind-candidate-avatar ${candidate.color || "slate"}">${icon(candidate.icon || "radio-receiver")}</div>
       <div class="bind-candidate-copy">
-        <strong>${candidate.displayName || candidate.imei}</strong>
-        <span>${candidate.productName || candidate.model || "—"}</span>
-        <span class="bind-method-tag">${bindMethodLabel(candidate.method)} · ${t({ ready: "addDevice.statusReady", unregistered: "addDevice.statusUnregistered", already_bound: "addDevice.statusAlreadyBound" }[candidate.status] || "addDevice.statusReady")}</span>
-        ${candidate.imei ? `<p class="bind-candidate-imei">IMEI ${candidate.imei}</p>` : ""}
+        <strong>${isNew ? deviceId : (candidate.displayName || deviceId)}</strong>
+        <span>${isNew ? t("addDevice.statusNewDevice") : (candidate.productName || candidate.model || "—")}</span>
+        <span class="bind-method-tag">${bindMethodLabel(candidate.method)} · ${t(bindStatusKey(candidate.status))}</span>
+        ${deviceId ? `<p class="bind-candidate-device-id">${t("addDevice.deviceIdLabel")} ${deviceId}</p>` : ""}
       </div>
     </div>
   `;
@@ -5078,40 +5108,46 @@ function renderBindConfirmFooter() {
   `;
 }
 
-function renderBindSupplementBody(candidate) {
+function renderNewDeviceBindBody(candidate) {
+  const deviceId = getCandidateDeviceId(candidate);
   return `
     <div class="bind-flow">
+      ${state.bindError ? `<div class="bind-status-banner danger"><strong>${state.bindError}</strong></div>` : ""}
       <div class="bind-status-banner warning">
-        <strong>${t("addDevice.unregisteredTitle")}</strong>
-        <p>${t("addDevice.unregisteredDesc")}</p>
+        <strong>${t("addDevice.newDeviceTitle")}</strong>
+        <p>${t("addDevice.newDeviceDesc")}</p>
       </div>
+      ${renderBindCandidateCard(candidate)}
+      <p class="field-hint">${t("addDevice.newDeviceFlow")}</p>
       <div class="bind-imei-form">
         <div class="field">
-          <label for="supplement-imei">${t("addDevice.imeiLabel")}</label>
-          <input id="supplement-imei" inputmode="numeric" maxlength="15" value="${candidate.imei || ""}" readonly />
+          <label for="new-device-id">${t("addDevice.deviceIdLabel")}</label>
+          <input id="new-device-id" inputmode="numeric" maxlength="15" value="${deviceId}" readonly />
         </div>
         <div class="field">
-          <label for="supplement-model">${t("addDevice.modelLabel")}</label>
-          <input id="supplement-model" placeholder="${t("addDevice.modelPlaceholder")}" value="${candidate.model || ""}" />
+          <label for="new-device-name">${t("addDevice.nameLabel")}</label>
+          <input id="new-device-name" placeholder="${t("addDevice.namePlaceholder")}" value="${candidate.displayName || ""}" />
         </div>
         <div class="field">
-          <label for="supplement-serial">${t("addDevice.serialLabel")} <small>${t("addDevice.serialOptional")}</small></label>
-          <input id="supplement-serial" placeholder="SN" value="${candidate.serial || ""}" />
+          <label for="new-device-phone">${t("addDevice.phoneLabel")}</label>
+          <input id="new-device-phone" type="tel" inputmode="tel" placeholder="${t("addDevice.phonePlaceholder")}" value="${candidate.phone || ""}" />
         </div>
         <div class="field">
-          <label for="supplement-name">${t("addDevice.nameLabel")}</label>
-          <input id="supplement-name" placeholder="${t("addDevice.namePlaceholder")}" value="${candidate.displayName || ""}" />
+          <label for="new-device-model">${t("addDevice.modelLabel")} <small>${t("addDevice.modelOptional")}</small></label>
+          <input id="new-device-model" placeholder="${t("addDevice.modelPlaceholder")}" value="${candidate.model || ""}" />
         </div>
       </div>
     </div>
   `;
 }
 
-function renderBindSupplementFooter() {
+function renderNewDeviceBindFooter() {
+  const disabledCls = state.bindSubmitting ? " mp-btn-disabled" : "";
+  const label = state.bindSubmitting ? `${icon("loader-circle")} …` : `${icon("badge-check")} ${t("addDevice.bindBtn")}`;
   return `
     <div class="bind-confirm-actions">
-      ${mpBtn("default", t("addDevice.retryBtn"), "reset-bind-candidate", "mp-btn-block")}
-      ${mpBtn("primary", t("addDevice.submitSupplement"), "submit-supplement-device", "mp-btn-block")}
+      ${mpBtn("default", t("addDevice.retryBtn"), "reset-bind-candidate", `mp-btn-block${state.bindSubmitting ? " mp-btn-disabled" : ""}`)}
+      ${mpBtn("primary", label, "confirm-bind-new-device", `mp-btn-block${disabledCls}`)}
     </div>
   `;
 }
@@ -5125,8 +5161,8 @@ function renderBindAlreadyBoundBody(candidate) {
       </div>
       <div class="mp-cells">
         <div class="mp-cell mp-cell_access">
-          <span class="mp-cell__bd">IMEI</span>
-          <span class="mp-cell__ft">${candidate.imei}</span>
+          <span class="mp-cell__bd">${t("addDevice.deviceIdLabel")}</span>
+          <span class="mp-cell__ft">${getCandidateDeviceId(candidate)}</span>
         </div>
         <div class="mp-cell mp-cell_access">
           <span class="mp-cell__bd">${t("addDevice.boundOwner")}</span>
@@ -5367,7 +5403,7 @@ function renderConfigCategoryContent(id) {
     info: `
       <div class="info-list">
         ${[
-          ["IMEI", hw.imei || "—"],
+          ["设备ID", hw.imei || "—"],
           ["MAC 地址", hw.mac || "—"],
           ["固件版本", hw.firmware || "—"],
           ["硬件版本", hw.hardware || "—"],
@@ -6073,25 +6109,27 @@ function handleAction(action, element, event) {
       });
       const toastMap = {
         ready: t("addDevice.statusReady"),
-        unregistered: t("addDevice.statusUnregistered"),
+        new_device: t("addDevice.statusNewDevice"),
         already_bound: t("addDevice.statusAlreadyBound"),
       };
+      state.bindError = "";
       showToast(`${platform.scanApi} → detect · ${toastMap[state.bindCandidate.status] || ""}`);
       render();
     },
     "detect-imei"() {
-      const imeiInput = document.getElementById("manual-imei");
+      const deviceIdInput = document.getElementById("manual-device-id");
       const nameInput = document.getElementById("device-name");
-      const imei = imeiInput?.value?.replace(/\s/g, "") || "";
-      if (!/^\d{15}$/.test(imei)) {
-        showToast(t("addDevice.imeiPlaceholder"));
+      const deviceId = deviceIdInput?.value?.replace(/\s/g, "") || "";
+      if (!/^\d{15}$/.test(deviceId)) {
+        showToast(t("addDevice.deviceIdPlaceholder"));
         return;
       }
       state.bindCandidate = mockDeviceDetect({
-        imei,
+        imei: deviceId,
         method: "imei",
         displayName: nameInput?.value || "",
       });
+      state.bindError = "";
       render();
     },
     "switch-add-imei"() {
@@ -6137,19 +6175,43 @@ function handleAction(action, element, event) {
       render();
     },
     "submit-supplement-device"() {
-      const model = document.getElementById("supplement-model")?.value?.trim() || "";
-      const name = document.getElementById("supplement-name")?.value?.trim() || "";
-      if (!model) {
-        showToast(t("addDevice.modelPlaceholder"));
+      actions["confirm-bind-new-device"]();
+    },
+    "confirm-bind-new-device"() {
+      const candidate = state.bindCandidate;
+      if (!candidate || candidate.status !== "new_device" || state.bindSubmitting) return;
+      const name = document.getElementById("new-device-name")?.value?.trim() || "";
+      const phone = document.getElementById("new-device-phone")?.value?.trim() || "";
+      const model = document.getElementById("new-device-model")?.value?.trim() || "";
+      if (!name) {
+        state.bindError = t("addDevice.namePlaceholder");
+        render();
         return;
       }
-      state.bindCandidate = buildBindCandidate({
-        imei: state.bindCandidate?.imei || "",
-        method: state.bindCandidate?.method || "scan",
-        displayName: name,
-      });
-      showToast("POST /device-bind/register → detect");
+      if (!/^\+?[\d\s-]{8,20}$/.test(phone)) {
+        state.bindError = t("addDevice.phonePlaceholder");
+        render();
+        return;
+      }
+      const deviceId = getCandidateDeviceId(candidate);
+      state.bindSubmitting = true;
+      state.bindError = "";
       render();
+      window.setTimeout(() => {
+        if (deviceId === BIND_DETECT_DEMO_IMEI.REGISTER_FAIL) {
+          state.bindSubmitting = false;
+          state.bindError = t("addDevice.registerFail");
+          render();
+          return;
+        }
+        window.setTimeout(() => {
+          state.bindSubmitting = false;
+          state.modal = null;
+          resetAddDeviceState();
+          showToast(`POST /device-bind/register → bind · ${name}`);
+          render();
+        }, 600);
+      }, 800);
     },
     "contact-support-bound"() {
       showToast("已打开客服入口（各平台客服组件）");
@@ -6159,15 +6221,22 @@ function handleAction(action, element, event) {
     },
     "reset-bind-candidate"() {
       state.bindCandidate = null;
+      state.bindError = "";
+      state.bindSubmitting = false;
       state.selectedBleDeviceId = null;
       render();
     },
     "confirm-bind-device"() {
-      if (!state.bindCandidate || state.bindCandidate.status !== "ready") return;
-      state.modal = null;
-      resetAddDeviceState();
-      showToast("设备绑定成功");
+      if (!state.bindCandidate || state.bindCandidate.status !== "ready" || state.bindSubmitting) return;
+      state.bindSubmitting = true;
       render();
+      window.setTimeout(() => {
+        state.bindSubmitting = false;
+        state.modal = null;
+        resetAddDeviceState();
+        showToast("设备绑定成功");
+        render();
+      }, 500);
     },
     "toast-scan"() {
       showToast(t("toast.scan"));
