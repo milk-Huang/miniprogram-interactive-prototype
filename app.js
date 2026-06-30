@@ -556,7 +556,10 @@ const LOCALES = {
       passwordLabel: "密码",
       passwordPlaceholder: "请输入密码",
       accountLoginBtn: "账号密码登录",
-      accountLoginHint: "备选登录方式；国家/地区在「我的 → 账号资料」中维护，用于找回密码等通知通道",
+      accountLoginLink: "使用账号 / 邮箱登录",
+      accountLoginTitle: "账号密码登录",
+      backToPlatformLogin: "返回",
+      accountLoginHint: "国家/地区在「我的 → 账号资料」维护，用于找回密码等通知通道",
       forgotPassword: "忘记密码？",
       guestDemo: "演示模式进入",
       agreePrefix: "我已阅读并同意",
@@ -786,7 +789,10 @@ const LOCALES = {
       passwordLabel: "Password",
       passwordPlaceholder: "Enter password",
       accountLoginBtn: "Sign in with password",
-      accountLoginHint: "Fallback sign-in; country/region is set under Me → Profile for reset channels",
+      accountLoginLink: "Sign in with account / email",
+      accountLoginTitle: "Account sign in",
+      backToPlatformLogin: "Back",
+      accountLoginHint: "Country/region is set under Me → Profile for reset channels",
       forgotPassword: "Forgot password?",
       guestDemo: "Enter demo mode",
       agreePrefix: "I agree to",
@@ -943,6 +949,7 @@ function deviceDisplayName(device) {
 
 const pagePathMap = {
   login: "pages/auth/login/index",
+  "login:account": "pages/auth/login/account/index",
   "tab:map": "pages/map/index",
   "tab:devices": "pages/device/list/index",
   "tab:messages": "pages/message/index",
@@ -965,7 +972,10 @@ const pagePathMap = {
 };
 
 function getCurrentPageKey() {
-  if (!state.loggedIn || state.route === "login") return "login";
+  if (!state.loggedIn || state.route === "login") {
+    if (state.loginView === "account") return "login:account";
+    return "login";
+  }
   if (state.modal) return `modal:${state.modal}`;
   if (state.route === "detail") return `detail:${state.detailTab}`;
   return `tab:${state.tab}`;
@@ -1117,6 +1127,7 @@ const wxApiCatalog = {
 
 const wxApiPageMap = {
   login: ["wxLogin", "getPhoneNumber"],
+  "login:account": [],
   "tab:map": ["getLocation", "getMenuButtonBoundingClientRect", "onPullDownRefresh", "openSetting", "requestSubscribeMessage", "shareAppMessage"],
   "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery", "onPullDownRefresh"],
   "tab:messages": ["onPullDownRefresh", "requestSubscribeMessage"],
@@ -1331,6 +1342,7 @@ const state = {
   addDeviceView: "scan",
   bindCandidate: null,
   miniPlatform: "wechat",
+  loginView: "platform",
   selectedBleDeviceId: null,
   configCategory: "home",
   settingsPanel: "profile",
@@ -1378,6 +1390,8 @@ function initFromUrl() {
   if (platform && MINI_PROGRAM_PLATFORMS[platform]) {
     state.miniPlatform = platform;
   }
+  const loginView = params.get("login");
+  if (loginView === "account") state.loginView = "account";
 }
 
 function syncUrl() {
@@ -1392,6 +1406,9 @@ function syncUrl() {
   if (state.locationPermission === "denied") params.set("location", "denied");
   if (state.mapLoadState !== "ready") params.set("map", state.mapLoadState);
   if (state.miniPlatform !== "wechat") params.set("platform", state.miniPlatform);
+  if (!state.loggedIn && state.route === "login" && state.loginView === "account") {
+    params.set("login", "account");
+  }
   const qs = params.toString();
   const next = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
   history.replaceState(null, "", next);
@@ -2639,6 +2656,16 @@ const apiPageMap = {
       "reset/start 根据账号 profile.region 选择短信或邮件；登录页不展示区号选择。",
     ],
   },
+  "login:account": {
+    title: "账号密码登录 API",
+    summary: "独立登录子页；不展示平台一键登录，仅 POST /c/v1/auth/login。",
+    apiIds: ["authLogin"],
+    suggestedApiIds: ["passwordResetStart", "passwordResetConfirm", "agreementVersions"],
+    gaps: [
+      "与平台登录页分离；忘记密码跳转 forgot-password 子流程。",
+      "国内/海外重置通道由账号资料 region 决定。",
+    ],
+  },
   "tab:map": {
     title: "地图页所需 API",
     summary: "地图总览依赖设备列表、未读告警与租户主题；须配置 request 合法域名，通过 wx.request 调用。",
@@ -2920,6 +2947,7 @@ function renderApiPanel() {
 function getApiPanelInfo() {
   if (!state.loggedIn || state.route === "login") {
     if (state.modal === "forgot-password") return apiPageMap["modal:forgot-password"] || apiPageMap.login;
+    if (state.loginView === "account") return apiPageMap["login:account"] || apiPageMap.login;
     return apiPageMap.login;
   }
   if (state.dialog === "logout-confirm") return apiPageMap["modal:logout-confirm"];
@@ -3244,6 +3272,7 @@ function toRequirementItems(info) {
 function getDemoPanelInfo() {
   if (!state.loggedIn || state.route === "login") {
     if (state.modal === "forgot-password") return forgotPasswordPanelInfo();
+    if (state.loginView === "account") return accountLoginPanelInfo();
     return loginPanelInfo();
   }
   if (state.dialog) return dialogPanelInfo();
@@ -3271,8 +3300,8 @@ function loginPanelInfo() {
       ? ["Primary: platform sign-in.", "Fallback: account or email + password.", "Forgot password opens reset flow.", "Region not on login page — use profile."]
       : ["主路径：平台一键登录。", "备选：账号/邮箱 + 密码。", "忘记密码进入重置流程。", "登录页不选区号，国家/地区在账号资料维护。"],
     actions: isEn
-      ? ["Toolbar platform switch → one-tap login.", "Enter zuobin + password → account login.", "Tap Forgot password → reset/start."]
-      : ["顶栏切换平台 → 一键登录。", "输入 zuobin + 密码 → 账号登录。", "点击忘记密码 → 发起重置。"],
+      ? ["Toolbar platform switch → one-tap login.", "Tap account login link → separate account page.", "Forgot password on account page."]
+      : ["顶栏切换平台 → 一键登录。", "点击「账号/邮箱登录」进入独立子页。", "子页内忘记密码发起重置。"],
     review: isEn
       ? ["Reset channel (SMS/email) from profile.region.", "Per-platform native login APIs."]
       : ["找回密码通道由 profile.region 决定。", "各平台原生登录 API 需分别对接。"],
@@ -3301,6 +3330,29 @@ function forgotPasswordPanelInfo() {
       isEn ? "Align with POST /c/v1/auth/password/reset/start." : "与 password/reset/start 接口字段对齐。",
     ],
     backend: ["POST /c/v1/auth/password/reset/start", "POST /c/v1/auth/password/reset/confirm"],
+  };
+}
+
+function accountLoginPanelInfo() {
+  const isEn = state.locale === "en-US";
+  return {
+    title: isEn ? "Account sign in" : "账号密码登录",
+    summary: isEn
+      ? "Separate sub-page from platform login; only account/email + password. No wx.login on this screen."
+      : "与平台一键登录分离的独立子页；仅账号/邮箱 + 密码，不展示平台登录按钮。",
+    tags: isEn ? ["Account login", "Forgot password"] : ["账号密码", "忘记密码"],
+    goals: [
+      isEn ? "Platform login hidden on this page." : "本页隐藏微信/支付宝/抖音一键登录。",
+      isEn ? "Back returns to platform login page." : "返回回到平台登录主屏。",
+    ],
+    actions: [
+      isEn ? "Enter zuobin + password → POST /c/v1/auth/login." : "输入 zuobin + 密码 → POST /c/v1/auth/login。",
+      isEn ? "Forgot password → reset flow." : "忘记密码 → 发起重置。",
+    ],
+    review: [
+      isEn ? "Region for reset from profile, not login UI." : "重置通道依赖账号资料国家/地区。",
+    ],
+    backend: ["POST /c/v1/auth/login", "POST /c/v1/auth/password/reset/start"],
   };
 }
 
@@ -3856,7 +3908,20 @@ function logoutPanelInfo() {
   };
 }
 
-function renderLogin() {
+function renderLoginAgreement() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  return `
+    <label class="mp-agreement">
+      <input type="checkbox" data-action="toggle-agreement" ${state.agreedToTerms ? "checked" : ""} />
+      <span>${L.login.agreePrefix}
+        <button type="button" class="mp-link" data-action="open-h5">${L.login.userAgreement}</button>
+        <button type="button" class="mp-link" data-action="toast-policy">${L.login.privacy}</button>
+      </span>
+    </label>
+  `;
+}
+
+function renderPlatformLoginPage() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const platform = getCurrentPlatform();
   const platformName = platformLabel(platform);
@@ -3879,18 +3944,34 @@ function renderLogin() {
         </div>
       </div>
       <div class="login-form mp-login-actions safe-bottom">
-        <label class="mp-agreement">
-          <input type="checkbox" data-action="toggle-agreement" ${state.agreedToTerms ? "checked" : ""} />
-          <span>${L.login.agreePrefix}
-            <button type="button" class="mp-link" data-action="open-h5">${L.login.userAgreement}</button>
-            <button type="button" class="mp-link" data-action="toast-policy">${L.login.privacy}</button>
-          </span>
-        </label>
+        ${renderLoginAgreement()}
         <button type="button" class="mp-btn ${platform.btnClass} mp-btn-block${disabledCls}" data-action="platform-login" ${canLogin ? "" : "disabled"}>
           ${icon("log-in")} ${tReplace("login.platformLogin", { platform: platformName })}
         </button>
         <span class="mp-open-type-hint">${platform.loginApi}</span>
-        <div class="login-divider" aria-hidden="true"><span>${L.login.orDivider}</span></div>
+        <button type="button" class="mp-text-link login-alt-entry" data-action="switch-login-account">${L.login.accountLoginLink}</button>
+        <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
+        <p class="version-note">${L.brand.subtitle}</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderAccountLoginPage() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const canLogin = state.agreedToTerms;
+  const disabledCls = canLogin ? "" : " mp-btn-disabled";
+  return `
+    <div class="login-screen login-account-page">
+      <header class="login-subnav safe-top">
+        <button class="back-button hoverable" type="button" data-action="back-login-platform" aria-label="${L.login.backToPlatformLogin}">
+          ${icon("chevron-left")}
+        </button>
+        <strong class="login-subnav-title">${L.login.accountLoginTitle}</strong>
+        ${renderMpCapsule()}
+      </header>
+      <div class="login-account-body safe-bottom">
+        ${renderLoginAgreement()}
         <div class="login-account-form">
           <div class="field">
             <label for="login-account">${L.login.accountLabel}</label>
@@ -3901,16 +3982,19 @@ function renderLogin() {
             <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="" />
           </div>
           <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
-          <button type="button" class="mp-btn mp-btn-default mp-btn-block${disabledCls}" data-action="account-password-login" ${canLogin ? "" : "disabled"}>
+          <button type="button" class="mp-btn mp-btn-primary mp-btn-block${disabledCls}" data-action="account-password-login" ${canLogin ? "" : "disabled"}>
             ${icon("key-round")} ${L.login.accountLoginBtn}
           </button>
           <p class="field-hint login-account-hint">${L.login.accountLoginHint}</p>
         </div>
-        <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
-        <p class="version-note">${L.brand.subtitle}</p>
       </div>
     </div>
   `;
+}
+
+function renderLogin() {
+  if (state.loginView === "account") return renderAccountLoginPage();
+  return renderPlatformLoginPage();
 }
 
 function renderShell() {
@@ -5808,6 +5892,7 @@ function handleAction(action, element, event) {
     reset() {
       state.loggedIn = false;
       state.route = "login";
+      state.loginView = "platform";
       state.tab = "map";
       state.detailTab = "overview";
       state.modal = null;
@@ -5850,6 +5935,16 @@ function handleAction(action, element, event) {
       const next = element.dataset.platform;
       if (!MINI_PROGRAM_PLATFORMS[next]) return;
       state.miniPlatform = next;
+      syncUrl();
+      render();
+    },
+    "switch-login-account"() {
+      state.loginView = "account";
+      syncUrl();
+      render();
+    },
+    "back-login-platform"() {
+      state.loginView = "platform";
       syncUrl();
       render();
     },
@@ -6297,6 +6392,7 @@ function handleAction(action, element, event) {
     logout() {
       state.loggedIn = false;
       state.route = "login";
+      state.loginView = "platform";
       state.modal = null;
       state.dialog = null;
       state.agreedToTerms = false;

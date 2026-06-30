@@ -3876,6 +3876,37 @@ body.is-demo-mode .prototype-stage {
   line-height: 1.45;
   text-align: center;
 }
+.login-alt-entry {
+  margin-top: 4px;
+}
+.login-account-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--surface);
+}
+.login-subnav {
+  display: grid;
+  grid-template-columns: 44px 1fr 88px;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px 10px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.login-subnav-title {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+}
+.login-account-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 20px 24px;
+}
 .login-divider {
   display: flex;
   align-items: center;
