@@ -1,0 +1,422 @@
+/* v0.3.0 运动健康 UI */
+body {
+  background: #f2f4f7;
+  background-image: none;
+}
+
+.fitness-screen-body {
+  background: #f2f4f7;
+}
+
+.fitness-home,
+.fitness-workout-page {
+  padding-bottom: 8px;
+}
+
+.fitness-home-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fitness-date {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.fitness-greeting {
+  margin: 4px 0 0;
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.fitness-sync-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--text);
+  max-width: 42%;
+}
+
+.fitness-sync-chip small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.fitness-rings-panel {
+  padding: 16px 14px;
+  border-radius: 18px;
+  background: #111318;
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.fitness-panel-title {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 12px;
+}
+
+.fitness-rings-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fitness-ring-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.fitness-ring {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--ring-color) calc(var(--ring-pct) * 3.6deg), rgba(255, 255, 255, 0.12) 0);
+}
+
+.fitness-ring-core {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #111318;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.fitness-ring-core strong {
+  font-size: 15px;
+}
+
+.fitness-ring-core small {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.fitness-ring-label {
+  font-size: 12px;
+}
+
+.fitness-ring-goal {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.fitness-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.fitness-metric-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.fitness-metric-card > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.fitness-metric-card strong {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.fitness-metric-card strong small {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.fitness-metric-card small:last-child {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.fitness-progress {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: #edf1f5;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.fitness-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff375f, #ff8a65);
+}
+
+.fitness-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.fitness-section-head h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.muted-copy {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.workout-preview-cells,
+.workout-row .mp-cell__ft {
+  text-align: right;
+}
+
+.workout-row-stats strong {
+  display: block;
+  font-size: 14px;
+}
+
+.workout-row-stats small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.workout-row-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.fitness-alert-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(250, 81, 81, 0.2);
+  border-radius: 14px;
+  background: #fff5f5;
+  text-align: left;
+}
+
+.fitness-alert-card span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.fitness-disclaimer {
+  margin: 14px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted);
+  text-align: center;
+}
+
+.workout-start-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.workout-start-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 14px;
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.workout-start-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #111318;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.workout-start-card small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bottom-nav .nav-button.active {
+  color: #111318;
+}
+
+.bottom-nav .nav-button.active .lucide,
+.bottom-nav .nav-button.active [data-lucide] {
+  color: #ff375f;
+}
+
+.fitness-week-strip {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fff;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.fitness-week-strip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.fitness-week-strip-head strong {
+  font-size: 15px;
+}
+
+.fitness-week-strip-head span {
+  color: var(--muted);
+}
+
+.fitness-week-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fitness-week-metrics small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.fitness-week-metrics strong {
+  font-size: 15px;
+}
+
+.devices-sync-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #111318, #2a2f3a);
+  color: #fff;
+}
+
+.devices-sync-banner span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.devices-sync-banner .mp-link-btn {
+  color: #ff8a65;
+  white-space: nowrap;
+}
+
+.workout-route-card {
+  position: relative;
+  min-height: 160px;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+}
+
+.workout-route-line {
+  position: absolute;
+  inset: 24% 12% 28% 18%;
+  border: 3px dashed rgba(17, 19, 24, 0.35);
+  border-radius: 40% 60% 55% 45% / 50% 40% 60% 50%;
+}
+
+.workout-route-pin {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #111318;
+  color: #fff;
+}
+
+.workout-route-pin.start {
+  top: 18%;
+  left: 14%;
+}
+
+.workout-route-pin.end {
+  bottom: 16%;
+  right: 12%;
+}
+
+.workout-route-card .map-caption {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+}
+
+.miniprogram-login .login-map {
+  background:
+    radial-gradient(circle at 22% 68%, rgba(255, 55, 95, 0.35) 0 28px, transparent 29px),
+    radial-gradient(circle at 52% 42%, rgba(168, 225, 12, 0.4) 0 32px, transparent 33px),
+    radial-gradient(circle at 78% 62%, rgba(0, 199, 190, 0.35) 0 24px, transparent 25px),
+    #f0f4f8;
+}
+
+.miniprogram-login .login-visual {
+  background: #f0f4f8;
+}

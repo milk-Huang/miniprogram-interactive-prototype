@@ -1,7 +1,7 @@
 const mock = {
   tenant: {
     id: "tenant-healthcare-demo",
-    name: "安心康护服务中心",
+    name: "安心运动健康",
     region: "全球服务",
   },
   user: {
@@ -16,22 +16,22 @@ const mock = {
   devices: [
     {
       id: "dev-ev05-mom",
-      name: "妈妈手表",
-      model: "EV05",
-      scenario: "老人看护 / 健康监测",
+      name: "运动手表",
+      model: "EV-Sport",
+      scenario: "运动健康 / 心率血氧监测",
       status: "online",
       battery: 82,
       signal: "强",
       locateType: "GPS",
-      location: "深圳湾 · 14:32",
-      lastEvent: "疑似跌倒已触发 AI 预警",
+      location: "腕上 · 已连接",
+      lastEvent: "运动数据 2 分钟前同步",
       color: "blue",
-      category: "family",
-      categoryLabel: "家人",
+      category: "wearable",
+      categoryLabel: "穿戴",
       mapClass: "pin-a",
       icon: "watch",
       permission: "owner",
-      metrics: { heart: 78, steps: 3824, active: 42 },
+      metrics: { heart: 72, steps: 8432, active: 58, calories: 420, sleepMin: 432 },
       hardware: {
         imei: "863450071234001",
         mac: "AC:23:3F:9A:31:05",
@@ -45,177 +45,33 @@ const mock = {
       },
     },
     {
-      id: "dev-ev07b-pendant",
-      name: "安全挂坠",
-      model: "EV07B",
-      scenario: "个人安全 / 紧急呼叫",
+      id: "dev-ev99-band",
+      name: "智能手环",
+      model: "EV99",
+      scenario: "轻量穿戴 / 睡眠与活动",
       status: "online",
-      battery: 46,
-      signal: "中",
-      locateType: "WiFi",
-      location: "家庭区域 · 14:28",
-      lastEvent: "低电量提醒",
-      color: "amber",
-      category: "family",
-      categoryLabel: "家人",
-      mapClass: "pin-b",
-      icon: "badge-alert",
-      permission: "owner",
-      metrics: { heart: 72, steps: 1900, active: 21 },
-      hardware: {
-        imei: "863450071234188",
-        mac: "AC:23:3F:9B:22:F0",
-        firmware: "EV07B_V2.1.0",
-        hardware: "EV07B-HW-R5",
-        iccid: "8986043210042810988",
-        sim: "中国电信 · 物联卡",
-        bleVersion: "5.0",
-        producedAt: "2025-05-04",
-        activatedAt: "2025-09-22",
-      },
-    },
-    {
-      id: "dev-ev04-worker",
-      name: "作业定位器",
-      model: "EV04",
-      scenario: "孤独作业 / 位置安全",
-      status: "offline",
-      battery: 28,
-      signal: "无",
-      locateType: "LBS",
-      location: "最后在线 · 32 分钟前",
-      lastEvent: "设备离线",
-      color: "coral",
-      category: "family",
-      categoryLabel: "家人",
-      mapClass: "pin-c",
-      icon: "hard-hat",
-      permission: "viewer",
-      metrics: { heart: 0, steps: 0, active: 0 },
-      hardware: {
-        imei: "863450071234236",
-        mac: "AC:23:3F:9C:A8:10",
-        firmware: "EV04_V1.2.3",
-        hardware: "EV04-HW-R2",
-        iccid: "8986043210042811046",
-        sim: "中国联通 · 物联卡",
-        bleVersion: "4.2",
-        producedAt: "2024-11-09",
-        activatedAt: "2025-02-15",
-      },
-    },
-    {
-      id: "dev-ev201-dog",
-      name: "Milo 项圈",
-      model: "EV201",
-      scenario: "宠物安全 / 活动监测",
-      status: "online",
-      battery: 74,
+      battery: 61,
       signal: "强",
-      locateType: "GPS",
-      location: "公园东门 · 14:31",
-      lastEvent: "离开宠物围栏",
-      color: "green",
-      category: "pet",
-      categoryLabel: "宠物",
-      mapClass: "pin-d",
-      icon: "paw-print",
-      permission: "owner",
-      metrics: { heart: 96, steps: 6400, active: 68 },
-      hardware: {
-        imei: "863450071234502",
-        mac: "AC:23:3F:9D:50:A1",
-        firmware: "EV201_V1.0.8",
-        hardware: "EV201-HW-R1",
-        iccid: "8986043210042811112",
-        sim: "中国移动 · 物联卡",
-        bleVersion: "5.0",
-        producedAt: "2025-06-21",
-        activatedAt: "2025-10-04",
-      },
-      pet: {
-        species: "狗",
-        breed: "金毛寻回犬",
-        gender: "公",
-        neutered: "已绝育",
-        birthday: "2022-05-18",
-        ageLabel: "3 岁 11 个月",
-        weight: "28.4 kg",
-        weightTrend: "近 30 天 +0.6 kg",
-        vaccine: "狂犬疫苗 2026-02-10 已接种",
-        nextVaccine: "2027-02 续打",
-      },
-    },
-    {
-      id: "dev-ev206-cat",
-      name: "栗子定位器",
-      model: "EV206",
-      scenario: "宠物定位 / 健康活动",
-      status: "online",
-      battery: 68,
-      signal: "中",
-      locateType: "WiFi",
-      location: "家附近 · 14:24",
-      lastEvent: "活动量正常",
+      locateType: "蓝牙",
+      location: "腕上 · 已连接",
+      lastEvent: "昨夜睡眠报告已生成",
       color: "purple",
-      category: "pet",
-      categoryLabel: "宠物",
-      mapClass: "pin-e",
-      icon: "paw-print",
+      category: "wearable",
+      categoryLabel: "穿戴",
+      mapClass: "pin-b",
+      icon: "activity",
       permission: "owner",
-      metrics: { heart: 104, steps: 2800, active: 35 },
+      metrics: { heart: 68, steps: 5210, active: 42, calories: 280, sleepMin: 405 },
       hardware: {
-        imei: "863450071234627",
-        mac: "AC:23:3F:9E:6C:23",
-        firmware: "EV206_V1.0.5",
-        hardware: "EV206-HW-R1",
-        iccid: "8986043210042811235",
-        sim: "中国移动 · 物联卡",
-        bleVersion: "5.2",
-        producedAt: "2025-07-30",
-        activatedAt: "2025-11-12",
-      },
-      pet: {
-        species: "猫",
-        breed: "英国短毛猫",
-        gender: "母",
-        neutered: "已绝育",
-        birthday: "2023-09-02",
-        ageLabel: "2 岁 7 个月",
-        weight: "4.6 kg",
-        weightTrend: "近 30 天 +0.1 kg",
-        vaccine: "猫三联 2025-12-08 已接种",
-        nextVaccine: "2026-12 续打",
-      },
-    },
-    {
-      id: "dev-tag-luggage",
-      name: "行李定位器",
-      model: "EV-Tag",
-      scenario: "物品防丢 / 位置提醒",
-      status: "online",
-      battery: 18,
-      signal: "中",
-      locateType: "Bluetooth",
-      location: "机场到达层 · 14:20",
-      lastEvent: "物品低电量",
-      color: "blue",
-      category: "item",
-      categoryLabel: "物品",
-      mapClass: "pin-f",
-      icon: "package",
-      permission: "owner",
-      metrics: { heart: 0, steps: 0, active: 0 },
-      hardware: {
-        imei: "—",
-        mac: "AC:23:3F:9F:88:14",
-        firmware: "EV-Tag_V0.9.2",
-        hardware: "EV-Tag-HW-R1",
+        imei: "863450071299990",
+        mac: "AC:23:3F:AA:99:01",
+        firmware: "EV99_V1.0.2",
+        hardware: "EV99-HW-R1",
         iccid: "—",
-        sim: "无 SIM · 仅蓝牙",
+        sim: "无 SIM · 蓝牙同步",
         bleVersion: "5.2",
-        producedAt: "2025-09-08",
-        activatedAt: "2025-12-01",
+        producedAt: "2025-11-02",
+        activatedAt: "2026-01-18",
       },
     },
   ],
@@ -223,58 +79,28 @@ const mock = {
     {
       id: "a1",
       deviceId: "dev-ev05-mom",
-      type: "疑似跌倒",
-      severity: "high",
-      time: "14:26",
+      type: "静息心率偏高",
+      severity: "medium",
+      time: "11:42",
       status: "待确认",
-      description: "设备检测到跌倒姿态，5 分钟内位置未明显移动。",
-      ai: "风险等级：中高。建议立即联系佩戴者确认状态，如无法联系，请通知紧急联系人。",
+      description: "静息心率连续 15 分钟高于个人基线（72 → 88 bpm）。",
+      ai: "可能与运动后恢复、睡眠不足或压力有关。建议休息观察，持续偏高请咨询医生。",
     },
     {
       id: "a2",
-      deviceId: "dev-ev07b-pendant",
+      deviceId: "dev-ev99-band",
       type: "低电量",
       severity: "medium",
-      time: "13:58",
+      time: "08:15",
       status: "未读",
-      description: "当前电量 46%，预计 18 小时后进入低电模式。",
-      ai: "建议今晚充电，并检查是否开启了高频定位模式。",
-    },
-    {
-      id: "a3",
-      deviceId: "dev-ev04-worker",
-      type: "设备离线",
-      severity: "medium",
-      time: "13:42",
-      status: "未处理",
-      description: "设备已 32 分钟未上报数据。",
-      ai: "可能原因包括网络弱、设备关机或电量不足。建议先尝试单次定位或联系使用者。",
-    },
-    {
-      id: "a4",
-      deviceId: "dev-ev201-dog",
-      type: "离开围栏",
-      severity: "high",
-      time: "14:30",
-      status: "待确认",
-      description: "宠物已离开公园活动围栏，最近位置在公园东门。",
-      ai: "建议立即查看实时位置，并开启高频定位；如 5 分钟内仍在围栏外，提醒附近家人协助寻找。",
-    },
-    {
-      id: "a5",
-      deviceId: "dev-tag-luggage",
-      type: "低电量",
-      severity: "medium",
-      time: "14:12",
-      status: "未读",
-      description: "物品定位器电量低于 20%，建议尽快充电或更换电池。",
-      ai: "低电量可能影响蓝牙扫描和离线找回能力，建议在下次出行前处理。",
+      description: "手环电量 61%，预计今晚睡眠监测前需充电。",
+      ai: "低电量可能影响夜间睡眠监测与运动提醒推送。",
     },
   ],
   track: [
-    { time: "08:20", title: "离开 Home Zone", desc: "GPS · 精度 12m" },
-    { time: "10:35", title: "到达社区中心", desc: "WiFi · 精度 34m" },
-    { time: "14:26", title: "疑似跌倒事件", desc: "GPS · 精度 10m" },
+    { time: "07:15", title: "开始跑步", desc: "GPS · 深圳湾公园" },
+    { time: "07:32", title: "5 km 打卡", desc: "配速 6'12\" · 心率 152 bpm" },
+    { time: "07:47", title: "结束运动", desc: "消耗 286 千卡 · 平均配速 6'12\"" },
   ],
   geofences: [
     { name: "Home Zone", shape: "圆形", trigger: "进出都提醒", status: "启用", radius: "300m", schedule: "全天" },
@@ -287,15 +113,15 @@ const mock = {
       label: "今日",
       bars: [12, 18, 24, 30, 22, 28, 16],
       labels: ["6", "9", "12", "15", "18", "21", "24"],
-      summaryTitle: "今日活跃度",
-      summary: "上午 9–12 点活动量集中，下午外出后活动减弱，建议下午 4 点后增加一次轻量散步。",
+      summaryTitle: "今日活动分布",
+      summary: "上午 7 点户外跑步贡献主要活动量；午后心率平稳，晚间建议轻度拉伸。",
     },
     week: {
       label: "近 7 天",
       bars: [42, 56, 49, 62, 58, 47, 35],
       labels: ["一", "二", "三", "四", "五", "六", "日"],
       summaryTitle: "7 日活跃趋势",
-      summary: "活动量较 7 日均值下降 23%，夜间心率波动偏高。结合定位看，上午外出时间减少，建议关注睡眠和日常活动状态。",
+      summary: "本周平均步数 8,120，有氧达标 5/7 天；静息心率稳定。",
     },
     month: {
       label: "近 30 天",
@@ -305,6 +131,39 @@ const mock = {
       summary: "本月平均活跃 47 分钟/天，比上月持平。第 12–18 天有连续 7 日下降，与雨天减少外出相关，本周已恢复。",
     },
   },
+  weekSummary: {
+    workouts: 4,
+    distance: "22.1 km",
+    duration: "2h 48m",
+    calories: 1126,
+    label: "本周",
+  },
+  todaySummary: {
+    dateLabel: "6月30日 周一",
+    rings: {
+      move: { label: "活动", current: 420, goal: 600, unit: "千卡", color: "#ff375f" },
+      exercise: { label: "锻炼", current: 28, goal: 30, unit: "分钟", color: "#a8e10c" },
+      stand: { label: "站立", current: 10, goal: 12, unit: "小时", color: "#00c7be" },
+    },
+    steps: 8432,
+    stepsGoal: 10000,
+    heartRate: 72,
+    sleep: "7小时12分",
+    syncedDevice: "运动手表",
+    syncedAt: "2 分钟前",
+    unreadAlerts: 2,
+  },
+  workouts: [
+    { id: "w1", type: "户外跑步", icon: "footprints", duration: "32:18", distance: "5.2 km", calories: 286, pace: "6'12\"", time: "今天 07:15", device: "运动手表" },
+    { id: "w2", type: "户外健走", icon: "route", duration: "48:02", distance: "4.1 km", calories: 198, pace: "11'42\"", time: "昨天 18:40", device: "运动手表" },
+    { id: "w3", type: "骑行", icon: "bike", duration: "41:06", distance: "12.8 km", calories: 312, pace: "19.2 km/h", time: "周日 09:20", device: "运动手表" },
+  ],
+  workoutTypes: [
+    { id: "run", label: "跑步", icon: "footprints" },
+    { id: "walk", label: "健走", icon: "route" },
+    { id: "ride", label: "骑行", icon: "bike" },
+    { id: "free", label: "自由训练", icon: "dumbbell" },
+  ],
   shares: [
     { name: "Jason Chen", account: "jason.chen@email.com", permission: "查看 + 接收告警", status: "已接受" },
     { name: "Nina Chen", account: "nina.chen@email.com", permission: "仅查看", status: "待接受" },
@@ -313,23 +172,20 @@ const mock = {
     autoRenew: true,
     paymentMethod: "Visa **** 4821",
     subscriptions: [
-      { device: "妈妈手表 · EV05", plan: "标准 SIM 套餐 · 1GB/月", expireAt: "2026-08-12 到期", remaining: "剩余 642 MB · 18 天", status: "正常" },
-      { device: "安全挂坠 · EV07B", plan: "基础 SIM 套餐 · 500MB/月", expireAt: "2026-05-22 到期", remaining: "剩余 38 MB · 4 天", status: "即将到期" },
-      { device: "作业定位器 · EV04", plan: "高频上报套餐 · 2GB/月", expireAt: "2026-06-30 到期", remaining: "剩余 1.4 GB · 26 天", status: "正常" },
-      { device: "Milo 项圈 · EV201", plan: "宠物追踪套餐 · 1GB/月", expireAt: "2026-09-04 到期", remaining: "剩余 812 MB · 41 天", status: "正常" },
+      { device: "运动手表 · EV-Sport", plan: "运动健康云同步 · 含历史备份", expireAt: "2026-08-12 到期", remaining: "数据同步正常", status: "正常" },
+      { device: "智能手环 · EV99", plan: "基础健康监测", expireAt: "2026-12-01 到期", remaining: "睡眠报告已开启", status: "正常" },
     ],
     orders: [
-      { id: "EV-O-2026-00284", desc: "安全挂坠 · 基础 SIM 套餐 · 12 个月", amount: "￥168", status: "待支付", time: "2026-04-25" },
-      { id: "EV-O-2026-00231", desc: "妈妈手表 · 标准 SIM 套餐 · 12 个月", amount: "￥298", status: "已支付", time: "2026-03-12" },
-      { id: "EV-O-2025-00917", desc: "Milo 项圈 · 宠物追踪套餐 · 12 个月", amount: "￥358", status: "已支付", time: "2025-09-04" },
+      { id: "EV-O-2026-00284", desc: "运动手表 · 年度健康云同步", amount: "￥198", status: "待支付", time: "2026-04-25" },
+      { id: "EV-O-2026-00231", desc: "运动手表 · 标准套餐 · 12 个月", amount: "￥298", status: "已支付", time: "2026-03-12" },
     ],
   },
   incomingShares: [
     { device: "爸爸定位器", owner: "Michael Chen", permission: "查看 + 接收告警", status: "待确认" },
   ],
   systemMessages: [
-    { title: "分享邀请", desc: "Michael Chen 邀请你查看爸爸定位器", status: "待确认", type: "share" },
-    { title: "系统通知", desc: "国内地图与定位权限将在首次使用地图时申请", status: "未读", type: "system" },
+    { title: "分享邀请", desc: "Michael Chen 邀请你查看他的运动数据", status: "待确认", type: "share" },
+    { title: "系统通知", desc: "户外运动将申请定位权限，用于记录轨迹", status: "未读", type: "system" },
   ],
   discoveredDevices: [
     { id: "ble-ev05-9a31", name: "EV05-9A31", model: "EV05", signal: "强", imei: "863450071234001" },
@@ -361,12 +217,12 @@ const mock = {
   ],
   configs: {
     homeWifi: [
-      { ssid: "Home_5G", strength: "强", source: "妈妈手表" },
-      { ssid: "LivingRoom_IoT", strength: "中", source: "妈妈手表" },
+      { ssid: "Home_5G", strength: "强", source: "运动手表" },
+      { ssid: "LivingRoom_IoT", strength: "中", source: "运动手表" },
     ],
     homeBeacon: [
-      { name: "卧室信标", uuid: "FDA5-1201", source: "妈妈手表" },
-      { name: "厨房信标", uuid: "FDA5-1202", source: "妈妈手表" },
+      { name: "卧室信标", uuid: "FDA5-1201", source: "运动手表" },
+      { name: "厨房信标", uuid: "FDA5-1202", source: "运动手表" },
     ],
   },
   emergencyContacts: [
@@ -402,7 +258,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.2.0";
+const PROTOTYPE_VERSION = "0.3.0";
 
 const MINI_PROGRAM_PLATFORMS = {
   wechat: {
@@ -439,7 +295,7 @@ const BIND_DETECT_DEMO_IMEI = {
 
 const LOCALES = {
   "zh-CN": {
-    brand: { name: "Evmars", tagline: "智能设备管理", subtitle: "跨平台小程序 · 可交互原型 v" + PROTOTYPE_VERSION },
+    brand: { name: "Evmars", tagline: "运动健康", subtitle: "运动健康小程序 · 可交互原型 v" + PROTOTYPE_VERSION },
     demo: {
       kicker: "界面说明",
       pageInfo: "页面相关信息",
@@ -466,18 +322,19 @@ const LOCALES = {
       structureTitle: "页面结构",
       structure: [
         "登录页：多平台一键登录、账号/邮箱密码、协议",
-        "地图首页：设备位置、状态、围栏、告警",
-        "设备页：列表、扫码/设备ID/蓝牙添加",
-        "设备详情：概览、地图、健康、告警、配置",
+        "今日：活动圆环、步数心率睡眠摘要",
+        "运动：记录列表与开始运动",
+        "设备：穿戴设备绑定与同步",
+        "设备详情：概览、健康、运动、告警、设置",
         "消息：告警、分享邀请、系统通知",
         "我的：资料、安全、通知、地区地图、帮助",
       ],
       pathTitle: "推荐点击路径",
       paths: [
-        "微信登录 → 地图首页",
-        "点击地图标记 → 单设备地图",
-        "扫码添加 → 绑定流程",
-        "「妈妈手表」→ 设备详情各 Tab",
+        "平台登录 → 今日首页",
+        "查看活动圆环与步数心率",
+        "运动页 → 最近跑步记录",
+        "运动手表 → 设备详情健康 Tab",
         "配置页复制 Home WiFi / Beacon",
         "我的 → 资料 / 通知 / 地区地图",
         "分享、设备管理、AI 客服弹窗",
@@ -540,16 +397,37 @@ const LOCALES = {
       },
       mpTechExample: "示例：GET https://api.evmars.com/c/v1/devices",
     },
-    nav: { map: "地图", devices: "设备", messages: "消息", mine: "我的" },
+    nav: { today: "今日", workout: "运动", devices: "设备", mine: "我的" },
     navSub: {
-      map: "查看设备位置、告警与围栏状态",
-      devices: "我的设备、添加设备和状态总览",
-      messages: "告警、分享邀请和系统通知",
-      mine: "账号、安全、通知与帮助",
+      today: "活动圆环、指标摘要与设备同步",
+      workout: "运动记录与开始锻炼",
+      devices: "穿戴设备绑定、同步与状态",
+      mine: "账号、目标、通知与帮助",
+    },
+    fitness: {
+      greeting: "你好，{name}",
+      todaySummary: "今日摘要",
+      activityRings: "活动圆环",
+      metrics: "关键指标",
+      syncFrom: "数据来自",
+      steps: "步数",
+      heartRate: "心率",
+      sleep: "睡眠",
+      startWorkout: "开始运动",
+      recentWorkouts: "最近运动",
+      viewAllWorkouts: "查看全部记录",
+      goalProgress: "目标进度",
+      alerts: "运动与健康提醒",
+      weekSummary: "本周运动",
+      weekWorkouts: "{count} 次",
+      weekDistance: "总距离",
+      weekDuration: "总时长",
+      weekCalories: "总消耗",
+      nonMedical: "数据仅供参考，不构成医疗诊断",
     },
     login: {
-      hero: "统一管理定位、健康与设备安全",
-      desc: "查看家人位置、健康状态和安全提醒，随时管理设备。",
+      hero: "连接穿戴设备，看见每一次运动",
+      desc: "同步步数、心率、睡眠与训练记录，管理你的运动健康目标。",
       platformLogin: "{platform}一键登录",
       orDivider: "或",
       accountLabel: "账号 / 邮箱",
@@ -607,7 +485,7 @@ const LOCALES = {
       manualEntry: "手动输入",
       nameLabel: "设备名称",
       nameOptional: "（可选）",
-      namePlaceholder: "如：妈妈手表",
+      namePlaceholder: "如：我的运动手表",
       phoneLabel: "联系手机号",
       phonePlaceholder: "用于设备通知与找回",
       detectBtn: "识别设备",
@@ -648,6 +526,8 @@ const LOCALES = {
     pullRefresh: {
       simulate: "演示刷新",
       map: { idle: "下拉刷新", loading: "正在刷新设备位置…", done: "设备位置已更新" },
+      today: { idle: "下拉刷新", loading: "正在同步健康数据…", done: "今日数据已更新" },
+      workout: { idle: "下拉刷新", loading: "正在刷新运动记录…", done: "运动记录已更新" },
       messages: { idle: "下拉刷新", loading: "正在刷新消息…", done: "消息列表已更新" },
       devices: { idle: "下拉刷新", loading: "正在刷新设备…", done: "设备列表已更新" },
       mine: { idle: "下拉刷新", loading: "正在刷新…", done: "账号信息已更新" },
@@ -663,20 +543,20 @@ const LOCALES = {
     toast: {
       wechatLogin: "wx.login 成功 → POST /c/v1/auth/wechat/login",
       phoneLogin: "getPhoneNumber → POST /c/v1/auth/wechat/phone",
-      guest: "已进入地图首页（演示模式）",
+      guest: "已进入今日首页（演示模式）",
       sync: "设备状态、告警和健康摘要已同步",
       scan: "wx.scanCode → POST /c/v1/device-bind/detect",
       subscribe: "wx.requestSubscribeMessage 已记录 templateId",
       share: "onShareAppMessage 分享 path 含 deviceId",
     },
     mock: {
-      momWatch: "妈妈手表", pendant: "安全挂坠", worker: "作业定位器",
+      momWatch: "运动手表", pendant: "安全挂坠", worker: "作业定位器",
       dogCollar: "Milo 项圈", catTracker: "栗子定位器", luggage: "行李定位器",
       chatWelcome: "你好，我可以帮你解释告警、排查设备离线，也可以说明如何分享和配置设备。",
     },
   },
   "en-US": {
-    brand: { name: "Evmars", tagline: "Smart Device Hub", subtitle: "Cross-platform mini program · Prototype v" + PROTOTYPE_VERSION },
+    brand: { name: "Evmars", tagline: "Fitness & Health", subtitle: "Fitness mini program · Prototype v" + PROTOTYPE_VERSION },
     demo: {
       kicker: "Guide",
       pageInfo: "Page context",
@@ -777,16 +657,37 @@ const LOCALES = {
       },
       mpTechExample: "Example: GET https://api.evmars.com/c/v1/devices",
     },
-    nav: { map: "Map", devices: "Devices", messages: "Messages", mine: "Me" },
+    nav: { today: "Today", workout: "Workout", devices: "Devices", mine: "Me" },
     navSub: {
-      map: "Device locations, alerts and geofences",
-      devices: "My devices, add device and status",
-      messages: "Alerts, share invites and system notices",
-      mine: "Account, security, notifications and help",
+      today: "Rings, metrics and device sync",
+      workout: "Records and start workout",
+      devices: "Wearables bind and sync",
+      mine: "Account, goals and settings",
+    },
+    fitness: {
+      greeting: "Hi, {name}",
+      todaySummary: "Today",
+      activityRings: "Activity rings",
+      metrics: "Key metrics",
+      syncFrom: "Synced from",
+      steps: "Steps",
+      heartRate: "Heart rate",
+      sleep: "Sleep",
+      startWorkout: "Start workout",
+      recentWorkouts: "Recent",
+      viewAllWorkouts: "All records",
+      goalProgress: "Goal progress",
+      alerts: "Health alerts",
+      weekSummary: "This week",
+      weekWorkouts: "{count} sessions",
+      weekDistance: "Distance",
+      weekDuration: "Duration",
+      weekCalories: "Calories",
+      nonMedical: "For wellness only, not medical advice",
     },
     login: {
-      hero: "Location, health and device safety in one place",
-      desc: "Track family locations, health and safety alerts, manage all devices.",
+      hero: "Connect wearables. Track every move.",
+      desc: "Sync steps, heart rate, sleep and workouts. Manage your fitness goals.",
       platformLogin: "Sign in with {platform}",
       orDivider: "or",
       accountLabel: "Account / email",
@@ -885,6 +786,8 @@ const LOCALES = {
     pullRefresh: {
       simulate: "Demo refresh",
       map: { idle: "Pull to refresh", loading: "Refreshing locations…", done: "Locations updated" },
+      today: { idle: "Pull to refresh", loading: "Syncing health data…", done: "Today updated" },
+      workout: { idle: "Pull to refresh", loading: "Refreshing workouts…", done: "Workouts updated" },
       messages: { idle: "Pull to refresh", loading: "Refreshing messages…", done: "Messages updated" },
       devices: { idle: "Pull to refresh", loading: "Refreshing devices…", done: "Devices updated" },
       mine: { idle: "Pull to refresh", loading: "Refreshing…", done: "Profile updated" },
@@ -900,14 +803,14 @@ const LOCALES = {
     toast: {
       wechatLogin: "wx.login OK → POST /c/v1/auth/wechat/login",
       phoneLogin: "getPhoneNumber → POST /c/v1/auth/wechat/phone",
-      guest: "Map home opened (demo mode)",
+      guest: "Today home opened (demo mode)",
       sync: "Device status, alerts and health synced",
       scan: "wx.scanCode → POST /c/v1/device-bind/detect",
       subscribe: "wx.requestSubscribeMessage templateId saved",
       share: "onShareAppMessage path includes deviceId",
     },
     mock: {
-      momWatch: "Mom's Watch", pendant: "Safety Pendant", worker: "Worker Tracker",
+      momWatch: "Sport Watch", pendant: "Safety Pendant", worker: "Worker Tracker",
       dogCollar: "Milo Collar", catTracker: "Chestnut Tracker", luggage: "Luggage Tag",
       chatWelcome: "Hi! I can explain alerts, offline devices, sharing and configuration.",
     },
@@ -958,12 +861,15 @@ function deviceDisplayName(device) {
 
 const pagePathMap = {
   login: "pages/auth/login/index",
+  "tab:today": "pages/home/index",
+  "tab:workout": "pages/workout/index",
   "tab:map": "pages/map/index",
   "tab:devices": "pages/device/list/index",
   "tab:messages": "pages/message/index",
   "tab:mine": "pages/mine/index",
   detail: "pages/device/detail/index?deviceId={deviceId}&tab={detailTab}",
   "detail:overview": "pages/device/detail/index?deviceId={deviceId}&tab=overview",
+  "detail:workout": "pages/device/detail/index?deviceId={deviceId}&tab=workout",
   "detail:map": "pages/device/detail/index?deviceId={deviceId}&tab=map",
   "detail:health": "pages/device/detail/index?deviceId={deviceId}&tab=health",
   "detail:alarms": "pages/device/detail/index?deviceId={deviceId}&tab=alarms",
@@ -1132,6 +1038,8 @@ const wxApiCatalog = {
 
 const wxApiPageMap = {
   login: ["wxLogin", "getPhoneNumber"],
+  "tab:today": ["onPullDownRefresh", "requestSubscribeMessage"],
+  "tab:workout": ["onPullDownRefresh", "getLocation"],
   "tab:map": ["getLocation", "getMenuButtonBoundingClientRect", "onPullDownRefresh", "openSetting", "requestSubscribeMessage", "shareAppMessage"],
   "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery", "onPullDownRefresh"],
   "tab:messages": ["onPullDownRefresh", "requestSubscribeMessage"],
@@ -1168,6 +1076,23 @@ const mpAdaptationPageMap = {
       { title: "协议勾选", desc: "未勾选不可登录，符合审核要求。", status: "done" },
       { title: "多平台登录", desc: "微信/支付宝/抖音各自原生登录 API，文案通用化。", status: "demo" },
       { title: "账号密码登录", desc: "备选 POST /c/v1/auth/login；忘记密码独立弹窗。", status: "demo" },
+    ],
+  },
+  "tab:today": {
+    title: "今日页适配",
+    summary: "运动健康首页：活动圆环、指标卡片、设备同步芯片。",
+    items: [
+      { title: "活动圆环", desc: "活动/锻炼/站立三环，目标进度可配置。", status: "demo" },
+      { title: "指标卡片", desc: "步数、心率、睡眠四格，点击进入健康详情。", status: "demo" },
+      { title: "非医疗声明", desc: "页底免责声明。", status: "demo" },
+    ],
+  },
+  "tab:workout": {
+    title: "运动页适配",
+    summary: "开始运动 + 历史记录；户外需定位授权。",
+    items: [
+      { title: "开始运动", desc: "跑步/健走/骑行入口。", status: "demo" },
+      { title: "运动记录", desc: "时长、距离、卡路里列表。", status: "demo" },
     ],
   },
   "tab:map": {
@@ -1210,6 +1135,15 @@ const mpAdaptationPageMap = {
       { title: "账号注销", desc: "账号与安全 → 申请注销。", status: "done" },
       { title: "协议隐私", desc: "登录页与关于页可查看用户协议、隐私政策。", status: "demo" },
       { title: "位置合规", desc: "隐私政策单独说明位置收集；后台定位需额外申请。", status: "todo" },
+    ],
+  },
+  "detail:workout": {
+    title: "设备运动详情",
+    summary: "运动记录、GPS 轨迹回放与开始运动会话。",
+    items: [
+      { title: "运动记录", desc: "时长、距离、卡路里列表。", status: "demo" },
+      { title: "轨迹回放", desc: "户外跑步/骑行 GPS 轨迹。", status: "demo" },
+      { title: "定位权限", desc: "户外运动时申请 getLocation。", status: "todo" },
     ],
   },
   "detail:map": {
@@ -1336,7 +1270,7 @@ const state = {
   locale: "zh-CN",
   loggedIn: false,
   route: "login",
-  tab: "map",
+  tab: "today",
   detailTab: "overview",
   selectedDeviceId: "dev-ev05-mom",
   modal: null,
@@ -2662,6 +2596,25 @@ const apiPageMap = {
       "reset/start 根据账号 profile.region 选择短信或邮件；登录页不展示区号选择。",
     ],
   },
+  "tab:today": {
+    title: "今日页所需 API",
+    summary: "运动健康首页：活动圆环、步数/心率/睡眠摘要、设备同步状态。",
+    apiIds: ["devicesList", "deviceDetail", "healthSummary", "aiInsights"],
+    suggestedApiIds: ["aiHealthAnalysis"],
+    gaps: [
+      "活动圆环与目标进度需日汇总接口；设备离线时展示最后同步时间。",
+      "健康数据仅供参考，需非医疗声明。",
+    ],
+  },
+  "tab:workout": {
+    title: "运动页所需 API",
+    summary: "运动记录列表、开始/结束运动会话、GPS 轨迹（若设备支持）。",
+    apiIds: ["devicesList"],
+    suggestedApiIds: ["workoutList", "workoutStart", "workoutEnd"],
+    gaps: [
+      "户外跑步/骑行依赖定位权限；正式版需 WorkoutSession DTO。",
+    ],
+  },
   "tab:map": {
     title: "地图页所需 API",
     summary: "地图总览依赖设备列表、未读告警与租户主题；须配置 request 合法域名，通过 wx.request 调用。",
@@ -2847,7 +2800,8 @@ function render() {
   if (
     state.loggedIn
     && state.route === "home"
-    && state.tab === "map"
+    && false
+    && state.tab === "today"
     && state.pendingLocationGuide
     && state.locationPermission === "unknown"
     && !state.modal
@@ -3353,6 +3307,48 @@ function accountLoginPanelInfo() {
 
 function tabPanelInfo() {
   const panelMap = {
+    today: {
+      title: "今日页",
+      summary: "运动健康首页：活动圆环、关键指标、设备同步与最近运动，参考 Apple 健身 / 小米运动健康信息层级。",
+      tags: ["活动圆环", "健康摘要", "设备同步"],
+      goals: [
+        "确认用户打开即见今日活动完成度（圆环/步数）。",
+        "确认心率、睡眠等核心指标一屏可读。",
+        "确认数据来源设备清晰，可点击进入详情。",
+      ],
+      actions: [
+        "点击同步设备芯片进入健康详情。",
+        "点击指标卡查看趋势；点击最近运动进入运动页。",
+        "下拉刷新同步数据。",
+      ],
+      review: [
+        "非医疗诊断表述；设备未同步时的空态与离线态。",
+        "目标值是否支持用户在「我的」自定义。",
+      ],
+      backend: [
+        "日活动汇总、健康摘要、设备同步状态、最近运动会话。",
+      ],
+    },
+    workout: {
+      title: "运动页",
+      summary: "开始运动入口 + 历史记录列表，承接户外跑步/健走/骑行等场景。",
+      tags: ["开始运动", "运动记录", "GPS轨迹"],
+      goals: [
+        "确认开始运动入口醒目。",
+        "确认记录列表展示时长、距离、卡路里。",
+      ],
+      actions: [
+        "点击运动类型模拟开始锻炼。",
+        "点击记录查看轨迹回放（正式版）。",
+      ],
+      review: [
+        "定位权限仅在户外运动时申请。",
+        "与穿戴设备运动模式同步策略。",
+      ],
+      backend: [
+        "运动会话 CRUD、轨迹点上传、与设备运动模式对齐。",
+      ],
+    },
     map: {
       title: "地图页",
       summary: "地图页用于集中查看所有设备的当前位置、在线状态、告警状态和安全围栏，是定位类设备最高频的总览入口。",
@@ -3383,17 +3379,17 @@ function tabPanelInfo() {
       ],
     },
     devices: {
-      title: "设备首页",
-      summary: "这是用户每天打开 App 后最先看到的页面，用来快速确认设备在线状态、告警数量和添加设备入口。",
+      title: "设备页",
+      summary: "穿戴设备列表：同步状态、电量与今日步数摘要；添加入口保留下拉刷新下方全宽按钮。",
       tags: ["设备列表", "添加设备", "状态总览"],
       goals: [
         "确认用户能一眼看懂有几台设备、几台在线、有没有待处理提醒。",
-        "确认设备卡片信息足够判断电量、定位方式、信号和最近事件。",
-        "确认添加设备入口足够明显，能承接扫码与 IMEI 绑定。",
+        "确认设备卡片展示电量、今日步数与最近同步状态。",
+        "确认添加设备入口足够明显，能承接扫码与设备ID绑定。",
       ],
       actions: [
         "点击顶部扫码按钮或添加设备卡片，打开添加设备流程。",
-        "点击妈妈手表进入设备详情。",
+        "点击运动手表进入设备详情健康 Tab。",
         "点击待处理提醒进入消息页。",
       ],
       review: [
@@ -3507,6 +3503,26 @@ function detailPanelInfo() {
       backend: [
         "设备详情、实时状态、健康指标、最近事件、AI 摘要。",
         "设备能力矩阵决定哪些模块显示。",
+      ],
+    },
+    workout: {
+      title: `${deviceDisplayName(device)} · 运动`,
+      summary: "运动页展示 GPS 轨迹、运动记录列表与开始运动入口，承接户外跑步/健走/骑行场景。",
+      tags: ["运动记录", "GPS轨迹", "开始运动"],
+      goals: [
+        "确认最近运动轨迹与记录列表信息足够判断运动强度。",
+        "确认开始运动入口醒目且与设备运动模式对齐。",
+      ],
+      actions: [
+        "点击开始运动模拟发起运动会话。",
+        "点击记录查看轨迹关键点。",
+      ],
+      review: [
+        "户外运动需定位授权；室内运动可降级为无 GPS。",
+        "与手表运动模式双向同步策略待产品确认。",
+      ],
+      backend: [
+        "运动会话、轨迹点上传、设备运动模式状态。",
       ],
     },
     map: {
@@ -3975,18 +3991,18 @@ function renderLogin() {
 function renderShell() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const titleMap = {
-    map: L.nav.map,
+    today: L.nav.today,
+    workout: L.nav.workout,
     devices: L.nav.devices,
-    messages: L.nav.messages,
     mine: L.nav.mine,
   };
   const title = titleMap[state.tab];
   return `
     ${renderHeader(title)}
-    <div class="screen-body">
-      ${state.tab === "map" ? renderGlobalMap() : ""}
+    <div class="screen-body fitness-screen-body">
+      ${state.tab === "today" ? renderTodayHome() : ""}
+      ${state.tab === "workout" ? renderWorkoutTab() : ""}
       ${state.tab === "devices" ? renderDevices() : ""}
-      ${state.tab === "messages" ? renderMessages() : ""}
       ${state.tab === "mine" ? renderMine() : ""}
     </div>
     ${renderBottomNav()}
@@ -4005,7 +4021,7 @@ function renderMpCapsule() {
 
 function getPullRefreshCopy(scope = "map") {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  return L.pullRefresh?.[scope] || L.pullRefresh.map;
+  return L.pullRefresh?.[scope] || L.pullRefresh.today || L.pullRefresh.map;
 }
 
 function renderPullRefreshBar(scope = "map") {
@@ -4051,12 +4067,163 @@ function renderHeader(title, back = false) {
   `;
 }
 
+function ringPercent(current, goal) {
+  return Math.min(100, Math.round((current / goal) * 100));
+}
+
+function renderFitnessRing(ring) {
+  const pct = ringPercent(ring.current, ring.goal);
+  return `
+    <div class="fitness-ring-card">
+      <div class="fitness-ring" style="--ring-pct: ${pct}; --ring-color: ${ring.color}">
+        <div class="fitness-ring-core">
+          <strong>${ring.current}</strong>
+          <small>${ring.unit}</small>
+        </div>
+      </div>
+      <span class="fitness-ring-label">${ring.label}</span>
+      <span class="fitness-ring-goal">${pct}%</span>
+    </div>
+  `;
+}
+
+function renderWeekSummaryStrip() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const F = L.fitness;
+  const w = mock.weekSummary;
+  return `
+    <div class="fitness-week-strip">
+      <div class="fitness-week-strip-head">
+        <strong>${F.weekSummary}</strong>
+        <span>${tReplace("fitness.weekWorkouts", { count: w.workouts })}</span>
+      </div>
+      <div class="fitness-week-metrics">
+        <div><small>${F.weekDistance}</small><strong>${w.distance}</strong></div>
+        <div><small>${F.weekDuration}</small><strong>${w.duration}</strong></div>
+        <div><small>${F.weekCalories}</small><strong>${w.calories} 千卡</strong></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTodayHome() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const F = L.fitness;
+  const s = mock.todaySummary;
+  const stepsPct = ringPercent(s.steps, s.stepsGoal);
+  const primary = getDevice();
+  const greeting = tReplace("fitness.greeting", { name: mock.user.name });
+  return `
+    ${renderPageTop("today")}
+    <section class="section fitness-home">
+      <div class="fitness-home-header">
+        <div>
+          <p class="fitness-date">${s.dateLabel}</p>
+          <h2 class="fitness-greeting">${greeting}</h2>
+        </div>
+        <button class="fitness-sync-chip hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
+          ${icon("watch")}<span>${s.syncedDevice}</span><small>${s.syncedAt}</small>
+        </button>
+      </div>
+      ${renderWeekSummaryStrip()}
+      <div class="fitness-rings-panel">
+        <div class="fitness-panel-title">${F.activityRings}</div>
+        <div class="fitness-rings-row">
+          ${Object.values(s.rings).map(renderFitnessRing).join("")}
+        </div>
+      </div>
+      <div class="fitness-metrics-grid">
+        <button class="fitness-metric-card hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
+          <span>${icon("footprints")} ${F.steps}</span>
+          <strong>${s.steps.toLocaleString()}</strong>
+          <div class="fitness-progress"><i style="width:${stepsPct}%"></i></div>
+          <small>${F.goalProgress} ${stepsPct}%</small>
+        </button>
+        <button class="fitness-metric-card hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
+          <span>${icon("heart-pulse")} ${F.heartRate}</span>
+          <strong>${s.heartRate} <small>bpm</small></strong>
+          <small>静息 · 正常范围</small>
+        </button>
+        <button class="fitness-metric-card hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
+          <span>${icon("moon")} ${F.sleep}</span>
+          <strong>${s.sleep}</strong>
+          <small>昨夜 · 质量良好</small>
+        </button>
+        <button class="fitness-metric-card hoverable" type="button" data-tab="workout">
+          <span>${icon("flame")} 活动</span>
+          <strong>${s.rings.move.current} <small>千卡</small></strong>
+          <small>${F.viewAllWorkouts}</small>
+        </button>
+      </div>
+      <div class="fitness-section-head">
+        <h3>${F.recentWorkouts}</h3>
+        <button class="mp-link-btn hoverable" type="button" data-tab="workout">${F.viewAllWorkouts}</button>
+      </div>
+      <div class="mp-cells workout-preview-cells">
+        ${mock.workouts.slice(0, 2).map((item) => renderWorkoutRow(item)).join("")}
+      </div>
+      ${s.unreadAlerts ? `
+        <button class="fitness-alert-card hoverable" type="button" data-action="toast-sync">
+          ${icon("bell")}
+          <div><strong>${F.alerts}</strong><span>${s.unreadAlerts} 条待查看（心率偏高提醒、设备低电）</span></div>
+          ${icon("chevron-right")}
+        </button>
+      ` : ""}
+      <p class="fitness-disclaimer">${F.nonMedical}</p>
+    </section>
+  `;
+}
+
+function renderWorkoutRow(item) {
+  return `
+    <button class="mp-cell mp-cell_access hoverable workout-row" type="button" data-action="toast-track">
+      <span class="mp-cell__hd workout-row-icon">${icon(item.icon)}</span>
+      <span class="mp-cell__bd">
+        <strong>${item.type}</strong>
+        <span>${item.time} · ${item.device}</span>
+      </span>
+      <span class="mp-cell__ft workout-row-stats">
+        <strong>${item.distance}</strong>
+        <small>${item.duration} · ${item.calories} 千卡</small>
+      </span>
+    </button>
+  `;
+}
+
+function renderWorkoutTab() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const F = L.fitness;
+  return `
+    ${renderPageTop("workout")}
+    <section class="section fitness-workout-page">
+      ${renderWeekSummaryStrip()}
+      <div class="workout-start-grid">
+        ${mock.workoutTypes.map((item) => `
+          <button class="workout-start-card hoverable" type="button" data-action="toast-track">
+            <span class="workout-start-icon">${icon(item.icon)}</span>
+            <strong>${item.label}</strong>
+            <small>${F.startWorkout}</small>
+          </button>
+        `).join("")}
+      </div>
+      <div class="fitness-section-head">
+        <h3>${F.recentWorkouts}</h3>
+        <span class="muted-copy">${mock.workouts.length} 条记录</span>
+      </div>
+      <div class="mp-cells">
+        ${mock.workouts.map((item) => renderWorkoutRow(item)).join("")}
+      </div>
+      <p class="fitness-disclaimer">${F.nonMedical}</p>
+    </section>
+  `;
+}
+
 function renderBottomNav() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const nav = [
-    ["map", "map", L.nav.map],
-    ["devices", "radio-receiver", L.nav.devices],
-    ["messages", "bell", L.nav.messages],
+    ["today", "activity", L.nav.today],
+    ["workout", "dumbbell", L.nav.workout],
+    ["devices", "watch", L.nav.devices],
     ["mine", "user-round", L.nav.mine],
   ];
   return `
@@ -4186,17 +4353,21 @@ function renderMapDeviceCard(device) {
 function renderDevices() {
   const onlineCount = mock.devices.filter((device) => device.status === "online").length;
   const alertCount = mock.alarms.filter((alarm) => alarm.status !== "已处理").length;
+  const totalSteps = mock.devices.reduce((sum, d) => sum + (d.metrics?.steps ?? 0), 0);
   return `
     ${renderPageTop("devices", { addDevice: true })}
     <section class="section">
-      <div class="mp-cells">
-        <div class="mp-cell mp-cell_access">
-          <span class="mp-cell__bd">在线设备</span>
-          <span class="mp-cell__ft">${onlineCount}/${mock.devices.length}</span>
+      <div class="devices-sync-banner">
+        <div>
+          <strong>${icon("refresh-cw")} 穿戴设备已同步</strong>
+          <span>今日合计 ${totalSteps.toLocaleString()} 步 · ${onlineCount}/${mock.devices.length} 台在线</span>
         </div>
-        <button class="mp-cell mp-cell_access hoverable" type="button" data-tab="messages">
-          <span class="mp-cell__bd">待处理提醒</span>
-          <span class="mp-cell__ft">${alertCount} ${icon("chevron-right")}</span>
+        <button class="mp-link-btn hoverable" type="button" data-tab="today">查看今日</button>
+      </div>
+      <div class="mp-cells">
+        <button class="mp-cell mp-cell_access hoverable" type="button" data-action="toast-sync">
+          <span class="mp-cell__bd">健康提醒</span>
+          <span class="mp-cell__ft">${alertCount} 条待查看 ${icon("chevron-right")}</span>
         </button>
       </div>
       <div class="mp-cells device-list-cells">
@@ -4214,8 +4385,8 @@ function renderDeviceCard(device) {
       <span class="mp-cell__hd device-cell-icon ${device.color}">${icon(deviceIcon(device))}</span>
       <span class="mp-cell__bd">
         <strong>${deviceDisplayName(device)}</strong>
-        <span>${device.model} · ${statusLabel(device.status)} · 电量 ${device.battery}%</span>
-        <small>${device.location}</small>
+        <span>${device.model} · ${statusLabel(device.status)} · ${(device.metrics?.steps ?? 0).toLocaleString()} 步</span>
+        <small>心率 ${device.metrics?.heart ?? "—"} bpm · 电量 ${device.battery}%</small>
       </span>
       <span class="mp-cell__ft">${icon("chevron-right")}</span>
     </button>
@@ -4232,17 +4403,18 @@ function renderDetail() {
       <div class="mp-tabs mp-tabs-scroll detail-tabs" role="tablist" aria-label="设备详情标签">
         ${[
           ["overview", "概览"],
-          ["map", "地图"],
           ["health", "健康"],
+          ["workout", "运动"],
           ["alarms", "告警"],
-          ["config", "配置"],
+          ["config", "设置"],
         ]
           .map(([tab, label]) => `<button class="mp-tab hoverable ${state.detailTab === tab ? "active" : ""}" type="button" data-detail-tab="${tab}" role="tab">${label}</button>`)
           .join("")}
       </div>
       ${state.detailTab === "overview" ? renderOverview(device) : ""}
-      ${state.detailTab === "map" ? renderMap(device) : ""}
       ${state.detailTab === "health" ? renderHealth(device) : ""}
+      ${state.detailTab === "workout" ? renderDeviceWorkout(device) : ""}
+      ${state.detailTab === "map" ? renderMap(device) : ""}
       ${state.detailTab === "alarms" ? renderAlarmSection(device) : ""}
       ${state.detailTab === "config" ? renderConfig(device) : ""}
     </div>
@@ -4288,7 +4460,7 @@ function renderOverview(device) {
     <section class="section">
       <div class="insight-card warning">
         <h3>${icon("sparkles")}AI 今日摘要</h3>
-        <p>今日活动量较过去 7 天平均值下降，夜间心率波动略高。建议关注休息状态，必要时提醒用户进行轻量活动。</p>
+        <p>今日活动量达标，锻炼圆环接近完成。静息心率在正常范围，建议保持当前运动节奏，注意运动后拉伸与补水。</p>
       </div>
     </section>
     <section class="section">
@@ -4298,6 +4470,52 @@ function renderOverview(device) {
       </div>
       <div class="card-list">
         ${(alarms.length ? alarms : mock.alarms.slice(0, 1)).map(renderAlarmCard).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderDeviceWorkout(device) {
+  const deviceName = device.name;
+  const records = mock.workouts.filter((w) => w.device === deviceName);
+  const list = records.length ? records : mock.workouts;
+  const latest = list[0];
+  return `
+    <section class="section">
+      <div class="workout-route-card" role="img" aria-label="最近运动轨迹">
+        <div class="workout-route-line"></div>
+        <div class="workout-route-pin start">${icon("flag")}</div>
+        <div class="workout-route-pin end">${icon("map-pin")}</div>
+        <div class="map-caption">
+          <span>${latest?.type || "户外跑步"} · ${latest?.distance || "—"}</span>
+          <span>GPS 轨迹 · GCJ-02</span>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>运动记录</h2>
+          <p>来自 ${deviceDisplayName(device)} 的同步数据</p>
+        </div>
+        <button class="mp-link-btn hoverable" type="button" data-action="toast-track">${icon("play")} 开始运动</button>
+      </div>
+      <div class="mp-cells">
+        ${list.map((item) => renderWorkoutRow(item)).join("")}
+      </div>
+    </section>
+    <section class="section">
+      <div class="insight-card">
+        <h3>${icon("route")}轨迹回放</h3>
+        <p>支持按今天、昨天、自定义时间查询 GPS 轨迹，正式版可分享运动路线给家人。</p>
+      </div>
+      <div class="timeline">
+        ${mock.track.map((item) => `
+          <div class="timeline-item">
+            <div class="timeline-time">${item.time}</div>
+            <div><strong>${item.title}</strong><span>${item.desc}</span></div>
+          </div>
+        `).join("")}
       </div>
     </section>
   `;
@@ -5829,8 +6047,8 @@ function bindEvents() {
       event.preventDefault();
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
-      state.pendingLocationGuide = true;
+      state.tab = "today";
+      state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
       render();
     });
@@ -5893,7 +6111,7 @@ function handleAction(action, element, event) {
       state.loggedIn = false;
       state.route = "login";
       state.loginView = "platform";
-      state.tab = "map";
+      state.tab = "today";
       state.detailTab = "overview";
       state.modal = null;
       state.mapFilter = "all";
@@ -5924,9 +6142,9 @@ function handleAction(action, element, event) {
       const platform = getCurrentPlatform();
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.modal = null;
-      state.pendingLocationGuide = true;
+      state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
       showToast(`${platform.loginApi} → POST /c/v1/auth/${platform.id}/login`);
       render();
@@ -5964,9 +6182,9 @@ function handleAction(action, element, event) {
       }
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.modal = null;
-      state.pendingLocationGuide = true;
+      state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
       showToast(`POST /c/v1/auth/login · ${account}`);
       render();
@@ -5988,9 +6206,9 @@ function handleAction(action, element, event) {
     "quick-demo"() {
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.modal = null;
-      state.pendingLocationGuide = true;
+      state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
       showToast(t("toast.guest"));
       render();
@@ -6064,7 +6282,7 @@ function handleAction(action, element, event) {
     "open-map-device"() {
       state.highlightedMapDeviceId = element.dataset.deviceId || null;
       state.selectedDeviceId = element.dataset.openDevice;
-      state.detailTab = element.dataset.detailTab || "map";
+      state.detailTab = element.dataset.detailTab || "workout";
       state.route = "detail";
       render();
     },
