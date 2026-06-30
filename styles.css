@@ -3868,30 +3868,61 @@ body.is-demo-mode .prototype-stage {
 .mp-btn-alipay { color: #fff; background: #1677ff; }
 .mp-btn-douyin { color: #fff; background: #000; }
 .login-platform-note,
-.login-phone-hint {
+.login-phone-hint,
+.login-account-hint {
   margin: 0;
   font-size: 12px;
   color: var(--muted);
   line-height: 1.45;
   text-align: center;
 }
-.phone-region-row {
-  display: grid;
-  gap: 6px;
-  font-size: 13px;
-}
-.phone-region-row label {
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
   color: var(--muted);
   font-size: 12px;
 }
-.phone-region-select {
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+}
+.login-account-form {
+  display: grid;
+  gap: 10px;
+}
+.login-account-form .field {
+  display: grid;
+  gap: 6px;
+}
+.login-account-form label {
+  font-size: 13px;
+  color: var(--text);
+}
+.login-account-form input {
   width: 100%;
   min-height: 44px;
   padding: 0 12px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  background: #fff;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+.login-forgot-link {
+  align-self: flex-end;
+  margin: -4px 0 0;
+  font-size: 13px;
+  text-align: right;
+}
+.forgot-password-desc {
+  margin: 0 0 12px;
   font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
 }
 .mp-open-type-hint {
   display: block;

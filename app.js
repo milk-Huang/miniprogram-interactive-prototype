@@ -9,6 +9,8 @@ const mock = {
     account: "zuobin",
     name: "zuobin",
     email: "zuobin@email.com",
+    phone: "+86 138 0000 1234",
+    region: "中国大陆",
     role: "设备拥有者",
   },
   devices: [
@@ -462,7 +464,7 @@ const LOCALES = {
       intro: "面向前后端协作：确认页面流程、小程序路径、HTTP 接口、微信原生能力与 i18n。",
       structureTitle: "页面结构",
       structure: [
-        "登录页：多平台一键登录、手机号（含区号）、协议",
+        "登录页：多平台一键登录、账号/邮箱密码、协议",
         "地图首页：设备位置、状态、围栏、告警",
         "设备页：列表、扫码/IMEI/蓝牙添加",
         "设备详情：概览、地图、健康、告警、配置",
@@ -548,9 +550,14 @@ const LOCALES = {
       hero: "统一管理定位、健康与设备安全",
       desc: "查看家人位置、健康状态和安全提醒，随时管理设备。",
       platformLogin: "{platform}一键登录",
-      phoneLogin: "手机号登录",
-      phoneRegion: "国家/地区",
-      phoneHint: "支持中国大陆及海外手机号；实际可用区号以当前平台授权能力为准",
+      orDivider: "或",
+      accountLabel: "账号 / 邮箱",
+      accountPlaceholder: "请输入账号或邮箱",
+      passwordLabel: "密码",
+      passwordPlaceholder: "请输入密码",
+      accountLoginBtn: "账号密码登录",
+      accountLoginHint: "备选登录方式；国家/地区在「我的 → 账号资料」中维护，用于找回密码等通知通道",
+      forgotPassword: "忘记密码？",
       guestDemo: "演示模式进入",
       agreePrefix: "我已阅读并同意",
       userAgreement: "《用户协议》",
@@ -559,6 +566,15 @@ const LOCALES = {
       platformNote: "同一套账号体系可适配微信 / 支付宝 / 抖音等小程序平台",
       wechatLogin: "微信一键登录",
       openTypePhone: "open-type=\"getPhoneNumber\"",
+    },
+    forgotPassword: {
+      title: "忘记密码",
+      desc: "输入注册时使用的账号或邮箱，我们将向该账号绑定的邮箱或手机号发送验证码。",
+      regionHint: "海外/国内通知通道以账号资料中的「国家/地区」为准，不在登录页选择。",
+      accountLabel: "账号 / 邮箱",
+      accountPlaceholder: "zuobin 或 zuobin@email.com",
+      submit: "发送验证码",
+      sent: "验证码已发送，请在正式版输入验证码与新密码完成重置",
     },
     platform: {
       wechat: "微信",
@@ -764,9 +780,14 @@ const LOCALES = {
       hero: "Location, health and device safety in one place",
       desc: "Track family locations, health and safety alerts, manage all devices.",
       platformLogin: "Sign in with {platform}",
-      phoneLogin: "Sign in with phone",
-      phoneRegion: "Country / region",
-      phoneHint: "Supports mainland China and overseas numbers; available codes depend on the host platform",
+      orDivider: "or",
+      accountLabel: "Account / email",
+      accountPlaceholder: "Account or email",
+      passwordLabel: "Password",
+      passwordPlaceholder: "Enter password",
+      accountLoginBtn: "Sign in with password",
+      accountLoginHint: "Fallback sign-in; country/region is set under Me → Profile for reset channels",
+      forgotPassword: "Forgot password?",
       guestDemo: "Enter demo mode",
       agreePrefix: "I agree to",
       userAgreement: "Terms of Service",
@@ -775,6 +796,15 @@ const LOCALES = {
       platformNote: "One account layer across WeChat / Alipay / Douyin mini programs",
       wechatLogin: "WeChat sign in",
       openTypePhone: "open-type=\"getPhoneNumber\"",
+    },
+    forgotPassword: {
+      title: "Forgot password",
+      desc: "Enter your account or email. We will send a verification code to the bound email or phone.",
+      regionHint: "Domestic/overseas channel follows country/region in Me → Profile, not on the login page.",
+      accountLabel: "Account / email",
+      accountPlaceholder: "zuobin or zuobin@email.com",
+      submit: "Send code",
+      sent: "Code sent; enter code and new password in production build",
     },
     platform: {
       wechat: "WeChat",
@@ -924,6 +954,7 @@ const pagePathMap = {
   "detail:alarms": "pages/device/detail/index?deviceId={deviceId}&tab=alarms",
   "detail:config": "pages/device/detail/index?deviceId={deviceId}&tab=config",
   "modal:add-device": "pages/device/bind/index",
+  "modal:forgot-password": "pages/auth/forgot-password/index",
   "modal:share": "pages/device/share/index",
   "modal:edit-device": "pages/device/edit/index",
   "modal:geofence": "pages/geofence/edit/index",
@@ -1121,7 +1152,7 @@ const mpAdaptationPageMap = {
     items: [
       { title: "协议勾选", desc: "未勾选不可登录，符合审核要求。", status: "done" },
       { title: "多平台登录", desc: "微信/支付宝/抖音各自原生登录 API，文案通用化。", status: "demo" },
-      { title: "海外手机号", desc: "国家/地区区号选择；实际能力以宿主平台为准。", status: "demo" },
+      { title: "账号密码登录", desc: "备选 POST /c/v1/auth/login；忘记密码独立弹窗。", status: "demo" },
     ],
   },
   "tab:map": {
@@ -2145,7 +2176,7 @@ const suggestedApiCatalog = {
     path: "/c/v1/auth/password/reset/start",
     title: "找回密码发起",
     purpose: "忘记密码入口需要发送邮箱或手机号验证码。",
-    uiEvidence: "登录页 data-action=\"toast-forgot-password\"。",
+    uiEvidence: "登录页 data-action=\"open-forgot-password\"；忘记密码弹窗 submit-forgot-password。",
     currentStatus: "AuthApiService.kt 未定义找回密码接口。",
     dto: "PasswordResetStartRequestDto / PasswordResetStartResponseDto",
   },
@@ -2591,13 +2622,21 @@ const suggestedApiDtoMap = {
 const apiPageMap = {
   login: {
     title: "登录页所需 API",
-    summary: "跨平台小程序登录（微信/支付宝/抖音）；手机号含国家/地区区号。HTTP 域名须配置 request 合法域名。",
-    apiIds: [],
-    suggestedApiIds: ["wechatLogin", "wechatPhone", "authRefresh", "agreementVersions", "agreementContent"],
+    summary: "主路径：各平台一键登录；备选：账号/邮箱 + 密码。国家/地区在账号资料维护，用于找回密码通道。",
+    apiIds: ["authLogin"],
+    suggestedApiIds: ["wechatLogin", "authRefresh", "agreementVersions", "agreementContent", "passwordResetStart", "passwordResetConfirm"],
     gaps: [
-      "POST /c/v1/auth/{platform}/login 与 POST /c/v1/auth/phone（含 countryCode）域名须 HTTPS 已备案。",
-      "各平台原生登录/手机号 API 不同，HTTP 层统一账号体系。",
-      "小程序不使用 FCM/HMS；推送改为订阅消息。",
+      "POST /c/v1/auth/{platform}/login 与 POST /c/v1/auth/login 域名须 HTTPS 已备案。",
+      "忘记密码走 POST /c/v1/auth/password/reset/*；国内/海外通道由账号资料 region 决定。",
+    ],
+  },
+  "modal:forgot-password": {
+    title: "忘记密码 API",
+    summary: "输入账号或邮箱发起重置；验证码通道依赖账号资料中的国家/地区。",
+    apiIds: [],
+    suggestedApiIds: ["passwordResetStart", "passwordResetConfirm"],
+    gaps: [
+      "reset/start 根据账号 profile.region 选择短信或邮件；登录页不展示区号选择。",
     ],
   },
   "tab:map": {
@@ -2879,7 +2918,10 @@ function renderApiPanel() {
 }
 
 function getApiPanelInfo() {
-  if (!state.loggedIn || state.route === "login") return apiPageMap.login;
+  if (!state.loggedIn || state.route === "login") {
+    if (state.modal === "forgot-password") return apiPageMap["modal:forgot-password"] || apiPageMap.login;
+    return apiPageMap.login;
+  }
   if (state.dialog === "logout-confirm") return apiPageMap["modal:logout-confirm"];
   if (state.modal === "settings") return settingsApiPanelInfo();
   if (state.modal) return apiPageMap[`modal:${state.modal}`] || apiPageMap[`tab:${state.tab}`];
@@ -3200,7 +3242,10 @@ function toRequirementItems(info) {
 }
 
 function getDemoPanelInfo() {
-  if (!state.loggedIn || state.route === "login") return loginPanelInfo();
+  if (!state.loggedIn || state.route === "login") {
+    if (state.modal === "forgot-password") return forgotPasswordPanelInfo();
+    return loginPanelInfo();
+  }
   if (state.dialog) return dialogPanelInfo();
   if (state.modal) return modalPanelInfo();
   if (state.route === "detail") return detailPanelInfo();
@@ -3219,21 +3264,43 @@ function loginPanelInfo() {
   return {
     title: isEn ? "Login" : "登录页",
     summary: isEn
-      ? `Cross-platform mini program entry (${platformLabel(platform)} demo): platform login + optional phone with country/region. Backend: /c/v1/auth/{platform}/*.`
-      : `跨平台小程序入口（当前演示 ${platformLabel(platform)}）：平台一键登录 + 可选手机号（含国家/地区区号）。后端对齐 /c/v1/auth/{platform}/*。`,
-    tags: isEn ? ["Platform login", "Phone + region", "Agreements"] : ["多平台登录", "海外手机号", "协议确认"],
+      ? `Platform one-tap (${platformLabel(platform)}) + fallback account/email + password. Region for reset is in Me → Profile.`
+      : `平台一键登录（${platformLabel(platform)}）+ 备选账号/邮箱密码登录。国内/海外判断依赖「我的 → 账号资料」国家/地区。`,
+    tags: isEn ? ["Platform login", "Account password", "Agreements"] : ["多平台登录", "账号密码", "协议确认"],
     goals: isEn
-      ? ["User sees generic platform sign-in, not WeChat-only copy.", "Phone login supports region selector for overseas users.", "Terms must be accepted before login.", "Switch demo platform via top toolbar or ?platform=alipay|douyin."]
-      : ["用户看到通用平台登录文案，不写死单一平台。", "手机号登录含国家/地区选择，支持海外用户。", "登录前需勾选协议。", "顶栏切换微信/支付宝/抖音，或 URL ?platform=。"],
+      ? ["Primary: platform sign-in.", "Fallback: account or email + password.", "Forgot password opens reset flow.", "Region not on login page — use profile."]
+      : ["主路径：平台一键登录。", "备选：账号/邮箱 + 密码。", "忘记密码进入重置流程。", "登录页不选区号，国家/地区在账号资料维护。"],
     actions: isEn
-      ? ["Switch platform in top toolbar → tap sign in → map home.", "Select region + phone login to see platform phone API.", "Demo IMEI in add-device: …001 unregistered, …002 already bound."]
-      : ["顶栏切换平台 → 一键登录进入地图。", "选择区号 + 手机号登录查看各平台授权 API。", "添加设备演示：…001 未注册、…002 已绑定。"],
+      ? ["Toolbar platform switch → one-tap login.", "Enter zuobin + password → account login.", "Tap Forgot password → reset/start."]
+      : ["顶栏切换平台 → 一键登录。", "输入 zuobin + 密码 → 账号登录。", "点击忘记密码 → 发起重置。"],
     review: isEn
-      ? ["Confirm per-platform login/phone APIs and legal domain config.", "Overseas phone: align with platform capability matrix."]
-      : ["确认各平台登录/手机号 API 与域名配置。", "海外手机号以各平台实际授权能力为准。"],
+      ? ["Reset channel (SMS/email) from profile.region.", "Per-platform native login APIs."]
+      : ["找回密码通道由 profile.region 决定。", "各平台原生登录 API 需分别对接。"],
     backend: isEn
-      ? [`POST /c/v1/auth/${platform.id}/login`, `POST /c/v1/auth/phone`, "GET /c/v1/legal/agreements/*"]
-      : [`POST /c/v1/auth/${platform.id}/login`, "POST /c/v1/auth/phone", "GET /c/v1/legal/agreements/*"],
+      ? [`POST /c/v1/auth/${platform.id}/login`, "POST /c/v1/auth/login", "POST /c/v1/auth/password/reset/start"]
+      : [`POST /c/v1/auth/${platform.id}/login`, "POST /c/v1/auth/login", "POST /c/v1/auth/password/reset/start"],
+  };
+}
+
+function forgotPasswordPanelInfo() {
+  const isEn = state.locale === "en-US";
+  return {
+    title: isEn ? "Forgot password" : "忘记密码",
+    summary: isEn
+      ? "User enters account or email; backend uses profile.region to pick SMS vs email for OTP."
+      : "用户输入账号或邮箱；后端根据账号资料中的国家/地区选择短信或邮件验证码通道。",
+    tags: isEn ? ["Password reset", "Profile region"] : ["找回密码", "账号地区"],
+    goals: [
+      isEn ? "No region picker on login — region comes from account profile." : "登录页不展示区号；地区以账号资料为准。",
+      isEn ? "Clear copy for overseas vs domestic reset channel." : "说明海外/国内重置通道差异。",
+    ],
+    actions: [
+      isEn ? "Enter account → Send code → reset/confirm in production." : "输入账号 → 发送验证码 → 正式版完成 reset/confirm。",
+    ],
+    review: [
+      isEn ? "Align with POST /c/v1/auth/password/reset/start." : "与 password/reset/start 接口字段对齐。",
+    ],
+    backend: ["POST /c/v1/auth/password/reset/start", "POST /c/v1/auth/password/reset/confirm"],
   };
 }
 
@@ -3506,6 +3573,7 @@ function modalPanelInfo() {
     h5: h5PanelInfo(),
     chat: chatPanelInfo(),
     ai: aiResultPanelInfo(),
+    "forgot-password": forgotPasswordPanelInfo(),
   };
   return modalMap[state.modal] || tabPanelInfo();
 }
@@ -3821,24 +3889,23 @@ function renderLogin() {
         <button type="button" class="mp-btn ${platform.btnClass} mp-btn-block${disabledCls}" data-action="platform-login" ${canLogin ? "" : "disabled"}>
           ${icon("log-in")} ${tReplace("login.platformLogin", { platform: platformName })}
         </button>
-        <span class="mp-open-type-hint">${platform.phoneApi}</span>
-        <div class="phone-region-row">
-          <label for="phone-region">${L.login.phoneRegion}</label>
-          <select id="phone-region" class="phone-region-select">
-            <option value="+86">中国大陆 +86</option>
-            <option value="+852">中国香港 +852</option>
-            <option value="+853">中国澳门 +853</option>
-            <option value="+886">中国台湾 +886</option>
-            <option value="+1">美国/加拿大 +1</option>
-            <option value="+44">英国 +44</option>
-            <option value="+81">日本 +81</option>
-            <option value="+65">新加坡 +65</option>
-          </select>
+        <span class="mp-open-type-hint">${platform.loginApi}</span>
+        <div class="login-divider" aria-hidden="true"><span>${L.login.orDivider}</span></div>
+        <div class="login-account-form">
+          <div class="field">
+            <label for="login-account">${L.login.accountLabel}</label>
+            <input id="login-account" type="text" autocomplete="username" placeholder="${L.login.accountPlaceholder}" value="" />
+          </div>
+          <div class="field">
+            <label for="login-password">${L.login.passwordLabel}</label>
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="" />
+          </div>
+          <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
+          <button type="button" class="mp-btn mp-btn-default mp-btn-block${disabledCls}" data-action="account-password-login" ${canLogin ? "" : "disabled"}>
+            ${icon("key-round")} ${L.login.accountLoginBtn}
+          </button>
+          <p class="field-hint login-account-hint">${L.login.accountLoginHint}</p>
         </div>
-        <button type="button" class="mp-btn mp-btn-default mp-btn-block mp-btn-phone${disabledCls}" data-action="phone-login" ${canLogin ? "" : "disabled"}>
-          ${icon("phone")} ${L.login.phoneLogin}
-        </button>
-        <p class="field-hint login-phone-hint">${L.login.phoneHint}</p>
         <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
         <p class="version-note">${L.brand.subtitle}</p>
       </div>
@@ -4668,6 +4735,7 @@ function renderSettingsItem(panel, iconName, title, desc) {
 
 function renderModal() {
   if (state.modal === "location-guide") return renderLocationGuideModal();
+  if (state.modal === "forgot-password") return renderForgotPasswordModal();
   if (state.modal === "share") return renderShareModal();
   if (state.modal === "add-device") return renderAddDeviceModal();
   if (state.modal === "edit-device") return renderEditDeviceModal();
@@ -4695,6 +4763,27 @@ function renderLocationGuideModal() {
     </div>
   `;
   return wrapMpSheet("开启位置权限", body, footer);
+}
+
+function renderForgotPasswordModal() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const F = L.forgotPassword;
+  const body = `
+    <p class="forgot-password-desc">${F.desc}</p>
+    <div class="form-grid">
+      <div class="field">
+        <label for="forgot-account">${F.accountLabel}</label>
+        <input id="forgot-account" type="text" placeholder="${F.accountPlaceholder}" value="" />
+      </div>
+    </div>
+    <p class="field-hint">${F.regionHint}</p>
+    <div class="panel-card">
+      <h3>${icon("globe")}${mock.user.region}</h3>
+      <p>演示账号 ${mock.user.account} 资料地区为「${mock.user.region}」；正式版由 GET /c/v1/account/profile 返回 region 决定短信/邮件通道。</p>
+    </div>
+  `;
+  const footer = mpBtn("primary", `${icon("mail")} ${F.submit}`, "submit-forgot-password", "mp-btn-block");
+  return wrapMpSheet(F.title, body, footer);
 }
 
 function renderShareModal() {
@@ -5327,8 +5416,8 @@ function renderProfileSettings() {
       <div class="field"><label for="profile-account">账号</label><input id="profile-account" value="${mock.user.account}" readonly /></div>
       <div class="field"><label for="profile-name">昵称</label><input id="profile-name" value="${mock.user.name}" /></div>
       <div class="field"><label for="profile-email">邮箱</label><input id="profile-email" type="email" value="${mock.user.email}" /></div>
-      <div class="field"><label for="profile-phone">手机号</label><input id="profile-phone" value="+86 138 0000 1234" /></div>
-      <div class="field"><label for="profile-region">国家 / 地区</label><select id="profile-region"><option>中国大陆</option><option>中国香港</option><option>美国</option><option>欧洲</option></select></div>
+      <div class="field"><label for="profile-phone">手机号</label><input id="profile-phone" value="${mock.user.phone}" /></div>
+      <div class="field"><label for="profile-region">国家 / 地区</label><select id="profile-region"><option${mock.user.region === "中国大陆" ? " selected" : ""}>中国大陆</option><option${mock.user.region === "中国香港" ? " selected" : ""}>中国香港</option><option${mock.user.region === "美国" ? " selected" : ""}>美国</option><option${mock.user.region === "欧洲" ? " selected" : ""}>欧洲</option></select></div>
     </div>
     <button class="mp-btn mp-btn-primary mp-btn-block" type="button" data-action="save-settings">${icon("save")}保存资料</button>
   `;
@@ -5765,12 +5854,41 @@ function handleAction(action, element, event) {
       render();
     },
     "phone-login"() {
+      actions["account-password-login"]();
+    },
+    "account-password-login"() {
       if (!state.agreedToTerms) {
         showToast(t("login.agreeRequired"));
         return;
       }
-      const region = document.getElementById("phone-region")?.value || "+86";
-      showToast(`${getCurrentPlatform().phoneApi} → POST /c/v1/auth/phone (${region})`);
+      const account = document.getElementById("login-account")?.value?.trim() || "";
+      const password = document.getElementById("login-password")?.value || "";
+      if (!account || !password) {
+        showToast(t("login.accountPlaceholder"));
+        return;
+      }
+      state.loggedIn = true;
+      state.route = "home";
+      state.tab = "map";
+      state.modal = null;
+      state.pendingLocationGuide = true;
+      state.locationPermission = "unknown";
+      showToast(`POST /c/v1/auth/login · ${account}`);
+      render();
+    },
+    "open-forgot-password"() {
+      state.modal = "forgot-password";
+      render();
+    },
+    "submit-forgot-password"() {
+      const account = document.getElementById("forgot-account")?.value?.trim() || "";
+      if (!account) {
+        showToast(t("forgotPassword.accountPlaceholder"));
+        return;
+      }
+      state.modal = null;
+      showToast(`POST /c/v1/auth/password/reset/start · ${account} · region=${mock.user.region}`);
+      render();
     },
     "quick-demo"() {
       state.loggedIn = true;
@@ -6142,7 +6260,8 @@ function handleAction(action, element, event) {
       showToast(`已切换品牌主题：${next.name}`);
     },
     "toast-forgot-password"() {
-      showToast("找回密码：通过邮箱或手机号验证码重置，将在正式版本完成");
+      state.modal = "forgot-password";
+      render();
     },
     "toast-renew"() {
       showToast("跳转支付：续费订单已生成，正式版接入微信支付/支付宝/Stripe");
