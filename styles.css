@@ -231,6 +231,23 @@ body.is-demo-mode .prototype-stage {
   box-shadow: 0 1px 6px rgba(12, 117, 111, 0.12);
 }
 
+.layout-toolbar-group--platform .layout-chip {
+  min-width: 52px;
+  padding: 0 12px;
+}
+
+.layout-chip--platform.active.layout-chip--wechat {
+  color: #07c160;
+}
+
+.layout-chip--platform.active.layout-chip--alipay {
+  color: #1677ff;
+}
+
+.layout-chip--platform.active.layout-chip--douyin {
+  color: #000;
+}
+
 .layout-chip.demo-exit-chip {
   padding: 0 12px;
 }
@@ -3848,6 +3865,72 @@ body.is-demo-mode .prototype-stage {
 .mp-btn-block { width: 100%; }
 .mp-btn-mini { min-height: 32px; padding: 0 12px; font-size: 13px; }
 .mp-btn-wechat { color: #fff; background: #07c160; }
+.mp-btn-alipay { color: #fff; background: #1677ff; }
+.mp-btn-douyin { color: #fff; background: #000; }
+.login-platform-note,
+.login-phone-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+  text-align: center;
+}
+.phone-region-row {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.phone-region-row label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.phone-region-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+}
+.mp-open-type-hint {
+  display: block;
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+.bind-alt-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  margin-top: 8px;
+}
+.bind-status-banner {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.bind-status-banner strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+.bind-status-banner p {
+  margin: 0;
+  color: var(--muted);
+}
+.bind-status-banner.warning {
+  background: #fff7e6;
+  border: 1px solid rgba(250, 173, 20, 0.35);
+}
+.bind-status-banner.danger {
+  background: #fff1f0;
+  border: 1px solid rgba(250, 81, 81, 0.35);
+}
 .mp-btn-primary { color: #fff; background: var(--primary); }
 .mp-btn-default { color: #000; background: #fff; border: 1px solid rgba(0,0,0,0.1); }
 .mp-btn-warn-outline { color: #fa5151; border: 1px solid rgba(250,81,81,0.35); background: #fff; }

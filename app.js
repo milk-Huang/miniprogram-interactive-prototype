@@ -402,9 +402,41 @@ const mock = {
 
 const PROTOTYPE_VERSION = "0.2.0";
 
+const MINI_PROGRAM_PLATFORMS = {
+  wechat: {
+    id: "wechat",
+    labelKey: "platform.wechat",
+    loginApi: "wx.login",
+    phoneApi: "open-type=\"getPhoneNumber\"",
+    scanApi: "wx.scanCode",
+    btnClass: "mp-btn-wechat",
+  },
+  alipay: {
+    id: "alipay",
+    labelKey: "platform.alipay",
+    loginApi: "my.getAuthCode",
+    phoneApi: "open-type=\"getAuthorize\" scope=\"phoneNumber\"",
+    scanApi: "my.scan",
+    btnClass: "mp-btn-alipay",
+  },
+  douyin: {
+    id: "douyin",
+    labelKey: "platform.douyin",
+    loginApi: "tt.login",
+    phoneApi: "open-type=\"getPhoneNumber\"",
+    scanApi: "tt.scanCode",
+    btnClass: "mp-btn-douyin",
+  },
+};
+
+const BIND_DETECT_DEMO_IMEI = {
+  UNREGISTERED: "100000000000001",
+  ALREADY_BOUND: "100000000000002",
+};
+
 const LOCALES = {
   "zh-CN": {
-    brand: { name: "Evmars", tagline: "智能设备管理", subtitle: "微信小程序 · 可交互原型 v" + PROTOTYPE_VERSION },
+    brand: { name: "Evmars", tagline: "智能设备管理", subtitle: "跨平台小程序 · 可交互原型 v" + PROTOTYPE_VERSION },
     demo: {
       kicker: "界面说明",
       pageInfo: "页面相关信息",
@@ -430,9 +462,9 @@ const LOCALES = {
       intro: "面向前后端协作：确认页面流程、小程序路径、HTTP 接口、微信原生能力与 i18n。",
       structureTitle: "页面结构",
       structure: [
-        "登录页：微信登录、手机号、协议",
+        "登录页：多平台一键登录、手机号（含区号）、协议",
         "地图首页：设备位置、状态、围栏、告警",
-        "设备页：列表、扫码/IMEI 添加",
+        "设备页：列表、扫码/IMEI/蓝牙添加",
         "设备详情：概览、地图、健康、告警、配置",
         "消息：告警、分享邀请、系统通知",
         "我的：资料、安全、通知、地区地图、帮助",
@@ -515,14 +547,73 @@ const LOCALES = {
     login: {
       hero: "统一管理定位、健康与设备安全",
       desc: "查看家人位置、健康状态和安全提醒，随时管理设备。",
-      wechatLogin: "微信一键登录",
-      phoneLogin: "手机号快捷登录",
+      platformLogin: "{platform}一键登录",
+      phoneLogin: "手机号登录",
+      phoneRegion: "国家/地区",
+      phoneHint: "支持中国大陆及海外手机号；实际可用区号以当前平台授权能力为准",
       guestDemo: "演示模式进入",
       agreePrefix: "我已阅读并同意",
       userAgreement: "《用户协议》",
       privacy: "《隐私政策》",
       agreeRequired: "请先阅读并同意用户协议与隐私政策",
+      platformNote: "同一套账号体系可适配微信 / 支付宝 / 抖音等小程序平台",
+      wechatLogin: "微信一键登录",
       openTypePhone: "open-type=\"getPhoneNumber\"",
+    },
+    platform: {
+      wechat: "微信",
+      alipay: "支付宝",
+      douyin: "抖音",
+      switch: "演示平台",
+    },
+    addDevice: {
+      title: "添加设备",
+      confirmTitle: "确认绑定",
+      imeiTitle: "输入设备编号",
+      bleTitle: "蓝牙添加",
+      scanTitle: "扫描设备码",
+      scanDesc: "请扫描机身或包装盒上的设备码",
+      scanHint: "通常位于设备背面、铭牌或说明书内",
+      stepScan: "扫描设备码",
+      stepConfirm: "确认设备信息",
+      stepDone: "完成绑定",
+      imeiLink: "无法扫码？手动输入编号",
+      bleLink: "蓝牙添加设备",
+      scanLink: "返回扫码添加",
+      scanBtn: "扫一扫添加",
+      imeiLabel: "设备 IMEI / SN",
+      imeiPlaceholder: "请输入设备编号",
+      imeiHint: "可在机身标签、包装盒或说明书上找到；演示：100…001 未注册，100…002 已绑定",
+      nameLabel: "设备名称",
+      nameOptional: "（可选）",
+      namePlaceholder: "如：妈妈手表",
+      detectBtn: "识别设备",
+      bindBtn: "确认绑定",
+      retryBtn: "重新识别",
+      unregisteredTitle: "补充设备信息",
+      unregisteredDesc: "该设备尚未在平台注册，请补充信息后提交审核或继续绑定",
+      modelLabel: "设备型号",
+      modelPlaceholder: "如 EV05 / EV07B",
+      serialLabel: "序列号 / SN",
+      serialOptional: "（可选）",
+      submitSupplement: "提交并继续",
+      alreadyBoundTitle: "设备已被绑定",
+      alreadyBoundDesc: "该设备已绑定到其他账号，无法直接添加",
+      boundOwner: "绑定账号",
+      boundAt: "绑定时间",
+      contactSupport: "联系客服",
+      requestUnbind: "申请解绑",
+      bleScanning: "正在搜索附近设备…",
+      bleHint: "请打开手机蓝牙并靠近设备；识别成功后将展示编号与面板准备进度",
+      bleBindBtn: "绑定选中设备",
+      statusReady: "可绑定",
+      statusUnregistered: "未注册",
+      statusAlreadyBound: "已绑定",
+      checkUnbound: "设备未被其他账号绑定",
+      checkInRange: "设备在可绑定范围内",
+      checkPermission: "当前账号有添加权限",
+      panelReady: "设备能力已准备",
+      panelReadyDesc: "识别成功后自动加载，无需更新小程序",
     },
     common: {
       back: "返回", close: "关闭", save: "保存", cancel: "取消", confirm: "确定",
@@ -531,12 +622,12 @@ const LOCALES = {
       submit: "提交", done: "完成",
     },
     pullRefresh: {
-      simulate: "模拟下拉",
-      map: { idle: "下拉刷新最新位置 · onPullDownRefresh", loading: "正在刷新设备位置…", done: "设备位置已更新" },
-      messages: { idle: "下拉刷新消息列表 · onPullDownRefresh", loading: "正在刷新消息…", done: "消息列表已更新" },
-      devices: { idle: "下拉刷新设备列表 · onPullDownRefresh", loading: "正在刷新设备…", done: "设备列表已更新" },
-      mine: { idle: "下拉刷新 · onPullDownRefresh", loading: "正在刷新…", done: "账号信息已更新" },
-      detail: { idle: "下拉刷新设备数据 · onPullDownRefresh", loading: "正在刷新设备详情…", done: "设备数据已更新" },
+      simulate: "演示刷新",
+      map: { idle: "下拉刷新", loading: "正在刷新设备位置…", done: "设备位置已更新" },
+      messages: { idle: "下拉刷新", loading: "正在刷新消息…", done: "消息列表已更新" },
+      devices: { idle: "下拉刷新", loading: "正在刷新设备…", done: "设备列表已更新" },
+      mine: { idle: "下拉刷新", loading: "正在刷新…", done: "账号信息已更新" },
+      detail: { idle: "下拉刷新", loading: "正在刷新设备详情…", done: "设备数据已更新" },
     },
     dialog: {
       logoutTitle: "提示",
@@ -561,7 +652,7 @@ const LOCALES = {
     },
   },
   "en-US": {
-    brand: { name: "Evmars", tagline: "Smart Device Hub", subtitle: "WeChat Mini Program · Interactive Prototype v" + PROTOTYPE_VERSION },
+    brand: { name: "Evmars", tagline: "Smart Device Hub", subtitle: "Cross-platform mini program · Prototype v" + PROTOTYPE_VERSION },
     demo: {
       kicker: "Guide",
       pageInfo: "Page context",
@@ -672,14 +763,73 @@ const LOCALES = {
     login: {
       hero: "Location, health and device safety in one place",
       desc: "Track family locations, health and safety alerts, manage all devices.",
-      wechatLogin: "WeChat sign in",
-      phoneLogin: "Phone quick sign in",
+      platformLogin: "Sign in with {platform}",
+      phoneLogin: "Sign in with phone",
+      phoneRegion: "Country / region",
+      phoneHint: "Supports mainland China and overseas numbers; available codes depend on the host platform",
       guestDemo: "Enter demo mode",
       agreePrefix: "I agree to",
       userAgreement: "Terms of Service",
       privacy: "Privacy Policy",
       agreeRequired: "Please agree to Terms and Privacy Policy first",
+      platformNote: "One account layer across WeChat / Alipay / Douyin mini programs",
+      wechatLogin: "WeChat sign in",
       openTypePhone: "open-type=\"getPhoneNumber\"",
+    },
+    platform: {
+      wechat: "WeChat",
+      alipay: "Alipay",
+      douyin: "Douyin",
+      switch: "Demo platform",
+    },
+    addDevice: {
+      title: "Add device",
+      confirmTitle: "Confirm binding",
+      imeiTitle: "Enter device ID",
+      bleTitle: "Bluetooth",
+      scanTitle: "Scan device code",
+      scanDesc: "Scan the code on the device or packaging",
+      scanHint: "Usually on the back label, box or manual",
+      stepScan: "Scan code",
+      stepConfirm: "Confirm device",
+      stepDone: "Complete binding",
+      imeiLink: "Can't scan? Enter ID manually",
+      bleLink: "Add via Bluetooth",
+      scanLink: "Back to scan",
+      scanBtn: "Scan to add",
+      imeiLabel: "IMEI / SN",
+      imeiPlaceholder: "Enter device ID",
+      imeiHint: "On device label or box; demo: 100…001 unregistered, 100…002 already bound",
+      nameLabel: "Device name",
+      nameOptional: "(optional)",
+      namePlaceholder: "e.g. Mom's watch",
+      detectBtn: "Identify device",
+      bindBtn: "Confirm binding",
+      retryBtn: "Scan again",
+      unregisteredTitle: "Complete device info",
+      unregisteredDesc: "Device is not registered on the platform. Add details to continue.",
+      modelLabel: "Model",
+      modelPlaceholder: "e.g. EV05",
+      serialLabel: "Serial / SN",
+      serialOptional: "(optional)",
+      submitSupplement: "Submit & continue",
+      alreadyBoundTitle: "Already bound",
+      alreadyBoundDesc: "This device is bound to another account",
+      boundOwner: "Bound account",
+      boundAt: "Bound at",
+      contactSupport: "Contact support",
+      requestUnbind: "Request unbind",
+      bleScanning: "Searching nearby devices…",
+      bleHint: "Turn on Bluetooth and stay close; ID shown after identify",
+      bleBindBtn: "Bind selected device",
+      statusReady: "Ready to bind",
+      statusUnregistered: "Not registered",
+      statusAlreadyBound: "Already bound",
+      checkUnbound: "Not bound to another account",
+      checkInRange: "Device is bindable",
+      checkPermission: "You can add this device",
+      panelReady: "Capabilities ready",
+      panelReadyDesc: "Loaded after identify; no app update needed",
     },
     common: {
       back: "Back", close: "Close", save: "Save", cancel: "Cancel", confirm: "OK",
@@ -688,12 +838,12 @@ const LOCALES = {
       submit: "Submit", done: "Done",
     },
     pullRefresh: {
-      simulate: "Simulate pull",
-      map: { idle: "Pull to refresh locations · onPullDownRefresh", loading: "Refreshing locations…", done: "Locations updated" },
-      messages: { idle: "Pull to refresh messages · onPullDownRefresh", loading: "Refreshing messages…", done: "Messages updated" },
-      devices: { idle: "Pull to refresh devices · onPullDownRefresh", loading: "Refreshing devices…", done: "Devices updated" },
-      mine: { idle: "Pull to refresh · onPullDownRefresh", loading: "Refreshing…", done: "Profile updated" },
-      detail: { idle: "Pull to refresh device · onPullDownRefresh", loading: "Refreshing device…", done: "Device data updated" },
+      simulate: "Demo refresh",
+      map: { idle: "Pull to refresh", loading: "Refreshing locations…", done: "Locations updated" },
+      messages: { idle: "Pull to refresh", loading: "Refreshing messages…", done: "Messages updated" },
+      devices: { idle: "Pull to refresh", loading: "Refreshing devices…", done: "Devices updated" },
+      mine: { idle: "Pull to refresh", loading: "Refreshing…", done: "Profile updated" },
+      detail: { idle: "Pull to refresh", loading: "Refreshing device…", done: "Device data updated" },
     },
     dialog: {
       logoutTitle: "Notice",
@@ -731,6 +881,22 @@ function t(key) {
     }
   }
   return typeof node === "string" ? node : key;
+}
+
+function getCurrentPlatform() {
+  return MINI_PROGRAM_PLATFORMS[state.miniPlatform] || MINI_PROGRAM_PLATFORMS.wechat;
+}
+
+function platformLabel(platform = getCurrentPlatform()) {
+  return t(platform.labelKey);
+}
+
+function tReplace(key, vars = {}) {
+  let text = t(key);
+  Object.entries(vars).forEach(([name, value]) => {
+    text = text.replace(`{${name}}`, value);
+  });
+  return text;
 }
 
 function deviceDisplayName(device) {
@@ -795,7 +961,35 @@ const wxApiCatalog = {
     title: "手机号授权",
     purpose: "用户同意后获取加密手机号，绑定或注册 Evmars 账号。",
     returns: "encryptedData, iv, code",
-    needBackend: "POST /c/v1/auth/wechat/phone",
+    needBackend: "POST /c/v1/auth/phone",
+  },
+  alipayLogin: {
+    api: "my.getAuthCode",
+    title: "支付宝登录",
+    purpose: "获取 authCode 换取 Evmars session。",
+    returns: "authCode",
+    needBackend: "POST /c/v1/auth/alipay/login",
+  },
+  alipayPhone: {
+    api: "open-type=\"getAuthorize\" scope=\"phoneNumber\"",
+    title: "支付宝手机号授权",
+    purpose: "用户授权后获取手机号加密数据。",
+    returns: "encryptedData",
+    needBackend: "POST /c/v1/auth/phone",
+  },
+  douyinLogin: {
+    api: "tt.login",
+    title: "抖音登录",
+    purpose: "获取 code 换取 Evmars session。",
+    returns: "code, anonymousCode",
+    needBackend: "POST /c/v1/auth/douyin/login",
+  },
+  douyinPhone: {
+    api: "button open-type=getPhoneNumber",
+    title: "抖音手机号授权",
+    purpose: "用户同意后获取加密手机号。",
+    returns: "encryptedData, iv",
+    needBackend: "POST /c/v1/auth/phone",
   },
   scanCode: {
     api: "wx.scanCode",
@@ -893,7 +1087,7 @@ const wxApiCatalog = {
 const wxApiPageMap = {
   login: ["wxLogin", "getPhoneNumber"],
   "tab:map": ["getLocation", "getMenuButtonBoundingClientRect", "onPullDownRefresh", "openSetting", "requestSubscribeMessage", "shareAppMessage"],
-  "tab:devices": ["scanCode", "onPullDownRefresh"],
+  "tab:devices": ["scanCode", "openBluetooth", "startBleDiscovery", "onPullDownRefresh"],
   "tab:messages": ["onPullDownRefresh", "requestSubscribeMessage"],
   "tab:mine": ["openSetting", "requestSubscribeMessage", "wxShowModal", "onPullDownRefresh"],
   "detail:overview": ["onPullDownRefresh"],
@@ -901,7 +1095,7 @@ const wxApiPageMap = {
   "detail:health": ["onPullDownRefresh"],
   "detail:alarms": ["onPullDownRefresh"],
   "detail:config": ["openBluetooth", "onPullDownRefresh"],
-  "modal:add-device": ["scanCode"],
+  "modal:add-device": ["scanCode", "openBluetooth", "startBleDiscovery"],
   "modal:geofence": ["chooseLocation"],
   "modal:share": ["shareAppMessage"],
   "modal:settings": ["openSetting", "requestSubscribeMessage"],
@@ -923,10 +1117,11 @@ const mpAdaptationPageMap = {
   },
   login: {
     title: "登录与合规",
-    summary: "协议默认不勾选；登录前展示《用户协议》《隐私政策》入口。",
+    summary: "协议默认不勾选；支持多平台一键登录与带区号的手机号登录。",
     items: [
       { title: "协议勾选", desc: "未勾选不可登录，符合审核要求。", status: "done" },
-      { title: "微信登录", desc: "wx.login + getPhoneNumber 换服务端 session。", status: "demo" },
+      { title: "多平台登录", desc: "微信/支付宝/抖音各自原生登录 API，文案通用化。", status: "demo" },
+      { title: "海外手机号", desc: "国家/地区区号选择；实际能力以宿主平台为准。", status: "demo" },
     ],
   },
   "tab:map": {
@@ -1041,7 +1236,15 @@ function renderMpAdaptationCard() {
 function getWxApiPanelInfo() {
   const key = getCurrentPageKey();
   const detailKey = state.route === "detail" ? `detail:${state.detailTab}` : key;
-  const ids = wxApiPageMap[detailKey] || wxApiPageMap[key] || [];
+  let ids = wxApiPageMap[detailKey] || wxApiPageMap[key] || [];
+  if (key === "login") {
+    const loginApiByPlatform = {
+      wechat: ["wxLogin", "getPhoneNumber"],
+      alipay: ["alipayLogin", "alipayPhone"],
+      douyin: ["douyinLogin", "douyinPhone"],
+    };
+    ids = loginApiByPlatform[getCurrentPlatform().id] || loginApiByPlatform.wechat;
+  }
   return ids.map((id) => (wxApiCatalog[id] ? { id, ...wxApiCatalog[id] } : null)).filter(Boolean);
 }
 
@@ -1096,6 +1299,8 @@ const state = {
   brandTheme: "care",
   addDeviceView: "scan",
   bindCandidate: null,
+  miniPlatform: "wechat",
+  selectedBleDeviceId: null,
   configCategory: "home",
   settingsPanel: "profile",
   agreedToTerms: false,
@@ -1138,6 +1343,10 @@ function initFromUrl() {
   if (mapState === "loading" || mapState === "error" || mapState === "empty") {
     state.mapLoadState = mapState;
   }
+  const platform = params.get("platform");
+  if (platform && MINI_PROGRAM_PLATFORMS[platform]) {
+    state.miniPlatform = platform;
+  }
 }
 
 function syncUrl() {
@@ -1151,6 +1360,7 @@ function syncUrl() {
   if (state.locale === "en-US") params.set("lang", "en");
   if (state.locationPermission === "denied") params.set("location", "denied");
   if (state.mapLoadState !== "ready") params.set("map", state.mapLoadState);
+  if (state.miniPlatform !== "wechat") params.set("platform", state.miniPlatform);
   const qs = params.toString();
   const next = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
   history.replaceState(null, "", next);
@@ -1174,6 +1384,17 @@ function applyLayoutState() {
   syncUrl();
 }
 
+function renderPlatformToolbarGroup() {
+  const platformOptions = Object.values(MINI_PROGRAM_PLATFORMS);
+  return `
+    <div class="layout-toolbar-group layout-toolbar-group--platform" role="group" aria-label="${t("platform.switch")}">
+      ${platformOptions.map((item) => `
+        <button type="button" class="layout-chip layout-chip--platform layout-chip--${item.id}${state.miniPlatform === item.id ? " active" : ""}" data-action="switch-platform" data-platform="${item.id}">${t(item.labelKey)}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderLayoutToolbar() {
   if (!layoutToolbar) return;
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
@@ -1182,6 +1403,7 @@ function renderLayoutToolbar() {
   if (isDemo) {
     layoutToolbar.className = "layout-toolbar layout-toolbar--demo";
     layoutToolbar.innerHTML = `
+      ${renderPlatformToolbarGroup()}
       <div class="layout-toolbar-group layout-toolbar-group--demo" role="group">
         <button type="button" class="layout-chip demo-exit-chip" data-action="set-view-dev" title="${L.layout.exitDemo}">
           ${icon("minimize-2")}<span>${L.layout.exitDemo}</span>
@@ -1202,6 +1424,7 @@ function renderLayoutToolbar() {
       <span>${L.layout.version} v${PROTOTYPE_VERSION}</span>
     </div>
     <div class="layout-toolbar-actions">
+      ${renderPlatformToolbarGroup()}
       <div class="layout-toolbar-group" role="group" aria-label="${L.layout.toolbar}">
         <button type="button" class="layout-chip ${!isDemo ? "active" : ""}" data-action="set-view-dev">${L.layout.devMode}</button>
         <button type="button" class="layout-chip ${isDemo ? "active" : ""}" data-action="set-view-demo">${L.layout.demoMode}</button>
@@ -2368,13 +2591,13 @@ const suggestedApiDtoMap = {
 const apiPageMap = {
   login: {
     title: "登录页所需 API",
-    summary: "小程序以微信登录为主；账号密码登录可选。HTTP 域名须预先配置 request 合法域名。",
+    summary: "跨平台小程序登录（微信/支付宝/抖音）；手机号含国家/地区区号。HTTP 域名须配置 request 合法域名。",
     apiIds: [],
     suggestedApiIds: ["wechatLogin", "wechatPhone", "authRefresh", "agreementVersions", "agreementContent"],
     gaps: [
-      "POST /c/v1/auth/wechat/login 等接口域名须为 HTTPS 且已备案，并在微信公众平台配置 request 合法域名。",
-      "小程序不使用 FCM/HMS；推送改为订阅消息 + subscribe-message 接口。",
-      "微信登录替代 OAuth start/complete；Apple/Google 不在小程序内提供。",
+      "POST /c/v1/auth/{platform}/login 与 POST /c/v1/auth/phone（含 countryCode）域名须 HTTPS 已备案。",
+      "各平台原生登录/手机号 API 不同，HTTP 层统一账号体系。",
+      "小程序不使用 FCM/HMS；推送改为订阅消息。",
     ],
   },
   "tab:map": {
@@ -2474,10 +2697,12 @@ const apiPageMap = {
   },
   "modal:add-device": {
     title: "添加设备流程 API",
-    summary: "扫码为主、IMEI 为辅的两步绑定：识别 → 确认绑定。",
+    summary: "扫码 / IMEI / BLE 三路进入 detect；按 ready、unregistered、already_bound 分支处理。",
     apiIds: ["deviceBindDetect", "deviceBindPreparePanel", "deviceBindBind", "deviceBindPreviews"],
     gaps: [
-      "detect 统一接收 wx.scanCode 结果或手动 IMEI；面板准备在识别成功后进行。",
+      "detect 统一接收扫码结果、手动 IMEI 或 BLE 广播数据。",
+      "unregistered：补充型号/SN 后 register 再 detect；already_bound：展示脱敏账号 + 客服/解绑申请。",
+      "各平台扫码 API 不同，HTTP detect 契约保持一致。",
     ],
   },
   "modal:share": {
@@ -2990,24 +3215,25 @@ function dialogPanelInfo() {
 
 function loginPanelInfo() {
   const isEn = state.locale === "en-US";
+  const platform = getCurrentPlatform();
   return {
     title: isEn ? "Login" : "登录页",
     summary: isEn
-      ? "WeChat mini program entry: wx.login + optional phone binding. Backend aligns on /c/v1/auth/wechat/*."
-      : "微信小程序入口：wx.login 换取 session，可选手机号绑定。后端对齐 /c/v1/auth/wechat/* 接口。",
-    tags: isEn ? ["WeChat login", "Phone auth", "Agreements"] : ["微信登录", "手机号授权", "协议确认"],
+      ? `Cross-platform mini program entry (${platformLabel(platform)} demo): platform login + optional phone with country/region. Backend: /c/v1/auth/{platform}/*.`
+      : `跨平台小程序入口（当前演示 ${platformLabel(platform)}）：平台一键登录 + 可选手机号（含国家/地区区号）。后端对齐 /c/v1/auth/{platform}/*。`,
+    tags: isEn ? ["Platform login", "Phone + region", "Agreements"] : ["多平台登录", "海外手机号", "协议确认"],
     goals: isEn
-      ? ["User understands WeChat one-tap sign in.", "Phone binding flow is clear.", "Terms must be accepted before login.", "Brand shows Evmars device management, not B2B console."]
-      : ["用户理解微信一键登录流程。", "手机号绑定入口清晰。", "登录前需勾选协议。", "品牌定位为 Evmars 设备管理，非 B 端后台。"],
+      ? ["User sees generic platform sign-in, not WeChat-only copy.", "Phone login supports region selector for overseas users.", "Terms must be accepted before login.", "Switch demo platform via top toolbar or ?platform=alipay|douyin."]
+      : ["用户看到通用平台登录文案，不写死单一平台。", "手机号登录含国家/地区选择，支持海外用户。", "登录前需勾选协议。", "顶栏切换微信/支付宝/抖音，或 URL ?platform=。"],
     actions: isEn
-      ? ["Tap WeChat sign in → map home.", "Tap phone sign in to see getPhoneNumber flow.", "Open terms from agreement links."]
-      : ["点击微信登录进入地图首页。", "点击手机号登录查看 getPhoneNumber 流程。", "点击协议链接查看 H5 弹窗。"],
+      ? ["Switch platform in top toolbar → tap sign in → map home.", "Select region + phone login to see platform phone API.", "Demo IMEI in add-device: …001 unregistered, …002 already bound."]
+      : ["顶栏切换平台 → 一键登录进入地图。", "选择区号 + 手机号登录查看各平台授权 API。", "添加设备演示：…001 未注册、…002 已绑定。"],
     review: isEn
-      ? ["Confirm subscribe message templates for alerts.", "Region-specific map provider in mine settings."]
-      : ["确认告警类订阅消息模板。", "「我的」中地区地图服务选择方案。"],
+      ? ["Confirm per-platform login/phone APIs and legal domain config.", "Overseas phone: align with platform capability matrix."]
+      : ["确认各平台登录/手机号 API 与域名配置。", "海外手机号以各平台实际授权能力为准。"],
     backend: isEn
-      ? ["POST /c/v1/auth/wechat/login", "POST /c/v1/auth/wechat/phone", "GET /c/v1/legal/agreements/*"]
-      : ["POST /c/v1/auth/wechat/login", "POST /c/v1/auth/wechat/phone", "GET /c/v1/legal/agreements/*"],
+      ? [`POST /c/v1/auth/${platform.id}/login`, `POST /c/v1/auth/phone`, "GET /c/v1/legal/agreements/*"]
+      : [`POST /c/v1/auth/${platform.id}/login`, "POST /c/v1/auth/phone", "GET /c/v1/legal/agreements/*"],
   };
 }
 
@@ -3285,28 +3511,30 @@ function modalPanelInfo() {
 }
 
 function addDevicePanelInfo() {
+  const platform = getCurrentPlatform();
   return {
     title: "添加设备流程",
-    summary: "首期扫码为主、IMEI 为辅：主屏扫一扫，次入口手动输入；识别成功后确认绑定。",
-    tags: ["扫码绑定", "IMEI", "两步流程"],
+    summary: "扫码为主、IMEI/蓝牙为辅；detect 后按状态分支：可绑定 / 未注册补资料 / 已绑定冲突处理。",
+    tags: ["扫码", "IMEI", "蓝牙", "detect 分支"],
     goals: [
-      "确认扫码是默认主路径，IMEI 为清晰次入口。",
-      "确认识别成功后才展示面板准备与 IMEI 信息。",
-      "确认绑定前检查说明简洁可理解。",
+      "确认扫码为默认主路径，IMEI 与蓝牙为清晰次入口。",
+      "确认 detect 返回 ready / unregistered / already_bound 三类 UI。",
+      "未注册时引导补充型号等信息；已绑定时展示账号并提供客服/解绑申请。",
+      "蓝牙添加为核心能力，不可省略。",
     ],
     actions: [
-      "主屏点击「扫一扫添加设备」模拟 wx.scanCode。",
-      "点击「无法扫码？手动输入 IMEI」进入备用表单。",
-      "识别成功后确认绑定或重新识别。",
+      `主屏「扫一扫」→ ${platform.scanApi} → detect。`,
+      "IMEI 演示：100…001 未注册、100…002 已绑定。",
+      "蓝牙页选择设备 → 识别 → 确认绑定。",
     ],
     review: [
-      "扫码应覆盖绝大多数用户场景。",
-      "IMEI 输入需 15 位校验与明确错误提示。",
-      "绑定失败原因要给用户可执行的解释。",
+      "各平台扫码 API 不同（wx / my / tt），detect 入参统一。",
+      "绑定失败需给用户可执行说明。",
     ],
     backend: [
-      "IMEI 校验、设备是否已绑定、detect / prepare-panel / bind 接口。",
-      "绑定成功后需要刷新设备列表和权限数据。",
+      "POST /c/v1/device-bind/detect（scan / imei / ble）",
+      "未注册：register + 再 detect；已绑定：unbind-request",
+      "prepare-panel / bind；成功后刷新设备列表",
     ],
   };
 }
@@ -3562,6 +3790,8 @@ function logoutPanelInfo() {
 
 function renderLogin() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const platform = getCurrentPlatform();
+  const platformName = platformLabel(platform);
   const canLogin = state.agreedToTerms;
   const disabledCls = canLogin ? "" : " mp-btn-disabled";
   return `
@@ -3588,13 +3818,27 @@ function renderLogin() {
             <button type="button" class="mp-link" data-action="toast-policy">${L.login.privacy}</button>
           </span>
         </label>
-        <button type="button" class="mp-btn mp-btn-wechat mp-btn-block${disabledCls}" data-action="wechat-login" ${canLogin ? "" : "disabled"}>
-          ${icon("message-circle")} ${L.login.wechatLogin}
+        <button type="button" class="mp-btn ${platform.btnClass} mp-btn-block${disabledCls}" data-action="platform-login" ${canLogin ? "" : "disabled"}>
+          ${icon("log-in")} ${tReplace("login.platformLogin", { platform: platformName })}
         </button>
+        <span class="mp-open-type-hint">${platform.phoneApi}</span>
+        <div class="phone-region-row">
+          <label for="phone-region">${L.login.phoneRegion}</label>
+          <select id="phone-region" class="phone-region-select">
+            <option value="+86">中国大陆 +86</option>
+            <option value="+852">中国香港 +852</option>
+            <option value="+853">中国澳门 +853</option>
+            <option value="+886">中国台湾 +886</option>
+            <option value="+1">美国/加拿大 +1</option>
+            <option value="+44">英国 +44</option>
+            <option value="+81">日本 +81</option>
+            <option value="+65">新加坡 +65</option>
+          </select>
+        </div>
         <button type="button" class="mp-btn mp-btn-default mp-btn-block mp-btn-phone${disabledCls}" data-action="phone-login" ${canLogin ? "" : "disabled"}>
-          <span class="mp-open-type">${L.login.openTypePhone}</span>
           ${icon("phone")} ${L.login.phoneLogin}
         </button>
+        <p class="field-hint login-phone-hint">${L.login.phoneHint}</p>
         <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
         <p class="version-note">${L.brand.subtitle}</p>
       </div>
@@ -3643,7 +3887,7 @@ function renderPullRefreshBar(scope = "map") {
   const copy = getPullRefreshCopy(scope);
   return `
     <div class="mp-refresh-hint ${state.pullRefreshing ? "refreshing" : ""}" aria-label="下拉刷新">
-      <span>${state.pullRefreshing ? copy.loading : "下拉可刷新"}</span>
+      <span>${state.pullRefreshing ? copy.loading : copy.idle}</span>
       ${!state.pullRefreshing ? `<button class="mp-link-btn hoverable" type="button" data-action="pull-refresh" data-pull-scope="${scope}">${L.pullRefresh.simulate}</button>` : ""}
     </div>
   `;
@@ -4496,6 +4740,7 @@ function renderShareModal() {
 function resetAddDeviceState() {
   state.addDeviceView = "scan";
   state.bindCandidate = null;
+  state.selectedBleDeviceId = null;
 }
 
 function findDeviceByImei(imei) {
@@ -4510,12 +4755,13 @@ function buildBindCandidate({ imei, method, displayName = "" }) {
     panel: `${model.toLowerCase()}.panel v1.0.0`,
   };
   return {
+    status: "ready",
     method,
     imei,
     model,
     productName: device ? `${device.model} · ${device.categoryLabel}` : `${model} 智能设备`,
-    displayName: displayName.trim() || (device ? deviceDisplayName(device) : "我的设备"),
-    categoryLabel: device?.categoryLabel || "家人",
+    displayName: displayName.trim() || (device ? deviceDisplayName(device) : t("addDevice.namePlaceholder")),
+    categoryLabel: device?.categoryLabel || t("common.family"),
     color: device?.color || "blue",
     icon: device ? deviceIcon(device) : "radio-receiver",
     tsl: plugin.tsl,
@@ -4523,14 +4769,57 @@ function buildBindCandidate({ imei, method, displayName = "" }) {
   };
 }
 
+function mockDeviceDetect({ imei, method, displayName = "" }) {
+  if (imei === BIND_DETECT_DEMO_IMEI.UNREGISTERED) {
+    return {
+      status: "unregistered",
+      method,
+      imei,
+      displayName: displayName.trim(),
+      model: "",
+      serial: "",
+    };
+  }
+  if (imei === BIND_DETECT_DEMO_IMEI.ALREADY_BOUND) {
+    return {
+      status: "already_bound",
+      method,
+      imei,
+      ownerMask: "张**",
+      boundAt: "2025-08-12",
+    };
+  }
+  return buildBindCandidate({ imei, method, displayName });
+}
+
+function getBleDiscoveredDevice(deviceId = state.selectedBleDeviceId) {
+  return mock.discoveredDevices.find((device) => device.id === deviceId) || null;
+}
+
+function bindMethodLabel(method) {
+  if (method === "ble") return "BLE";
+  if (method === "imei") return "IMEI";
+  return t("addDevice.stepScan");
+}
+
 function renderAddDeviceModal() {
-  if (state.bindCandidate) {
-    return wrapMpSheet("确认绑定", renderBindConfirmBody(), renderBindConfirmFooter());
+  const candidate = state.bindCandidate;
+  if (candidate?.status === "unregistered") {
+    return wrapMpSheet(t("addDevice.unregisteredTitle"), renderBindSupplementBody(candidate), renderBindSupplementFooter());
+  }
+  if (candidate?.status === "already_bound") {
+    return wrapMpSheet(t("addDevice.alreadyBoundTitle"), renderBindAlreadyBoundBody(candidate), renderBindAlreadyBoundFooter());
+  }
+  if (candidate?.status === "ready") {
+    return wrapMpSheet(t("addDevice.confirmTitle"), renderBindConfirmBody(), renderBindConfirmFooter());
+  }
+  if (state.addDeviceView === "ble") {
+    return wrapMpSheet(t("addDevice.bleTitle"), renderBindBleBody(), renderBindBleFooter());
   }
   if (state.addDeviceView === "imei") {
-    return wrapMpSheet("输入 IMEI", renderBindImeiBody(), renderBindImeiFooter());
+    return wrapMpSheet(t("addDevice.imeiTitle"), renderBindImeiBody(), renderBindImeiFooter());
   }
-  return wrapMpSheet("添加设备", renderBindScanBody(), renderBindScanFooter());
+  return wrapMpSheet(t("addDevice.title"), renderBindScanBody(), renderBindScanFooter());
 }
 
 function renderBindScanBody() {
@@ -4538,36 +4827,40 @@ function renderBindScanBody() {
     <div class="bind-flow">
       <div class="bind-hero">
         <div class="bind-scan-frame" aria-hidden="true">${icon("scan-line")}</div>
-        <h3>扫描设备二维码</h3>
-        <p>请扫描机身或包装盒上的二维码<br>通常位于设备背面、铭牌或说明书内</p>
+        <h3>${t("addDevice.scanTitle")}</h3>
+        <p>${t("addDevice.scanDesc")}<br>${t("addDevice.scanHint")}</p>
       </div>
       <ol class="bind-steps-hint">
-        <li><span>1</span>扫描二维码</li>
-        <li><span>2</span>确认设备信息</li>
-        <li><span>3</span>完成绑定</li>
+        <li><span>1</span>${t("addDevice.stepScan")}</li>
+        <li><span>2</span>${t("addDevice.stepConfirm")}</li>
+        <li><span>3</span>${t("addDevice.stepDone")}</li>
       </ol>
-      <button class="bind-alt-link hoverable" type="button" data-action="switch-add-imei">无法扫码？手动输入 IMEI</button>
+      <div class="bind-alt-links">
+        <button class="bind-alt-link hoverable" type="button" data-action="switch-add-imei">${t("addDevice.imeiLink")}</button>
+        <button class="bind-alt-link hoverable" type="button" data-action="switch-add-ble">${t("addDevice.bleLink")}</button>
+      </div>
     </div>
   `;
 }
 
 function renderBindScanFooter() {
-  return mpBtn("primary", `${icon("scan-line")} 扫一扫添加设备`, "detect-scan", "mp-btn-block");
+  const platform = getCurrentPlatform();
+  return mpBtn("primary", `${icon("scan-line")} ${t("addDevice.scanBtn")}`, "detect-scan", "mp-btn-block");
 }
 
 function renderBindImeiBody() {
   return `
     <div class="bind-flow">
-      <button class="bind-back-link hoverable" type="button" data-action="switch-add-scan">${icon("chevron-left")} 返回扫码添加</button>
+      <button class="bind-back-link hoverable" type="button" data-action="switch-add-scan">${icon("chevron-left")} ${t("addDevice.scanLink")}</button>
       <div class="bind-imei-form">
         <div class="field">
-          <label for="manual-imei">设备 IMEI</label>
-          <input id="manual-imei" inputmode="numeric" maxlength="15" placeholder="请输入 15 位数字" value="" />
-          <p class="field-hint">可在机身标签、包装盒或说明书上找到，共 15 位</p>
+          <label for="manual-imei">${t("addDevice.imeiLabel")}</label>
+          <input id="manual-imei" inputmode="numeric" maxlength="15" placeholder="${t("addDevice.imeiPlaceholder")}" value="" />
+          <p class="field-hint">${t("addDevice.imeiHint")}</p>
         </div>
         <div class="field">
-          <label for="device-name">设备名称 <small>（可选）</small></label>
-          <input id="device-name" placeholder="如：妈妈手表" value="" />
+          <label for="device-name">${t("addDevice.nameLabel")} <small>${t("addDevice.nameOptional")}</small></label>
+          <input id="device-name" placeholder="${t("addDevice.namePlaceholder")}" value="" />
         </div>
       </div>
     </div>
@@ -4575,19 +4868,47 @@ function renderBindImeiBody() {
 }
 
 function renderBindImeiFooter() {
-  return mpBtn("primary", `${icon("search")} 识别设备`, "detect-imei", "mp-btn-block");
+  return mpBtn("primary", `${icon("search")} ${t("addDevice.detectBtn")}`, "detect-imei", "mp-btn-block");
+}
+
+function renderBindBleBody() {
+  return `
+    <div class="bind-flow">
+      <button class="bind-back-link hoverable" type="button" data-action="switch-add-scan">${icon("chevron-left")} ${t("addDevice.scanLink")}</button>
+      <div class="scan-status">
+        ${icon("bluetooth-searching")}
+        <div><strong>${t("addDevice.bleScanning")}</strong><span>${t("addDevice.bleHint")}</span></div>
+      </div>
+      <div class="mp-cells ble-device-list">
+        ${mock.discoveredDevices.map((device) => {
+          const selected = state.selectedBleDeviceId === device.id;
+          return `
+            <button class="mp-cell mp-cell_access hoverable ble-device-option${selected ? " active" : ""}" type="button" data-action="select-ble-device" data-ble-device-id="${device.id}" aria-pressed="${selected}">
+              <span class="mp-cell__bd"><strong>${device.name}</strong><span>${t("addDevice.statusReady")} · ${t("common.online")} · ${device.signal}</span></span>
+              <span class="mp-cell__ft">${selected ? icon("check") : icon("chevron-right")}</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderBindBleFooter() {
+  const disabledCls = state.selectedBleDeviceId ? "" : " mp-btn-disabled";
+  return mpBtn("primary", `${icon("bluetooth")} ${t("addDevice.bleBindBtn")}`, "bind-ble-device", `mp-btn-block${disabledCls}`);
 }
 
 function renderBindCandidateCard(candidate) {
-  const methodLabel = candidate.method === "scan" ? "扫码识别" : "IMEI 识别";
+  const statusClass = candidate.status === "ready" ? "ready" : candidate.status;
   return `
     <div class="bind-candidate-card">
-      <div class="bind-candidate-avatar ${candidate.color}">${icon(candidate.icon)}</div>
+      <div class="bind-candidate-avatar ${candidate.color || "blue"}">${icon(candidate.icon || "radio-receiver")}</div>
       <div class="bind-candidate-copy">
-        <strong>${candidate.displayName}</strong>
-        <span>${candidate.productName}</span>
-        <span class="bind-method-tag">${methodLabel}</span>
-        <p class="bind-candidate-imei">IMEI ${candidate.imei}</p>
+        <strong>${candidate.displayName || candidate.imei}</strong>
+        <span>${candidate.productName || candidate.model || "—"}</span>
+        <span class="bind-method-tag">${bindMethodLabel(candidate.method)} · ${t({ ready: "addDevice.statusReady", unregistered: "addDevice.statusUnregistered", already_bound: "addDevice.statusAlreadyBound" }[candidate.status] || "addDevice.statusReady")}</span>
+        ${candidate.imei ? `<p class="bind-candidate-imei">IMEI ${candidate.imei}</p>` : ""}
       </div>
     </div>
   `;
@@ -4600,11 +4921,11 @@ function renderBindConfirmBody() {
       ${renderBindCandidateCard(candidate)}
       ${renderAutoPanelDownload(candidate)}
       <div class="panel-card bind-checklist">
-        <h3>${icon("shield-check")}绑定前检查</h3>
+        <h3>${icon("shield-check")}${t("addDevice.stepConfirm")}</h3>
         <ul class="bind-check-list">
-          <li>设备未被其他账号绑定</li>
-          <li>设备在可绑定范围内</li>
-          <li>当前账号有添加权限</li>
+          <li>${t("addDevice.checkUnbound")}</li>
+          <li>${t("addDevice.checkInRange")}</li>
+          <li>${t("addDevice.checkPermission")}</li>
         </ul>
       </div>
     </div>
@@ -4614,8 +4935,80 @@ function renderBindConfirmBody() {
 function renderBindConfirmFooter() {
   return `
     <div class="bind-confirm-actions">
-      ${mpBtn("default", "重新识别", "reset-bind-candidate", "mp-btn-block")}
-      ${mpBtn("primary", `${icon("badge-check")} 确认绑定`, "confirm-bind-device", "mp-btn-block")}
+      ${mpBtn("default", t("addDevice.retryBtn"), "reset-bind-candidate", "mp-btn-block")}
+      ${mpBtn("primary", `${icon("badge-check")} ${t("addDevice.bindBtn")}`, "confirm-bind-device", "mp-btn-block")}
+    </div>
+  `;
+}
+
+function renderBindSupplementBody(candidate) {
+  return `
+    <div class="bind-flow">
+      <div class="bind-status-banner warning">
+        <strong>${t("addDevice.unregisteredTitle")}</strong>
+        <p>${t("addDevice.unregisteredDesc")}</p>
+      </div>
+      <div class="bind-imei-form">
+        <div class="field">
+          <label for="supplement-imei">${t("addDevice.imeiLabel")}</label>
+          <input id="supplement-imei" inputmode="numeric" maxlength="15" value="${candidate.imei || ""}" readonly />
+        </div>
+        <div class="field">
+          <label for="supplement-model">${t("addDevice.modelLabel")}</label>
+          <input id="supplement-model" placeholder="${t("addDevice.modelPlaceholder")}" value="${candidate.model || ""}" />
+        </div>
+        <div class="field">
+          <label for="supplement-serial">${t("addDevice.serialLabel")} <small>${t("addDevice.serialOptional")}</small></label>
+          <input id="supplement-serial" placeholder="SN" value="${candidate.serial || ""}" />
+        </div>
+        <div class="field">
+          <label for="supplement-name">${t("addDevice.nameLabel")}</label>
+          <input id="supplement-name" placeholder="${t("addDevice.namePlaceholder")}" value="${candidate.displayName || ""}" />
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBindSupplementFooter() {
+  return `
+    <div class="bind-confirm-actions">
+      ${mpBtn("default", t("addDevice.retryBtn"), "reset-bind-candidate", "mp-btn-block")}
+      ${mpBtn("primary", t("addDevice.submitSupplement"), "submit-supplement-device", "mp-btn-block")}
+    </div>
+  `;
+}
+
+function renderBindAlreadyBoundBody(candidate) {
+  return `
+    <div class="bind-flow">
+      <div class="bind-status-banner danger">
+        <strong>${t("addDevice.alreadyBoundTitle")}</strong>
+        <p>${t("addDevice.alreadyBoundDesc")}</p>
+      </div>
+      <div class="mp-cells">
+        <div class="mp-cell mp-cell_access">
+          <span class="mp-cell__bd">IMEI</span>
+          <span class="mp-cell__ft">${candidate.imei}</span>
+        </div>
+        <div class="mp-cell mp-cell_access">
+          <span class="mp-cell__bd">${t("addDevice.boundOwner")}</span>
+          <span class="mp-cell__ft">${candidate.ownerMask || "—"}</span>
+        </div>
+        <div class="mp-cell mp-cell_access">
+          <span class="mp-cell__bd">${t("addDevice.boundAt")}</span>
+          <span class="mp-cell__ft">${candidate.boundAt || "—"}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBindAlreadyBoundFooter() {
+  return `
+    <div class="bind-confirm-actions">
+      ${mpBtn("default", t("addDevice.contactSupport"), "contact-support-bound", "mp-btn-block")}
+      ${mpBtn("primary", t("addDevice.requestUnbind"), "request-unbind-bound", "mp-btn-block mp-btn-warn-outline")}
     </div>
   `;
 }
@@ -4624,15 +5017,15 @@ function renderAutoPanelDownload(candidate = null) {
   const productName = candidate?.productName || "EV05 · 家人";
   const tsl = candidate?.tsl || "ev05.tsl v1.2.0";
   const steps = [
-    `识别到设备型号 ${productName}`,
-    `物模型 ${tsl} 已下载`,
-    "设备面板已就绪",
+    `${t("addDevice.stepConfirm")} ${productName}`,
+    `${tsl}`,
+    t("addDevice.panelReady"),
   ];
   return `
     <div class="plugin-download-card">
       <div class="plugin-detail-title">
         ${icon("package-check")}
-        <div><strong>设备能力已准备</strong><span>识别成功后自动加载，无需更新小程序</span></div>
+        <div><strong>${t("addDevice.panelReady")}</strong><span>${t("addDevice.panelReadyDesc")}</span></div>
       </div>
       <div class="download-step-list">
         ${steps.map((step) => `
@@ -5347,17 +5740,28 @@ function handleAction(action, element, event) {
       render();
     },
     "wechat-login"() {
+      actions["platform-login"]();
+    },
+    "platform-login"() {
       if (!state.agreedToTerms) {
         showToast(t("login.agreeRequired"));
         return;
       }
+      const platform = getCurrentPlatform();
       state.loggedIn = true;
       state.route = "home";
       state.tab = "map";
       state.modal = null;
       state.pendingLocationGuide = true;
       state.locationPermission = "unknown";
-      showToast(t("toast.wechatLogin"));
+      showToast(`${platform.loginApi} → POST /c/v1/auth/${platform.id}/login`);
+      render();
+    },
+    "switch-platform"() {
+      const next = element.dataset.platform;
+      if (!MINI_PROGRAM_PLATFORMS[next]) return;
+      state.miniPlatform = next;
+      syncUrl();
       render();
     },
     "phone-login"() {
@@ -5365,7 +5769,8 @@ function handleAction(action, element, event) {
         showToast(t("login.agreeRequired"));
         return;
       }
-      showToast(t("toast.phoneLogin"));
+      const region = document.getElementById("phone-region")?.value || "+86";
+      showToast(`${getCurrentPlatform().phoneApi} → POST /c/v1/auth/phone (${region})`);
     },
     "quick-demo"() {
       state.loggedIn = true;
@@ -5483,12 +5888,18 @@ function handleAction(action, element, event) {
       }, 1000);
     },
     "detect-scan"() {
-      state.bindCandidate = buildBindCandidate({
+      const platform = getCurrentPlatform();
+      state.bindCandidate = mockDeviceDetect({
         imei: "863450071234001",
         method: "scan",
-        displayName: "妈妈手表",
+        displayName: deviceDisplayName(mock.devices[0]),
       });
-      showToast("wx.scanCode 成功 → POST /device-bind/detect");
+      const toastMap = {
+        ready: t("addDevice.statusReady"),
+        unregistered: t("addDevice.statusUnregistered"),
+        already_bound: t("addDevice.statusAlreadyBound"),
+      };
+      showToast(`${platform.scanApi} → detect · ${toastMap[state.bindCandidate.status] || ""}`);
       render();
     },
     "detect-imei"() {
@@ -5496,31 +5907,86 @@ function handleAction(action, element, event) {
       const nameInput = document.getElementById("device-name");
       const imei = imeiInput?.value?.replace(/\s/g, "") || "";
       if (!/^\d{15}$/.test(imei)) {
-        showToast("请输入 15 位 IMEI");
+        showToast(t("addDevice.imeiPlaceholder"));
         return;
       }
-      state.bindCandidate = buildBindCandidate({
+      state.bindCandidate = mockDeviceDetect({
         imei,
         method: "imei",
         displayName: nameInput?.value || "",
       });
-      showToast("设备识别成功");
       render();
     },
     "switch-add-imei"() {
       state.addDeviceView = "imei";
+      state.bindCandidate = null;
+      render();
+    },
+    "switch-add-ble"() {
+      state.addDeviceView = "ble";
+      state.bindCandidate = null;
+      state.selectedBleDeviceId = null;
       render();
     },
     "switch-add-scan"() {
       state.addDeviceView = "scan";
-      render();
-    },
-    "reset-bind-candidate"() {
       state.bindCandidate = null;
       render();
     },
+    "select-ble-device"() {
+      state.selectedBleDeviceId = element.dataset.bleDeviceId;
+      state.bindCandidate = null;
+      render();
+    },
+    "bind-ble-device"() {
+      const device = getBleDiscoveredDevice();
+      if (!device) {
+        showToast(t("addDevice.bleBindBtn"));
+        return;
+      }
+      if (!state.bindCandidate || state.bindCandidate.status !== "ready" || state.bindCandidate.imei !== device.imei) {
+        state.bindCandidate = mockDeviceDetect({
+          imei: device.imei,
+          method: "ble",
+          displayName: device.name,
+        });
+        showToast("BLE → POST /device-bind/detect");
+        render();
+        return;
+      }
+      state.modal = null;
+      resetAddDeviceState();
+      showToast("设备绑定成功");
+      render();
+    },
+    "submit-supplement-device"() {
+      const model = document.getElementById("supplement-model")?.value?.trim() || "";
+      const name = document.getElementById("supplement-name")?.value?.trim() || "";
+      if (!model) {
+        showToast(t("addDevice.modelPlaceholder"));
+        return;
+      }
+      state.bindCandidate = buildBindCandidate({
+        imei: state.bindCandidate?.imei || "",
+        method: state.bindCandidate?.method || "scan",
+        displayName: name,
+      });
+      showToast("POST /device-bind/register → detect");
+      render();
+    },
+    "contact-support-bound"() {
+      showToast("已打开客服入口（各平台客服组件）");
+    },
+    "request-unbind-bound"() {
+      showToast("POST /device-bind/unbind-request 已提交");
+    },
+    "reset-bind-candidate"() {
+      state.bindCandidate = null;
+      state.selectedBleDeviceId = null;
+      render();
+    },
     "confirm-bind-device"() {
-      if (!state.bindCandidate) return;
+      if (!state.bindCandidate || state.bindCandidate.status !== "ready") return;
       state.modal = null;
       resetAddDeviceState();
       showToast("设备绑定成功");
