@@ -306,7 +306,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.4.1";
+const PROTOTYPE_VERSION = "0.4.2";
 
 const MINI_PROGRAM_PLATFORMS = {
   wechat: {
