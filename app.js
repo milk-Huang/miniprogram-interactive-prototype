@@ -201,6 +201,16 @@ const mock = {
       summary: "本月平均活跃 47 分钟/天；第 12–18 天活动下降与雨天相关，本周已恢复。",
     },
   },
+  todaySummary: {
+    dateLabel: "6月30日 周一",
+    steps: 3824,
+    stepsGoal: 6000,
+    heartRate: 78,
+    activeMinutes: 42,
+    syncedDevice: "妈妈手表",
+    syncedDeviceId: "dev-ev05-mom",
+    syncedAt: "2 分钟前",
+  },
   shares: [
     { name: "Jason Chen", account: "jason.chen@email.com", permission: "查看 + 接收告警", status: "已接受" },
     { name: "Nina Chen", account: "nina.chen@email.com", permission: "仅查看", status: "待接受" },
@@ -296,7 +306,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.3.1";
+const PROTOTYPE_VERSION = "0.4.0";
 
 const MINI_PROGRAM_PLATFORMS = {
   wechat: {
@@ -360,21 +370,21 @@ const LOCALES = {
       structureTitle: "页面结构",
       structure: [
         "登录页：多平台一键登录、账号/邮箱密码、协议",
+        "今日：健康与安全摘要（步数/心率/活跃，无睡眠）",
         "地图首页：全部设备位置、状态、围栏和告警",
-        "设备页：我的设备、添加设备、设备状态",
+        "设备页：手表、定位器分组与添加设备",
         "设备详情：概览、地图、轨迹、围栏、健康、告警、配置",
-        "消息：告警、分享邀请、系统通知",
+        "消息：SOS、跌倒、围栏、分享邀请",
         "我的：资料、安全、通知、地区地图、帮助",
       ],
       pathTitle: "推荐点击路径",
       paths: [
-        "平台登录 → 地图首页",
-        "点击地图设备标记进入单台设备地图详情",
-        "点击「妈妈手表」进入设备详情",
-        "设备详情 → 地图 Tab：轨迹回放 / 新建围栏",
-        "配置页复制 Home WiFi / Home Beacon",
+        "平台登录 → 今日首页",
+        "查看健康指标与待处理告警",
+        "地图 Tab → 设备标记 / 围栏",
+        "点击「妈妈手表」→ 健康 / 地图详情",
+        "消息 → 跌倒 / 围栏待确认",
         "我的 → 资料 / 通知 / 地区地图",
-        "分享、设备管理、AI 客服弹窗",
       ],
     },
     api: {
@@ -434,12 +444,30 @@ const LOCALES = {
       },
       mpTechExample: "示例：GET https://api.evmars.com/c/v1/devices",
     },
-    nav: { map: "地图", devices: "设备", messages: "消息", mine: "我的" },
+    nav: { today: "今日", map: "地图", devices: "设备", messages: "消息", mine: "我的" },
     navSub: {
+      today: "健康与安全摘要、设备同步",
       map: "查看设备位置、告警与围栏状态",
-      devices: "我的设备、添加设备和状态总览",
-      messages: "告警、分享邀请和系统通知",
+      devices: "手表、定位器与添加设备",
+      messages: "SOS、跌倒、围栏与分享邀请",
       mine: "账号、安全、通知与帮助",
+    },
+    health: {
+      greeting: "你好，{name}",
+      syncFrom: "数据来自",
+      steps: "步数",
+      heartRate: "心率",
+      active: "活跃",
+      deviceStatus: "设备在线",
+      pendingAlerts: "待处理提醒",
+      viewMap: "查看地图",
+      allDevices: "全部设备",
+      watchGroup: "手表 / 挂坠",
+      locatorGroup: "定位器 / 项圈",
+      needsAttention: "需关注",
+      viewAllDevices: "查看全部设备",
+      noAttention: "暂无异常设备，一切正常",
+      nonMedical: "数据仅供参考，不构成医疗诊断",
     },
     login: {
       hero: "统一管理定位、健康与设备安全",
@@ -559,7 +587,7 @@ const LOCALES = {
     toast: {
       wechatLogin: "wx.login 成功 → POST /c/v1/auth/wechat/login",
       phoneLogin: "getPhoneNumber → POST /c/v1/auth/wechat/phone",
-      guest: "已进入地图首页（演示模式）",
+      guest: "已进入今日首页（演示模式）",
       sync: "设备状态、告警和健康摘要已同步",
       scan: "wx.scanCode → POST /c/v1/device-bind/detect",
       subscribe: "wx.requestSubscribeMessage 已记录 templateId",
@@ -673,12 +701,30 @@ const LOCALES = {
       },
       mpTechExample: "Example: GET https://api.evmars.com/c/v1/devices",
     },
-    nav: { map: "Map", devices: "Devices", messages: "Messages", mine: "Me" },
+    nav: { today: "Today", map: "Map", devices: "Devices", messages: "Messages", mine: "Me" },
     navSub: {
-      map: "Device locations, alerts and geofences",
-      devices: "My devices, add device and status",
-      messages: "Alerts, share invites and notices",
+      today: "Health & safety summary",
+      map: "Locations, alerts and geofences",
+      devices: "Watches, locators and add device",
+      messages: "SOS, fall, geofence and shares",
       mine: "Account, security and settings",
+    },
+    health: {
+      greeting: "Hi, {name}",
+      syncFrom: "Synced from",
+      steps: "Steps",
+      heartRate: "Heart rate",
+      active: "Active",
+      deviceStatus: "Devices online",
+      pendingAlerts: "Pending alerts",
+      viewMap: "Open map",
+      allDevices: "All devices",
+      watchGroup: "Watches / pendants",
+      locatorGroup: "Locators / trackers",
+      needsAttention: "Needs attention",
+      viewAllDevices: "All devices",
+      noAttention: "No issues — all normal",
+      nonMedical: "For wellness only, not medical advice",
     },
     login: {
       hero: "Location, health and device safety in one place",
@@ -798,7 +844,7 @@ const LOCALES = {
     toast: {
       wechatLogin: "wx.login OK → POST /c/v1/auth/wechat/login",
       phoneLogin: "getPhoneNumber → POST /c/v1/auth/wechat/phone",
-      guest: "Map home opened (demo mode)",
+      guest: "Today home opened (demo mode)",
       sync: "Device status, alerts and health synced",
       scan: "wx.scanCode → POST /c/v1/device-bind/detect",
       subscribe: "wx.requestSubscribeMessage templateId saved",
@@ -1265,7 +1311,7 @@ const state = {
   locale: "zh-CN",
   loggedIn: false,
   route: "login",
-  tab: "map",
+  tab: "today",
   detailTab: "overview",
   selectedDeviceId: "dev-ev05-mom",
   modal: null,
@@ -1293,9 +1339,6 @@ const state = {
   highlightedMapDeviceId: null,
   pullRefreshing: false,
   pendingLocationGuide: false,
-  workoutFilter: "all",
-  selectedWorkoutId: null,
-  selectedRingKey: null,
 };
 
 const app = document.getElementById("app");
@@ -3307,44 +3350,24 @@ function tabPanelInfo() {
   const panelMap = {
     today: {
       title: "今日页",
-      summary: "运动健康首页：活动圆环、关键指标、设备同步与最近运动，参考 Apple 健身 / 小米运动健康信息层级。",
-      tags: ["活动圆环", "健康摘要", "设备同步"],
+      summary: "健康与安全摘要：步数/心率/活跃（无睡眠）、待处理告警、手表与定位器分组；参考小米运动健康卡片布局。",
+      tags: ["健康摘要", "安全告警", "设备同步"],
       goals: [
-        "确认用户打开即见今日活动完成度（圆环/步数）。",
-        "确认心率、睡眠等核心指标一屏可读。",
-        "确认数据来源设备清晰，可点击进入详情。",
+        "打开即见主设备健康指标与待处理安全提醒。",
+        "仅展示需关注设备，完整列表在「设备」Tab。",
+        "不含睡眠、运动训练；不含手环能力。",
       ],
       actions: [
-        "点击同步设备芯片进入健康详情。",
-        "点击指标卡查看趋势；点击最近运动进入运动页。",
-        "下拉刷新同步数据。",
+        "点击同步芯片 / 指标卡进入健康详情。",
+        "点击需关注设备进入告警或地图详情。",
+        "「全部设备」跳转设备 Tab。",
       ],
       review: [
-        "非医疗诊断表述；设备未同步时的空态与离线态。",
-        "目标值是否支持用户在「我的」自定义。",
+        "非医疗声明；设备无健康能力时隐藏对应指标卡。",
+        "与 Eview mPERS / SOS 定位器产品线一致。",
       ],
       backend: [
-        "日活动汇总、健康摘要、设备同步状态、最近运动会话。",
-      ],
-    },
-    workout: {
-      title: "运动页",
-      summary: "开始运动入口 + 历史记录列表，承接户外跑步/健走/骑行等场景。",
-      tags: ["开始运动", "运动记录", "GPS轨迹"],
-      goals: [
-        "确认开始运动入口醒目。",
-        "确认记录列表展示时长、距离、卡路里。",
-      ],
-      actions: [
-        "点击运动类型模拟开始锻炼。",
-        "点击记录查看轨迹回放（正式版）。",
-      ],
-      review: [
-        "定位权限仅在户外运动时申请。",
-        "与穿戴设备运动模式同步策略。",
-      ],
-      backend: [
-        "运动会话 CRUD、轨迹点上传、与设备运动模式对齐。",
+        "日健康摘要、设备同步状态、未读告警数量。",
       ],
     },
     map: {
@@ -3989,6 +4012,7 @@ function renderLogin() {
 function renderShell() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const titleMap = {
+    today: L.nav.today,
     map: L.nav.map,
     devices: L.nav.devices,
     messages: L.nav.messages,
@@ -3997,7 +4021,8 @@ function renderShell() {
   const title = titleMap[state.tab];
   return `
     ${renderHeader(title)}
-    <div class="screen-body">
+    <div class="screen-body health-screen-body">
+      ${state.tab === "today" ? renderTodayHome() : ""}
       ${state.tab === "map" ? renderGlobalMap() : ""}
       ${state.tab === "devices" ? renderDevices() : ""}
       ${state.tab === "messages" ? renderMessages() : ""}
@@ -4019,7 +4044,7 @@ function renderMpCapsule() {
 
 function getPullRefreshCopy(scope = "map") {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  return L.pullRefresh?.[scope] || L.pullRefresh.map;
+  return L.pullRefresh?.[scope] || L.pullRefresh.today || L.pullRefresh.map;
 }
 
 function renderPullRefreshBar(scope = "map") {
@@ -4069,184 +4094,98 @@ function ringPercent(current, goal) {
   return Math.min(100, Math.round((current / goal) * 100));
 }
 
-function getWorkoutById(id) {
-  return mock.workouts.find((item) => item.id === id) || null;
+function pendingAlertCount() {
+  return mock.alarms.filter((alarm) => alarm.status !== "已处理").length;
 }
 
-function filterWorkouts(filter = state.workoutFilter) {
-  if (filter === "all") return mock.workouts;
-  return mock.workouts.filter((item) => item.category === filter);
+function deviceSupportsHealth(device) {
+  return (device.metrics?.heart ?? 0) > 0 || (device.metrics?.steps ?? 0) > 0;
 }
 
-function workoutCountByCategory(category) {
-  return mock.workouts.filter((item) => item.category === category).length;
+function devicesWithAttention() {
+  const alertDeviceIds = new Set(mock.alarms.filter((a) => a.status !== "已处理").map((a) => a.deviceId));
+  return mock.devices.filter((d) => alertDeviceIds.has(d.id) || isLowBatteryDevice(d) || d.status === "offline");
 }
 
-function renderFitnessRing(ring, ringKey, clickable = false) {
-  const pct = ringPercent(ring.current, ring.goal);
-  const inner = `
-      <div class="fitness-ring" style="--ring-pct: ${pct}; --ring-color: ${ring.color}">
-        <div class="fitness-ring-core">
-          <strong>${ring.current}</strong>
-          <small>${ring.unit}</small>
-        </div>
-      </div>
-      <span class="fitness-ring-label">${ring.label}</span>
-      <span class="fitness-ring-goal">${pct}%</span>
-  `;
-  if (clickable && ringKey) {
-    return `
-      <button class="fitness-ring-card hoverable" type="button" data-action="open-ring-detail" data-ring-key="${ringKey}">
-        ${inner}
-      </button>
-    `;
-  }
-  return `<div class="fitness-ring-card">${inner}</div>`;
-}
-
-function renderActivityRingsPanel(options = {}) {
-  const { clickable = false, title } = options;
-  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  const s = mock.todaySummary;
+function renderTodayAttentionChip(device) {
+  const alarms = deviceAlarms(device.id).filter((a) => a.status !== "已处理");
+  const hint = alarms[0]?.type || device.lastEvent;
   return `
-    <div class="fitness-rings-panel${options.compact ? " fitness-rings-panel-compact" : ""}">
-      <div class="fitness-panel-title">${title || L.fitness.activityRings}</div>
-      <div class="fitness-rings-row">
-        ${Object.entries(s.rings).map(([key, ring]) => renderFitnessRing(ring, key, clickable)).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderWeekSummaryStrip() {
-  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  const F = L.fitness;
-  const w = mock.weekSummary;
-  return `
-    <div class="fitness-week-strip">
-      <div class="fitness-week-strip-head">
-        <strong>${F.weekSummary}</strong>
-        <span>${tReplace("fitness.weekWorkouts", { count: w.workouts })}</span>
-      </div>
-      <div class="fitness-week-metrics">
-        <div><small>${F.weekDistance}</small><strong>${w.distance}</strong></div>
-        <div><small>${F.weekDuration}</small><strong>${w.duration}</strong></div>
-        <div><small>${F.weekCalories}</small><strong>${w.calories} 千卡</strong></div>
-      </div>
-    </div>
+    <button class="health-device-chip health-device-chip-attention hoverable" type="button" data-open-device="${device.id}" data-detail-tab="${alarms.length ? "alarms" : "map"}">
+      <span class="health-device-chip-icon ${device.color}">${icon(deviceIcon(device))}</span>
+      <span class="health-device-chip-body">
+        <strong>${deviceDisplayName(device)}</strong>
+        <span>${device.model} · ${statusLabel(device.status)} · ${device.location}</span>
+        <small class="attention-copy">${hint}</small>
+      </span>
+      ${icon("chevron-right")}
+    </button>
   `;
 }
 
 function renderTodayHome() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  const F = L.fitness;
+  const H = L.health;
   const s = mock.todaySummary;
   const stepsPct = ringPercent(s.steps, s.stepsGoal);
-  const primary = getDevice();
-  const greeting = tReplace("fitness.greeting", { name: mock.user.name });
+  const alertCount = pendingAlertCount();
+  const onlineCount = mock.devices.filter((d) => d.status === "online").length;
+  const attentionDevices = devicesWithAttention();
+  const greeting = tReplace("health.greeting", { name: mock.user.name });
   return `
     ${renderPageTop("today")}
-    <section class="section fitness-home">
-      <div class="fitness-home-header">
+    <section class="section health-home">
+      <div class="health-home-header">
         <div>
-          <p class="fitness-date">${s.dateLabel}</p>
-          <h2 class="fitness-greeting">${greeting}</h2>
+          <p class="health-date">${s.dateLabel}</p>
+          <h2 class="health-greeting">${greeting}</h2>
         </div>
-        <button class="fitness-sync-chip hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
+        <button class="health-sync-chip hoverable" type="button" data-open-device="${s.syncedDeviceId}" data-detail-tab="health">
           ${icon("watch")}<span>${s.syncedDevice}</span><small>${s.syncedAt}</small>
         </button>
       </div>
-      ${renderWeekSummaryStrip()}
-      ${renderActivityRingsPanel({ clickable: true })}
-      <div class="fitness-metrics-grid">
-        <button class="fitness-metric-card hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
-          <span>${icon("footprints")} ${F.steps}</span>
-          <strong>${s.steps.toLocaleString()}</strong>
-          <div class="fitness-progress"><i style="width:${stepsPct}%"></i></div>
-          <small>${F.goalProgress} ${stepsPct}%</small>
-        </button>
-        <button class="fitness-metric-card hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
-          <span>${icon("heart-pulse")} ${F.heartRate}</span>
-          <strong>${s.heartRate} <small>bpm</small></strong>
-          <small>静息 · 正常范围</small>
-        </button>
-        <button class="fitness-metric-card hoverable" type="button" data-open-device="${primary.id}" data-detail-tab="health">
-          <span>${icon("moon")} ${F.sleep}</span>
-          <strong>${s.sleep}</strong>
-          <small>昨夜 · 质量良好</small>
-        </button>
-        <button class="fitness-metric-card hoverable" type="button" data-action="open-ring-detail" data-ring-key="move">
-          <span>${icon("flame")} 活动</span>
-          <strong>${s.rings.move.current} <small>千卡</small></strong>
-          <small>目标 ${s.rings.move.goal} 千卡 · ${ringPercent(s.rings.move.current, s.rings.move.goal)}%</small>
-        </button>
-      </div>
-      <div class="fitness-section-head">
-        <h3>${F.recentWorkouts}</h3>
-        <button class="mp-link-btn hoverable" type="button" data-tab="workout">${F.viewAllWorkouts}</button>
-      </div>
-      <div class="mp-cells workout-preview-cells">
-        ${mock.workouts.slice(0, 2).map((item) => renderWorkoutRow(item)).join("")}
-      </div>
-      ${s.unreadAlerts ? `
-        <button class="fitness-alert-card hoverable" type="button" data-action="toast-sync">
-          ${icon("bell")}
-          <div><strong>${F.alerts}</strong><span>${s.unreadAlerts} 条待查看（心率偏高提醒、设备低电）</span></div>
+      ${alertCount ? `
+        <button class="health-alert-banner hoverable" type="button" data-tab="messages">
+          ${icon("bell-ring")}
+          <div><strong>${H.pendingAlerts}</strong><span>${alertCount} 条待确认（跌倒、围栏、低电等）</span></div>
           ${icon("chevron-right")}
         </button>
       ` : ""}
-      <p class="fitness-disclaimer">${F.nonMedical}</p>
-    </section>
-  `;
-}
-
-function renderWorkoutRow(item) {
-  return `
-    <button class="mp-cell mp-cell_access hoverable workout-row" type="button" data-action="open-workout-detail" data-workout-id="${item.id}">
-      <span class="mp-cell__hd workout-row-icon">${icon(item.icon)}</span>
-      <span class="mp-cell__bd">
-        <strong>${item.type}</strong>
-        <span>${item.time} · ${item.device}</span>
-      </span>
-      <span class="mp-cell__ft workout-row-stats">
-        <strong>${item.distance}</strong>
-        <small>${item.duration} · ${item.calories} 千卡</small>
-      </span>
-    </button>
-  `;
-}
-
-function renderWorkoutTab() {
-  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  const F = L.fitness;
-  const list = filterWorkouts();
-  return `
-    ${renderPageTop("workout")}
-    <section class="section fitness-workout-page">
-      ${renderWeekSummaryStrip()}
-      <div class="workout-start-grid">
-        ${mock.workoutTypes.map((item) => `
-          <button class="workout-start-card hoverable${state.workoutFilter === item.id ? " active" : ""}" type="button" data-action="filter-workout-type" data-workout-filter="${item.id}">
-            <span class="workout-start-icon">${icon(item.icon)}</span>
-            <strong>${item.label}</strong>
-            <small>${workoutCountByCategory(item.id)} 条 · ${F.startWorkout}</small>
-          </button>
-        `).join("")}
+      <div class="health-metrics-grid">
+        <button class="health-metric-card hoverable" type="button" data-open-device="${s.syncedDeviceId}" data-detail-tab="health">
+          <span>${icon("footprints")} ${H.steps}</span>
+          <strong>${s.steps.toLocaleString()}</strong>
+          <div class="health-progress"><i style="width:${stepsPct}%"></i></div>
+          <small>目标 ${s.stepsGoal.toLocaleString()} 步 · ${stepsPct}%</small>
+        </button>
+        <button class="health-metric-card hoverable" type="button" data-open-device="${s.syncedDeviceId}" data-detail-tab="health">
+          <span>${icon("heart-pulse")} ${H.heartRate}</span>
+          <strong>${s.heartRate} <small>bpm</small></strong>
+          <small>今日平均 · 正常范围</small>
+        </button>
+        <button class="health-metric-card hoverable" type="button" data-open-device="${s.syncedDeviceId}" data-detail-tab="health">
+          <span>${icon("activity")} ${H.active}</span>
+          <strong>${s.activeMinutes} <small>分钟</small></strong>
+          <small>今日累计活跃</small>
+        </button>
+        <button class="health-metric-card hoverable" type="button" data-tab="devices">
+          <span>${icon("radio")} ${H.deviceStatus}</span>
+          <strong>${onlineCount}<small> / ${mock.devices.length}</small></strong>
+          <small>${H.allDevices}</small>
+        </button>
       </div>
-      <div class="workout-filter-tabs" role="tablist" aria-label="运动类型筛选">
-        <button class="workout-filter-tab hoverable${state.workoutFilter === "all" ? " active" : ""}" type="button" data-action="filter-workout-type" data-workout-filter="all">全部</button>
-        ${mock.workoutTypes.map((item) => `
-          <button class="workout-filter-tab hoverable${state.workoutFilter === item.id ? " active" : ""}" type="button" data-action="filter-workout-type" data-workout-filter="${item.id}">${item.label}</button>
-        `).join("")}
+      <div class="health-quick-actions">
+        <button class="health-quick-btn hoverable" type="button" data-tab="map">${icon("map")} ${H.viewMap}</button>
+        <button class="health-quick-btn hoverable" type="button" data-tab="devices">${icon("watch")} ${H.viewAllDevices}</button>
       </div>
-      <div class="fitness-section-head">
-        <h3>${F.recentWorkouts}</h3>
-        <span class="muted-copy">${list.length} 条记录</span>
+      <div class="health-section-head">
+        <h3>${H.needsAttention}</h3>
+        ${attentionDevices.length ? `<button class="mp-link-btn hoverable" type="button" data-tab="devices">${H.viewAllDevices}</button>` : ""}
       </div>
-      <div class="mp-cells">
-        ${list.length ? list.map((item) => renderWorkoutRow(item)).join("") : `<div class="device-empty-hint">暂无该类型运动记录，点击上方开始运动</div>`}
-      </div>
-      <p class="fitness-disclaimer">${F.nonMedical}</p>
+      ${attentionDevices.length
+        ? `<div class="health-device-list">${attentionDevices.map(renderTodayAttentionChip).join("")}</div>`
+        : `<p class="health-empty-hint">${H.noAttention}</p>`}
+      <p class="health-disclaimer">${H.nonMedical}</p>
     </section>
   `;
 }
@@ -4254,13 +4193,14 @@ function renderWorkoutTab() {
 function renderBottomNav() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const nav = [
+    ["today", "activity", L.nav.today],
     ["map", "map", L.nav.map],
     ["devices", "watch", L.nav.devices],
     ["messages", "bell", L.nav.messages],
     ["mine", "user-round", L.nav.mine],
   ];
   return `
-    <nav class="bottom-nav mp-tabbar" aria-label="底部导航">
+    <nav class="bottom-nav mp-tabbar mp-tabbar-5" aria-label="底部导航">
       ${nav
         .map(
           ([tab, iconName, label]) => `
@@ -4295,7 +4235,7 @@ function renderGlobalMap() {
         <div class="map-result-header">
           <div>
             <strong>${mapFilterLabel()} · ${devices.length} 台</strong>
-            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "点击设备查看详情，地图标记同步高亮"}</span>
+            <span>${locationDenied ? "定位未授权，仅展示设备列表" : "全部已绑定设备（含离线）；点击列表与地图标记联动"}</span>
           </div>
         </div>
         <div class="map-device-strip compact" aria-label="筛选后的设备">
@@ -4498,52 +4438,6 @@ function renderOverview(device) {
       </div>
       <div class="card-list">
         ${(alarms.length ? alarms : mock.alarms.slice(0, 1)).map(renderAlarmCard).join("")}
-      </div>
-    </section>
-  `;
-}
-
-function renderDeviceWorkout(device) {
-  const deviceName = device.name;
-  const records = mock.workouts.filter((w) => w.device === deviceName);
-  const list = records.length ? records : mock.workouts;
-  const latest = list[0];
-  return `
-    <section class="section">
-      <div class="workout-route-card" role="img" aria-label="最近运动轨迹">
-        <div class="workout-route-line"></div>
-        <div class="workout-route-pin start">${icon("flag")}</div>
-        <div class="workout-route-pin end">${icon("map-pin")}</div>
-        <div class="map-caption">
-          <span>${latest?.type || "户外跑步"} · ${latest?.distance || "—"}</span>
-          <span>GPS 轨迹 · GCJ-02</span>
-        </div>
-      </div>
-    </section>
-    <section class="section">
-      <div class="section-header">
-        <div>
-          <h2>运动记录</h2>
-          <p>来自 ${deviceDisplayName(device)} 的同步数据</p>
-        </div>
-        <button class="mp-link-btn hoverable" type="button" data-action="filter-workout-type" data-workout-filter="run">${icon("play")} 开始运动</button>
-      </div>
-      <div class="mp-cells">
-        ${list.map((item) => renderWorkoutRow(item)).join("")}
-      </div>
-    </section>
-    <section class="section">
-      <div class="insight-card">
-        <h3>${icon("route")}轨迹回放</h3>
-        <p>支持按今天、昨天、自定义时间查询 GPS 轨迹，正式版可分享运动路线给家人。</p>
-      </div>
-      <div class="timeline">
-        ${mock.track.map((item) => `
-          <div class="timeline-item">
-            <div class="timeline-time">${item.time}</div>
-            <div><strong>${item.title}</strong><span>${item.desc}</span></div>
-          </div>
-        `).join("")}
       </div>
     </section>
   `;
@@ -5038,78 +4932,6 @@ function renderSettingsItem(panel, iconName, title, desc) {
   `;
 }
 
-function renderRingDetailModal() {
-  const key = state.selectedRingKey || "move";
-  const ring = mock.todaySummary.rings[key];
-  const detail = mock.ringDetails[key];
-  if (!ring || !detail) return "";
-  const body = `
-    <div class="ring-detail-hero">
-      ${renderFitnessRing(ring, key, false)}
-      <div>
-        <strong>${detail.title}</strong>
-        <p>${detail.subtitle}</p>
-      </div>
-    </div>
-    <div class="mp-cells">
-      ${detail.segments.map((seg) => `
-        <div class="mp-cell">
-          <span class="mp-cell__bd"><strong>${seg.label}</strong><span>${seg.time}</span></span>
-          <span class="mp-cell__ft">${seg.value}</span>
-        </div>
-      `).join("")}
-    </div>
-    <div class="insight-card">
-      <h3>${icon("info")}说明</h3>
-      <p>${detail.tip}</p>
-    </div>
-  `;
-  const footer = mpBtn("primary", "知道了", "close-modal", "mp-btn-block");
-  return wrapMpSheet(`${detail.title}详情`, body, footer);
-}
-
-function renderWorkoutDetailModal() {
-  const workout = getWorkoutById(state.selectedWorkoutId);
-  if (!workout) return "";
-  const body = `
-    <div class="workout-detail-stats">
-      <div><small>距离</small><strong>${workout.distance}</strong></div>
-      <div><small>时长</small><strong>${workout.duration}</strong></div>
-      <div><small>消耗</small><strong>${workout.calories} 千卡</strong></div>
-      <div><small>配速</small><strong>${workout.pace}</strong></div>
-    </div>
-    <div class="workout-route-card workout-route-card-modal" role="img" aria-label="运动轨迹">
-      <div class="workout-route-line"></div>
-      <div class="workout-route-pin start">${icon("flag")}</div>
-      <div class="workout-route-pin end">${icon("map-pin")}</div>
-      <div class="map-caption">
-        <span>${workout.route}</span>
-        <span>${workout.time} · ${workout.device}</span>
-      </div>
-    </div>
-    <div class="mp-cells">
-      <div class="mp-cell"><span class="mp-cell__bd">平均心率</span><span class="mp-cell__ft">${workout.avgHeart} bpm</span></div>
-      <div class="mp-cell"><span class="mp-cell__bd">最高心率</span><span class="mp-cell__ft">${workout.maxHeart} bpm</span></div>
-    </div>
-    <div class="section-header"><h2>分段</h2></div>
-    <div class="timeline">
-      ${workout.splits.map((split) => `
-        <div class="timeline-item">
-          <div class="timeline-time">${icon("chevron-right")}</div>
-          <div><strong>${split}</strong></div>
-        </div>
-      `).join("")}
-    </div>
-  `;
-  const footer = `
-    <div class="mp-sheet-footer-row">
-      ${mpBtn("default", "查看地图轨迹", "open-workout-map")}
-      ${mpBtn("primary", "完成", "close-modal")}
-    </div>
-  `;
-  return wrapMpSheet(workout.type, body, footer);
-}
-
 function renderModal() {
   if (state.modal === "location-guide") return renderLocationGuideModal();
   if (state.modal === "forgot-password") return renderForgotPasswordModal();
@@ -5122,8 +4944,6 @@ function renderModal() {
   if (state.modal === "h5") return renderH5Modal();
   if (state.modal === "chat") return renderChatModal();
   if (state.modal === "ai") return renderAiModal();
-  if (state.modal === "workout-detail") return renderWorkoutDetailModal();
-  if (state.modal === "ring-detail") return renderRingDetailModal();
   return "";
 }
 
@@ -6149,7 +5969,7 @@ function bindEvents() {
       event.preventDefault();
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
       render();
@@ -6213,7 +6033,7 @@ function handleAction(action, element, event) {
       state.loggedIn = false;
       state.route = "login";
       state.loginView = "platform";
-      state.tab = "map";
+      state.tab = "today";
       state.detailTab = "overview";
       state.modal = null;
       state.mapFilter = "all";
@@ -6231,9 +6051,6 @@ function handleAction(action, element, event) {
       state.highlightedMapDeviceId = null;
       state.pullRefreshing = false;
       state.pendingLocationGuide = false;
-      state.workoutFilter = "all";
-      state.selectedWorkoutId = null;
-      state.selectedRingKey = null;
       render();
     },
     "wechat-login"() {
@@ -6247,7 +6064,7 @@ function handleAction(action, element, event) {
       const platform = getCurrentPlatform();
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.modal = null;
       state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
@@ -6287,7 +6104,7 @@ function handleAction(action, element, event) {
       }
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.modal = null;
       state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
@@ -6311,7 +6128,7 @@ function handleAction(action, element, event) {
     "quick-demo"() {
       state.loggedIn = true;
       state.route = "home";
-      state.tab = "map";
+      state.tab = "today";
       state.modal = null;
       state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
@@ -6367,25 +6184,6 @@ function handleAction(action, element, event) {
     },
     "toast-sync"() {
       showToast("设备状态、告警和健康摘要已同步");
-    },
-    "filter-workout-type"() {
-      showToast("运动记录功能不在本原型范围内");
-    },
-    "open-workout-detail"() {
-      state.selectedWorkoutId = element.dataset.workoutId;
-      state.modal = "workout-detail";
-      render();
-    },
-    "open-ring-detail"() {
-      state.selectedRingKey = element.dataset.ringKey;
-      state.modal = "ring-detail";
-      render();
-    },
-    "open-workout-map"() {
-      state.modal = null;
-      state.route = "detail";
-      state.detailTab = "map";
-      render();
     },
     "request-location"() {
       state.locationPermission = "granted";
