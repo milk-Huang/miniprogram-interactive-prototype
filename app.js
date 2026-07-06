@@ -306,7 +306,7 @@ const mock = {
 };
 
 
-const PROTOTYPE_VERSION = "0.4.0";
+const PROTOTYPE_VERSION = "0.4.1";
 
 const MINI_PROGRAM_PLATFORMS = {
   wechat: {
@@ -470,8 +470,8 @@ const LOCALES = {
       nonMedical: "数据仅供参考，不构成医疗诊断",
     },
     login: {
-      hero: "统一管理定位、健康与设备安全",
-      desc: "查看家人位置、健康状态和安全提醒，随时管理设备。",
+      hero: "守护家人健康与安全",
+      desc: "健康指标、设备位置与安全提醒，一处掌握。",
       platformLogin: "{platform}一键登录",
       orDivider: "或",
       accountLabel: "账号 / 邮箱",
@@ -492,6 +492,10 @@ const LOCALES = {
       platformNote: "同一套账号体系可适配微信 / 支付宝 / 抖音等小程序平台",
       wechatLogin: "微信一键登录",
       openTypePhone: "open-type=\"getPhoneNumber\"",
+      visualHeart: "心率 78 bpm",
+      visualSteps: "3,824 步",
+      visualLocation: "深圳湾 · 在线",
+      visualSos: "SOS 安全守护",
     },
     forgotPassword: {
       title: "忘记密码",
@@ -727,8 +731,8 @@ const LOCALES = {
       nonMedical: "For wellness only, not medical advice",
     },
     login: {
-      hero: "Location, health and device safety in one place",
-      desc: "Track family locations, health and safety alerts, manage all devices.",
+      hero: "Care for family health & safety",
+      desc: "Vitals, locations and safety alerts in one place.",
       platformLogin: "Sign in with {platform}",
       orDivider: "or",
       accountLabel: "Account / email",
@@ -749,6 +753,10 @@ const LOCALES = {
       platformNote: "One account layer across WeChat / Alipay / Douyin mini programs",
       wechatLogin: "WeChat sign in",
       openTypePhone: "open-type=\"getPhoneNumber\"",
+      visualHeart: "78 bpm",
+      visualSteps: "3,824 steps",
+      visualLocation: "Shenzhen Bay · online",
+      visualSos: "SOS safety",
     },
     forgotPassword: {
       title: "Forgot password",
@@ -1515,6 +1523,16 @@ function filteredMapDevices() {
 
 function mapFilterLabel() {
   return mapFilters().find((filter) => filter.id === state.mapFilter)?.label || "全部设备";
+}
+
+function renderDeviceCategoryFilters() {
+  return `
+    <div class="mp-tabs mp-tabs-scroll map-filter-tabs" role="tablist" aria-label="设备筛选">
+      ${mapFilters().map((filter) => `
+        <button class="mp-tab hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}" role="tab">${filter.label}</button>
+      `).join("")}
+    </div>
+  `;
 }
 
 function shouldExpandMapPin(device) {
@@ -3350,7 +3368,7 @@ function tabPanelInfo() {
   const panelMap = {
     today: {
       title: "今日页",
-      summary: "健康与安全摘要：步数/心率/活跃（无睡眠）、待处理告警、手表与定位器分组；参考小米运动健康卡片布局。",
+      summary: "健康与安全摘要：步数/心率/活跃（无睡眠）、待处理告警、需关注设备；浅色卡片布局。",
       tags: ["健康摘要", "安全告警", "设备同步"],
       goals: [
         "打开即见主设备健康指标与待处理安全提醒。",
@@ -3401,12 +3419,12 @@ function tabPanelInfo() {
     },
     devices: {
       title: "设备页",
-      summary: "穿戴设备列表：同步状态、电量与今日步数摘要；添加入口保留下拉刷新下方全宽按钮。",
-      tags: ["设备列表", "添加设备", "状态总览"],
+      summary: "设备列表与添加设备入口；支持家人/宠物/物品筛选（与地图 Tab 同步）；下拉刷新 + 全宽添加按钮。",
+      tags: ["设备列表", "分类筛选", "添加设备"],
       goals: [
-        "确认用户能一眼看懂有几台设备、几台在线、有没有待处理提醒。",
-        "确认设备卡片展示电量、今日步数与最近同步状态。",
-        "确认添加设备入口足够明显，能承接扫码与设备ID绑定。",
+        "确认用户能一眼看懂当前筛选下有几台设备、几台在线。",
+        "确认全部/家人/宠物/物品筛选与地图 Tab 行为一致。",
+        "确认添加设备入口在设备页，不在地图页。",
       ],
       actions: [
         "点击顶部扫码按钮或添加设备卡片，打开添加设备流程。",
@@ -3953,57 +3971,98 @@ function renderLoginAgreement() {
   `;
 }
 
+function renderLoginVisualStage() {
+  const L = LOCALES[state.locale] || LOCALES["zh-CN"];
+  const V = L.login;
+  return `
+    <div class="login-visual-stage" aria-hidden="true">
+      <div class="login-visual-bg">
+        <span class="login-blob login-blob-a"></span>
+        <span class="login-blob login-blob-b"></span>
+        <span class="login-blob login-blob-c"></span>
+        <span class="login-grid-dots"></span>
+      </div>
+      <div class="login-orbit-ring"></div>
+      <div class="login-orbit-ring login-orbit-ring-delay"></div>
+      <div class="login-hub">
+        <span class="login-hub-pulse"></span>
+        <span class="login-hub-icon">${icon("shield-heart")}</span>
+      </div>
+      <svg class="login-ecg" viewBox="0 0 280 48" preserveAspectRatio="none" aria-hidden="true">
+        <path class="login-ecg-path" d="M0 24 H40 L48 8 L56 40 L64 24 H120 L128 14 L136 34 L144 24 H200 L212 4 L224 44 L236 24 H280" />
+      </svg>
+      <div class="login-float-card login-float-1">
+        <span class="login-float-icon heart">${icon("heart-pulse")}</span>
+        <strong>${V.visualHeart}</strong>
+        <small>${icon("activity")} ${V.visualSteps}</small>
+      </div>
+      <div class="login-float-card login-float-2">
+        <span class="login-float-icon map">${icon("map-pin")}</span>
+        <strong>${V.visualLocation}</strong>
+        <small>${icon("radio")} GPS</small>
+      </div>
+      <div class="login-float-card login-float-3">
+        <span class="login-float-icon sos">${icon("shield-alert")}</span>
+        <strong>${V.visualSos}</strong>
+        <small>${icon("bell")} 24/7</small>
+      </div>
+    </div>
+  `;
+}
+
 function renderLogin() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
   const platform = getCurrentPlatform();
   const platformName = platformLabel(platform);
   const canLogin = state.agreedToTerms;
-  const disabledCls = canLogin ? "" : " mp-btn-disabled";
+  const disabledCls = canLogin ? "" : " login-btn-disabled";
   const isAccount = state.loginView === "account";
+  const showDevHint = state.viewMode === "dev";
   return `
-    <div class="login-screen miniprogram-login">
-      <div class="login-visual">
-        <div class="login-map" aria-hidden="true"></div>
-        <div class="brand-lockup">
-          <div class="brand-mark">${icon("radio-tower")}</div>
-          <div>
+    <div class="login-screen login-screen-health">
+      <div class="login-health-inner">
+        <div class="login-brand-block">
+          <div class="login-brand-mark">${icon("heart-pulse")}</div>
+          <div class="login-brand-text">
             <strong>${L.brand.name}</strong>
             <span>${L.brand.tagline}</span>
           </div>
         </div>
-        <div class="login-hero-copy">
-          <h1>${isAccount ? L.login.accountLoginTitle : L.login.hero}</h1>
-          <p>${isAccount ? L.login.accountLoginHint : L.login.desc}</p>
-        </div>
-      </div>
-      <div class="login-form mp-login-actions safe-bottom">
-        ${renderLoginAgreement()}
-        <div class="login-panel login-panel-platform${isAccount ? " login-panel-hidden" : ""}">
-          <button type="button" class="mp-btn ${platform.btnClass} mp-btn-block${disabledCls}" data-action="platform-login" ${canLogin ? "" : "disabled"}>
-            ${icon("log-in")} ${tReplace("login.platformLogin", { platform: platformName })}
-          </button>
-          <span class="mp-open-type-hint">${platform.loginApi}</span>
-          <button type="button" class="mp-text-link login-alt-entry" data-action="switch-login-account">${L.login.accountLoginLink}</button>
-          <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
-        </div>
-        <div class="login-panel login-panel-account${isAccount ? "" : " login-panel-hidden"}">
-          <button type="button" class="bind-back-link hoverable" data-action="back-login-platform">${icon("chevron-left")} ${L.login.backToPlatformLogin}</button>
-          <div class="login-account-form">
-            <div class="field">
-              <label for="login-account">${L.login.accountLabel}</label>
-              <input id="login-account" type="text" autocomplete="username" placeholder="${L.login.accountPlaceholder}" value="" />
-            </div>
-            <div class="field">
-              <label for="login-password">${L.login.passwordLabel}</label>
-              <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="" />
-            </div>
-            <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
-            <button type="button" class="mp-btn mp-btn-primary mp-btn-block${disabledCls}" data-action="account-password-login" ${canLogin ? "" : "disabled"}>
-              ${icon("key-round")} ${L.login.accountLoginBtn}
+        <h1 class="login-health-title">${isAccount ? L.login.accountLoginTitle : L.login.hero}</h1>
+        <p class="login-health-desc">${isAccount ? L.login.accountLoginHint : L.login.desc}</p>
+        ${isAccount ? "" : renderLoginVisualStage()}
+        <div class="login-action-card safe-bottom">
+          <div class="login-panel login-panel-platform${isAccount ? " login-panel-hidden" : ""}">
+            <button type="button" class="login-primary-btn ${platform.btnClass}${disabledCls}" data-action="platform-login" ${canLogin ? "" : "disabled"}>
+              ${icon("log-in")} ${tReplace("login.platformLogin", { platform: platformName })}
             </button>
+            ${showDevHint ? `<span class="login-dev-hint">${platform.loginApi}</span>` : ""}
+            <div class="login-secondary-links">
+              <button type="button" class="mp-text-link" data-action="switch-login-account">${L.login.accountLoginLink}</button>
+              <span class="login-link-dot">·</span>
+              <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
+            </div>
           </div>
+          <div class="login-panel login-panel-account${isAccount ? "" : " login-panel-hidden"}">
+            <button type="button" class="bind-back-link hoverable" data-action="back-login-platform">${icon("chevron-left")} ${L.login.backToPlatformLogin}</button>
+            <div class="login-account-form">
+              <div class="field">
+                <label for="login-account">${L.login.accountLabel}</label>
+                <input id="login-account" type="text" autocomplete="username" placeholder="${L.login.accountPlaceholder}" value="" />
+              </div>
+              <div class="field">
+                <label for="login-password">${L.login.passwordLabel}</label>
+                <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="" />
+              </div>
+              <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
+              <button type="button" class="login-primary-btn login-primary-brand${disabledCls}" data-action="account-password-login" ${canLogin ? "" : "disabled"}>
+                ${icon("key-round")} ${L.login.accountLoginBtn}
+              </button>
+            </div>
+          </div>
+          ${renderLoginAgreement()}
+          <p class="login-version-note">${L.brand.subtitle}</p>
         </div>
-        <p class="version-note">${L.brand.subtitle}</p>
       </div>
     </div>
   `;
@@ -4100,6 +4159,27 @@ function pendingAlertCount() {
 
 function deviceSupportsHealth(device) {
   return (device.metrics?.heart ?? 0) > 0 || (device.metrics?.steps ?? 0) > 0;
+}
+
+function renderHealthMetricTile(label, value, sub = "", opts = {}) {
+  const { iconName, unit = "" } = opts;
+  return `
+    <div class="health-metric-card">
+      <span>${iconName ? `${icon(iconName)} ` : ""}${label}</span>
+      <strong>${value}${unit ? `<small> ${unit}</small>` : ""}</strong>
+      ${sub ? `<small>${sub}</small>` : ""}
+    </div>
+  `;
+}
+
+function renderHealthInsight(title, text, variant = "default") {
+  const iconName = variant === "danger" ? "sparkles" : variant === "warning" ? "sparkles" : "brain";
+  return `
+    <div class="health-insight-card health-insight-${variant}">
+      <h3>${icon(iconName)} ${title}</h3>
+      <p>${text}</p>
+    </div>
+  `;
 }
 
 function devicesWithAttention() {
@@ -4224,13 +4304,9 @@ function renderGlobalMap() {
   const showEmpty = isDemoEmpty || (state.mapFilter === "all" && !devices.length && state.mapLoadState === "ready");
 
   return `
-    ${renderPageTop("map", { addDevice: true })}
+    ${renderPageTop("map")}
     <section class="section map-home-section">
-      <div class="mp-tabs mp-tabs-scroll map-filter-tabs" role="tablist" aria-label="设备筛选">
-        ${mapFilters().map((filter) => `
-          <button class="mp-tab hoverable ${state.mapFilter === filter.id ? "active" : ""}" type="button" data-map-filter="${filter.id}" role="tab">${filter.label}</button>
-        `).join("")}
-      </div>
+      ${renderDeviceCategoryFilters()}
       <div class="map-result-panel">
         <div class="map-result-header">
           <div>
@@ -4251,7 +4327,7 @@ function renderMapEmptyState() {
   return `
     <div class="map-empty-state">
       <strong>${icon("radio-receiver")} 还没有绑定设备</strong>
-      <p>点击上方「添加设备」绑定第一台设备后即可查看位置与安全状态</p>
+      <p>前往「设备」Tab 添加第一台设备后即可查看位置与安全状态</p>
     </div>
   `;
 }
@@ -4324,25 +4400,25 @@ function renderMapDeviceCard(device) {
 }
 
 function renderDevices() {
-  const onlineCount = mock.devices.filter((device) => device.status === "online").length;
+  const devices = filteredMapDevices();
+  const onlineCount = devices.filter((device) => device.status === "online").length;
   const alertCount = mock.alarms.filter((alarm) => alarm.status !== "已处理").length;
   return `
     ${renderPageTop("devices", { addDevice: true })}
-    <section class="section">
-      <div class="mp-cells">
-        <div class="mp-cell mp-cell_access">
-          <span class="mp-cell__bd">在线设备</span>
-          <span class="mp-cell__ft">${onlineCount}/${mock.devices.length}</span>
-        </div>
-        <button class="mp-cell mp-cell_access hoverable" type="button" data-tab="messages">
-          <span class="mp-cell__bd">待处理提醒</span>
-          <span class="mp-cell__ft">${alertCount} ${icon("chevron-right")}</span>
+    <section class="section health-subsection">
+      ${renderDeviceCategoryFilters()}
+      <div class="health-metrics-grid">
+        ${renderHealthMetricTile("在线设备", `${onlineCount}/${devices.length}`, mapFilterLabel(), { iconName: "radio" })}
+        <button class="health-metric-card hoverable" type="button" data-tab="messages">
+          <span>${icon("bell")} 待处理提醒</span>
+          <strong>${alertCount}<small> 条</small></strong>
+          <small>点击查看消息</small>
         </button>
       </div>
-      <div class="mp-cells device-list-cells">
-        ${mock.devices.length
-          ? mock.devices.map(renderDeviceCard).join("")
-          : `<div class="device-empty-hint">暂无设备，点击上方「添加设备」扫码或输入设备ID绑定</div>`}
+      <div class="health-device-list">
+        ${devices.length
+          ? devices.map(renderDeviceCard).join("")
+          : `<p class="health-empty-hint">${mock.devices.length ? "当前筛选无设备" : "暂无设备，点击上方「添加设备」扫码或输入设备ID绑定"}</p>`}
       </div>
     </section>
   `;
@@ -4350,14 +4426,14 @@ function renderDevices() {
 
 function renderDeviceCard(device) {
   return `
-    <button class="mp-cell mp-cell_access hoverable device-cell" type="button" data-open-device="${device.id}">
-      <span class="mp-cell__hd device-cell-icon ${device.color}">${icon(deviceIcon(device))}</span>
-      <span class="mp-cell__bd">
+    <button class="health-device-chip hoverable" type="button" data-open-device="${device.id}">
+      <span class="health-device-chip-icon ${device.color}">${icon(deviceIcon(device))}</span>
+      <span class="health-device-chip-body">
         <strong>${deviceDisplayName(device)}</strong>
         <span>${device.model} · ${statusLabel(device.status)} · ${device.locateType}</span>
         <small>${device.location} · 电量 ${device.battery}%</small>
       </span>
-      <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      ${icon("chevron-right")}
     </button>
   `;
 }
@@ -4366,10 +4442,10 @@ function renderDetail() {
   const device = getDevice();
   return `
     ${renderHeader(device.name, true)}
-    <div class="screen-body detail-screen with-detail-tabs">
+    <div class="screen-body health-screen-body detail-screen with-detail-tabs">
       ${renderPageTop("detail")}
       ${renderDeviceHero(device)}
-      <div class="mp-tabs mp-tabs-scroll detail-tabs" role="tablist" aria-label="设备详情标签">
+      <div class="mp-tabs mp-tabs-scroll health-segment-tabs detail-tabs" role="tablist" aria-label="设备详情标签">
         ${[
           ["overview", "概览"],
           ["map", "地图"],
@@ -4391,24 +4467,24 @@ function renderDetail() {
 
 function renderDeviceHero(device) {
   return `
-    <section class="detail-hero">
-      <div class="detail-hero-top">
+    <section class="health-hero-card">
+      <div class="health-hero-card-top">
+        <div class="health-hero-card-icon ${device.color}">${icon(deviceIcon(device))}</div>
         <div>
           <h2>${deviceDisplayName(device)}</h2>
           <p>${device.permission === "owner" ? "我的设备" : "分享给我的设备"} · ${device.location}</p>
         </div>
-        <div class="device-avatar ${device.color}">${icon(deviceIcon(device))}</div>
       </div>
-      <div class="device-stats">
-        <div class="stat-tile"><span>状态</span><strong>${statusLabel(device.status)}</strong></div>
-        <div class="stat-tile"><span>电量</span><strong>${device.battery}%</strong></div>
-        <div class="stat-tile"><span>定位</span><strong>${device.locateType}</strong></div>
+      <div class="health-metrics-grid health-metrics-grid-3">
+        ${renderHealthMetricTile("状态", statusLabel(device.status))}
+        ${renderHealthMetricTile("电量", `${device.battery}%`)}
+        ${renderHealthMetricTile("定位", device.locateType)}
       </div>
-      <div class="quick-grid">
-        <button class="quick-action" type="button" data-action="toast-locate">${icon("crosshair")}定位</button>
-        <button class="quick-action" type="button" data-action="toast-find">${icon("volume-2")}查找</button>
-        <button class="quick-action" type="button" data-action="open-share">${icon("share-2")}分享</button>
-        <button class="quick-action" type="button" data-action="open-edit-device">${icon("settings-2")}管理</button>
+      <div class="health-quick-actions health-quick-actions-4">
+        <button class="health-quick-btn hoverable" type="button" data-action="toast-locate">${icon("crosshair")}定位</button>
+        <button class="health-quick-btn hoverable" type="button" data-action="toast-find">${icon("volume-2")}查找</button>
+        <button class="health-quick-btn hoverable" type="button" data-action="open-share">${icon("share-2")}分享</button>
+        <button class="health-quick-btn hoverable" type="button" data-action="open-edit-device">${icon("settings-2")}管理</button>
       </div>
     </section>
   `;
@@ -4416,27 +4492,36 @@ function renderDeviceHero(device) {
 
 function renderOverview(device) {
   const alarms = deviceAlarms(device.id);
+  const hasHealth = deviceSupportsHealth(device);
   return `
-    <section class="section">
-      <div class="metric-grid">
-        <div class="metric-card"><span>心率</span><strong>${device.metrics.heart || "--"}</strong><small>bpm · 今日平均</small></div>
-        <div class="metric-card"><span>步数</span><strong>${device.metrics.steps || "--"}</strong><small>较 7 日均值 -23%</small></div>
-        <div class="metric-card"><span>活跃</span><strong>${device.metrics.active || "--"}</strong><small>分钟 · 今日</small></div>
-        <div class="metric-card"><span>AI 风险</span><strong>${alarms.length ? "中高" : "正常"}</strong><small>${alarms[0]?.type || "暂无异常"}</small></div>
-      </div>
+    <section class="section health-subsection">
+      ${hasHealth ? `
+        <div class="health-metrics-grid">
+          ${renderHealthMetricTile("心率", device.metrics.heart || "—", "bpm · 今日平均", { iconName: "heart-pulse" })}
+          ${renderHealthMetricTile("步数", (device.metrics.steps || 0).toLocaleString(), "较 7 日均值 -23%", { iconName: "footprints" })}
+          ${renderHealthMetricTile("活跃", device.metrics.active || "—", "分钟 · 今日", { iconName: "activity" })}
+          ${renderHealthMetricTile("AI 风险", alarms.length ? "中高" : "正常", alarms[0]?.type || "暂无异常", { iconName: "shield-alert" })}
+        </div>
+      ` : `
+        <div class="health-metrics-grid">
+          ${renderHealthMetricTile("电量", `${device.battery}%`, device.battery <= 30 ? "建议处理" : "状态正常", { iconName: "battery-medium" })}
+          ${renderHealthMetricTile("位置", device.location, device.lastEvent, { iconName: "map-pin" })}
+          ${renderHealthMetricTile("连接", device.locateType, statusLabel(device.status), { iconName: "radio" })}
+          ${renderHealthMetricTile("AI 风险", alarms.length ? "中高" : "正常", alarms[0]?.type || "暂无异常", { iconName: "shield-alert" })}
+        </div>
+      `}
     </section>
-    <section class="section">
-      <div class="insight-card warning">
-        <h3>${icon("sparkles")}AI 今日摘要</h3>
-        <p>今日活动量较过去 7 天平均值下降，夜间心率波动略高。建议关注休息状态，必要时提醒用户进行轻量活动。</p>
-      </div>
+    <section class="section health-subsection">
+      ${renderHealthInsight("AI 今日摘要", hasHealth
+        ? "今日活动量较过去 7 天平均值下降，夜间心率波动略高。建议关注休息状态，必要时提醒用户进行轻量活动。"
+        : "设备位置与连接状态正常。建议关注电量与围栏状态，必要时查看地图轨迹。", "warning")}
     </section>
-    <section class="section">
-      <div class="section-header">
-        <h2>最近事件</h2>
+    <section class="section health-subsection">
+      <div class="health-section-head">
+        <h3>最近事件</h3>
         <button class="mp-link-btn hoverable" type="button" data-detail-tab="alarms">查看全部</button>
       </div>
-      <div class="card-list">
+      <div class="health-alarm-list">
         ${(alarms.length ? alarms : mock.alarms.slice(0, 1)).map(renderAlarmCard).join("")}
       </div>
     </section>
@@ -4445,8 +4530,8 @@ function renderOverview(device) {
 
 function renderMap(device) {
   return `
-    <section class="section">
-      <div class="map-card" role="img" aria-label="模拟地图，展示设备位置、轨迹和围栏">
+    <section class="section health-subsection">
+      <div class="health-map-card map-card" role="img" aria-label="模拟地图，展示设备位置、轨迹和围栏">
         <div class="geofence"></div>
         <div class="track-line"></div>
         <div class="map-pin main">${icon("map-pin")}</div>
@@ -4457,28 +4542,28 @@ function renderMap(device) {
         </div>
       </div>
     </section>
-    <section class="section">
-      <div class="map-action-grid">
-        <button class="quick-action compact hoverable" type="button" data-action="toast-locate">${icon("crosshair")}实时定位</button>
-        <button class="quick-action compact hoverable" type="button" data-action="toast-open-location">${icon("navigation")}微信导航</button>
-        <button class="quick-action compact hoverable" type="button" data-action="toast-track">${icon("route")}轨迹回放</button>
-        <button class="quick-action compact hoverable" type="button" data-action="open-geofence">${icon("shield-plus")}新增围栏</button>
+    <section class="section health-subsection">
+      <div class="health-quick-actions health-quick-actions-4">
+        <button class="health-quick-btn hoverable" type="button" data-action="toast-locate">${icon("crosshair")}实时定位</button>
+        <button class="health-quick-btn hoverable" type="button" data-action="toast-open-location">${icon("navigation")}微信导航</button>
+        <button class="health-quick-btn hoverable" type="button" data-action="toast-track">${icon("route")}轨迹回放</button>
+        <button class="health-quick-btn hoverable" type="button" data-action="open-geofence">${icon("shield-plus")}新增围栏</button>
       </div>
     </section>
-    <section class="section">
-      <div class="section-header">
+    <section class="section health-subsection">
+      <div class="health-section-head">
         <div>
-          <h2>轨迹回放</h2>
-          <p>支持按今天、昨天、自定义时间查询</p>
+          <h3>轨迹回放</h3>
+          <p class="health-subtitle">支持按今天、昨天、自定义时间查询</p>
         </div>
-        <span class="pill">3 个关键点</span>
+        <span class="health-pill">3 个关键点</span>
       </div>
-      <div class="mp-tabs mp-tabs-scroll mp-tabs-inline" aria-label="轨迹时间筛选">
+      <div class="mp-tabs mp-tabs-scroll mp-tabs-inline health-segment-tabs health-segment-tabs-inline" aria-label="轨迹时间筛选">
         <button class="mp-tab active hoverable" type="button">今天</button>
         <button class="mp-tab hoverable" type="button">昨天</button>
         <button class="mp-tab hoverable" type="button">自定义</button>
       </div>
-      <div class="timeline">
+      <div class="health-timeline">
         ${mock.track.map((item) => `
           <div class="timeline-item">
             <div class="timeline-time">${item.time}</div>
@@ -4487,25 +4572,23 @@ function renderMap(device) {
         `).join("")}
       </div>
     </section>
-    <section class="section">
-      <div class="section-header">
+    <section class="section health-subsection">
+      <div class="health-section-head">
         <div>
-          <h2>安全围栏</h2>
-          <p>圆形 / 多边形，支持进出提醒</p>
+          <h3>安全围栏</h3>
+          <p class="health-subtitle">圆形 / 多边形，支持进出提醒</p>
         </div>
         <button class="mp-link-btn hoverable" type="button" data-action="open-geofence">新建</button>
       </div>
-      <div class="card-list">
+      <div class="health-card-list">
         ${mock.geofences.map((fence) => `
-          <button class="list-card" type="button" data-action="open-geofence">
-            <div class="list-row">
-              <div>
-                <strong>${fence.name}</strong>
-                <span>${fence.shape} · ${fence.radius} · ${fence.trigger}</span>
-                <small>${fence.schedule}</small>
-              </div>
-              <span class="status-pill ${fence.status === "启用" ? "online" : "warning"}">${fence.status}</span>
+          <button class="health-list-card hoverable" type="button" data-action="open-geofence">
+            <div class="health-list-card-body">
+              <strong>${fence.name}</strong>
+              <span>${fence.shape} · ${fence.radius} · ${fence.trigger}</span>
+              <small>${fence.schedule}</small>
             </div>
+            <span class="status-pill ${fence.status === "启用" ? "online" : "warning"}">${fence.status}</span>
           </button>
         `).join("")}
       </div>
@@ -4518,32 +4601,29 @@ function renderHealth(device) {
   if (device.category === "item") return renderItemHealth(device);
   const range = mock.healthRanges[state.healthRange] || mock.healthRanges.week;
   return `
-    <section class="section">
-      <div class="metric-grid">
-        <div class="metric-card"><span>平均心率</span><strong>${device.metrics.heart || "--"}</strong><small>bpm</small></div>
-        <div class="metric-card"><span>步数</span><strong>${device.metrics.steps || "--"}</strong><small>今日</small></div>
+    <section class="section health-subsection">
+      <div class="health-metrics-grid">
+        ${renderHealthMetricTile("平均心率", device.metrics.heart || "—", "bpm", { iconName: "heart-pulse" })}
+        ${renderHealthMetricTile("步数", (device.metrics.steps || 0).toLocaleString(), "今日", { iconName: "footprints" })}
       </div>
     </section>
-    <section class="section">
+    <section class="section health-subsection">
       ${renderHealthRangeTabs()}
-      <div class="chart-card">
-        <div class="section-header">
+      <div class="health-chart-card">
+        <div class="health-section-head">
           <div>
-            <h2>${range.summaryTitle}</h2>
-            <p>${range.label}活动分钟数</p>
+            <h3>${range.summaryTitle}</h3>
+            <p class="health-subtitle">${range.label}活动分钟数</p>
           </div>
         </div>
-        <div class="bar-chart" aria-label="${range.summaryTitle}">
-          ${range.bars.map((height) => `<div class="bar" style="height:${height + 30}px"></div>`).join("")}
+        <div class="health-bar-chart" aria-label="${range.summaryTitle}">
+          ${range.bars.map((height) => `<div class="health-bar" style="height:${height + 30}px"></div>`).join("")}
         </div>
-        <div class="chart-labels">${range.labels.map((label) => `<span>${label}</span>`).join("")}</div>
+        <div class="health-chart-labels">${range.labels.map((label) => `<span>${label}</span>`).join("")}</div>
       </div>
     </section>
-    <section class="section">
-      <div class="insight-card">
-        <h3>${icon("brain")}AI 健康分析</h3>
-        <p>${range.summary}</p>
-      </div>
+    <section class="section health-subsection">
+      ${renderHealthInsight("AI 健康分析", range.summary)}
     </section>
   `;
 }
@@ -4555,7 +4635,7 @@ function renderHealthRangeTabs() {
     ["month", "月"],
   ];
   return `
-    <div class="mp-tabs mp-tabs-scroll mp-tabs-inline" aria-label="健康数据周期">
+    <div class="mp-tabs mp-tabs-scroll mp-tabs-inline health-segment-tabs health-segment-tabs-inline" aria-label="健康数据周期">
       ${ranges.map(([id, label]) => `<button class="mp-tab hoverable ${state.healthRange === id ? "active" : ""}" type="button" data-health-range="${id}">${label}</button>`).join("")}
     </div>
   `;
@@ -4566,71 +4646,65 @@ function renderPetHealth(device) {
   const pet = device.pet;
   return `
     ${pet ? `
-    <section class="section">
-      <div class="pet-profile-card">
-        <div class="pet-profile-head">
-          <div class="device-avatar ${device.color}">${icon("paw-print")}</div>
+    <section class="section health-subsection">
+      <div class="health-hero-card health-pet-card">
+        <div class="health-hero-card-top">
+          <div class="health-hero-card-icon ${device.color}">${icon("paw-print")}</div>
           <div>
             <strong>${deviceDisplayName(device)}</strong>
             <span>${pet.species} · ${pet.breed} · ${pet.gender}${pet.neutered ? ` · ${pet.neutered}` : ""}</span>
           </div>
           <button class="mp-link-btn hoverable" type="button" data-action="toast-pet-edit">编辑</button>
         </div>
-        <div class="pet-profile-grid">
-          <div><span>年龄</span><strong>${pet.ageLabel}</strong><small>${pet.birthday}</small></div>
-          <div><span>体重</span><strong>${pet.weight}</strong><small>${pet.weightTrend}</small></div>
-          <div><span>最近疫苗</span><strong>${pet.vaccine}</strong><small>${pet.nextVaccine}</small></div>
+        <div class="health-metrics-grid health-metrics-grid-3">
+          <div class="health-metric-card compact"><span>年龄</span><strong>${pet.ageLabel}</strong><small>${pet.birthday}</small></div>
+          <div class="health-metric-card compact"><span>体重</span><strong>${pet.weight}</strong><small>${pet.weightTrend}</small></div>
+          <div class="health-metric-card compact"><span>最近疫苗</span><strong>${pet.vaccine}</strong><small>${pet.nextVaccine}</small></div>
         </div>
       </div>
     </section>
     ` : ""}
-    <section class="section">
-      <div class="metric-grid">
-        <div class="metric-card"><span>今日活动</span><strong>${device.metrics.active || "--"}</strong><small>分钟</small></div>
-        <div class="metric-card"><span>活动步数</span><strong>${device.metrics.steps || "--"}</strong><small>宠物运动量</small></div>
-        <div class="metric-card"><span>围栏状态</span><strong>${deviceAlarms(device.id).length ? "异常" : "正常"}</strong><small>${deviceAlarms(device.id)[0]?.type || "未离开安全区域"}</small></div>
-        <div class="metric-card"><span>定位频率</span><strong>高</strong><small>围栏外自动提高</small></div>
+    <section class="section health-subsection">
+      <div class="health-metrics-grid">
+        ${renderHealthMetricTile("今日活动", device.metrics.active || "—", "分钟", { iconName: "activity" })}
+        ${renderHealthMetricTile("活动步数", (device.metrics.steps || 0).toLocaleString(), "宠物运动量", { iconName: "footprints" })}
+        ${renderHealthMetricTile("围栏状态", deviceAlarms(device.id).length ? "异常" : "正常", deviceAlarms(device.id)[0]?.type || "未离开安全区域", { iconName: "shield" })}
+        ${renderHealthMetricTile("定位频率", "高", "围栏外自动提高", { iconName: "radio" })}
       </div>
     </section>
-    <section class="section">
+    <section class="section health-subsection">
       ${renderHealthRangeTabs()}
-      <div class="chart-card">
-        <div class="section-header">
+      <div class="health-chart-card">
+        <div class="health-section-head">
           <div>
-            <h2>${range.label}活动趋势</h2>
-            <p>用于判断宠物运动量和异常活动</p>
+            <h3>${range.label}活动趋势</h3>
+            <p class="health-subtitle">用于判断宠物运动量和异常活动</p>
           </div>
         </div>
-        <div class="bar-chart" aria-label="宠物${range.label}活动趋势">
-          ${range.bars.map((height) => `<div class="bar" style="height:${height + 24}px"></div>`).join("")}
+        <div class="health-bar-chart" aria-label="宠物${range.label}活动趋势">
+          ${range.bars.map((height) => `<div class="health-bar" style="height:${height + 24}px"></div>`).join("")}
         </div>
-        <div class="chart-labels">${range.labels.map((label) => `<span>${label}</span>`).join("")}</div>
+        <div class="health-chart-labels">${range.labels.map((label) => `<span>${label}</span>`).join("")}</div>
       </div>
     </section>
-    <section class="section">
-      <div class="insight-card">
-        <h3>${icon("sparkles")}AI 宠物分析</h3>
-        <p>${deviceAlarms(device.id)[0]?.ai || "宠物活动量处于正常范围，定位点集中在常用活动区域。后续可扩展体重、疫苗、喂养和活动日报。"}</p>
-      </div>
+    <section class="section health-subsection">
+      ${renderHealthInsight("AI 宠物分析", deviceAlarms(device.id)[0]?.ai || "宠物活动量处于正常范围，定位点集中在常用活动区域。后续可扩展体重、疫苗、喂养和活动日报。")}
     </section>
   `;
 }
 
 function renderItemHealth(device) {
   return `
-    <section class="section">
-      <div class="metric-grid">
-        <div class="metric-card"><span>电量</span><strong>${device.battery}%</strong><small>${device.battery <= 30 ? "建议处理" : "状态正常"}</small></div>
-        <div class="metric-card"><span>连接方式</span><strong>${device.locateType}</strong><small>最近位置来源</small></div>
-        <div class="metric-card"><span>离身提醒</span><strong>${deviceAlarms(device.id).length ? "有提醒" : "正常"}</strong><small>${device.lastEvent}</small></div>
-        <div class="metric-card"><span>最后位置</span><strong>${device.status === "online" ? "可用" : "离线"}</strong><small>${device.location}</small></div>
+    <section class="section health-subsection">
+      <div class="health-metrics-grid">
+        ${renderHealthMetricTile("电量", `${device.battery}%`, device.battery <= 30 ? "建议处理" : "状态正常", { iconName: "battery-medium" })}
+        ${renderHealthMetricTile("连接方式", device.locateType, "最近位置来源", { iconName: "bluetooth" })}
+        ${renderHealthMetricTile("离身提醒", deviceAlarms(device.id).length ? "有提醒" : "正常", device.lastEvent, { iconName: "bell" })}
+        ${renderHealthMetricTile("最后位置", device.status === "online" ? "可用" : "离线", device.location, { iconName: "map-pin" })}
       </div>
     </section>
-    <section class="section">
-      <div class="insight-card warning">
-        <h3>${icon("package")}物品状态</h3>
-        <p>物品类设备重点展示位置、连接状态、低电量和离身提醒，不展示人用健康指标。</p>
-      </div>
+    <section class="section health-subsection">
+      ${renderHealthInsight("物品状态", "物品类设备重点展示位置、连接状态、低电量和离身提醒，不展示人用健康指标。", "warning")}
     </section>
   `;
 }
@@ -4638,30 +4712,29 @@ function renderItemHealth(device) {
 function renderAlarmSection(device) {
   const alarms = deviceAlarms(device.id);
   return `
-    <section class="section">
-      <div class="mp-cells">
+    <section class="section health-subsection">
+      <div class="health-alarm-list">
         ${(alarms.length ? alarms : mock.alarms).map(renderAlarmCard).join("")}
       </div>
     </section>
-    <section class="section">
-      <div class="insight-card danger">
-        <h3>${icon("sparkles")}AI 预警解释</h3>
-        <p>${alarms[0]?.ai || "当前设备暂无高风险事件。AI 会结合位置、状态、历史行为和健康数据解释告警原因。"}</p>
-      </div>
+    <section class="section health-subsection">
+      ${renderHealthInsight("AI 预警解释", alarms[0]?.ai || "当前设备暂无高风险事件。AI 会结合位置、状态、历史行为和健康数据解释告警原因。", "danger")}
     </section>
   `;
 }
 
 function renderAlarmCard(alarm) {
   const pillClass = alarm.severity === "high" ? "offline" : "warning";
+  const iconName = alarm.severity === "high" ? "triangle-alert" : "bell";
   return `
-    <button class="mp-cell mp-cell_access hoverable alarm-cell ${alarm.severity}" type="button" data-action="alarm-ai" data-alarm-id="${alarm.id}">
-      <span class="mp-cell__bd">
+    <button class="health-alarm-card hoverable alarm-${alarm.severity}" type="button" data-action="alarm-ai" data-alarm-id="${alarm.id}">
+      <span class="health-alarm-icon ${alarm.severity}">${icon(iconName)}</span>
+      <span class="health-alarm-body">
         <strong>${alarm.type}</strong>
         <span>${alarm.time} · ${alarm.description}</span>
         <em class="status-pill ${pillClass}">${alarm.status}</em>
       </span>
-      <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      ${icon("chevron-right")}
     </button>
   `;
 }
@@ -4740,30 +4813,34 @@ function renderConfig(device) {
 }
 
 function renderMessages() {
+  const alertCount = pendingAlertCount();
   return `
     ${renderPageTop("messages")}
-    <section class="section">
-      <div class="settings-group-title">待处理</div>
-      <div class="mp-cells">
+    <section class="section health-subsection">
+      <div class="health-section-head">
+        <h3>待处理</h3>
+        <span class="health-pill warn">${alertCount} 条</span>
+      </div>
+      <div class="health-message-list">
         ${mock.systemMessages.map((message) => `
-          <div class="mp-cell mp-cell_vertical message-cell">
-            <span class="mp-cell__bd">
+          <div class="health-message-card">
+            <div class="health-message-body">
               <strong>${message.title}</strong>
               <span>${message.desc}</span>
               <em class="status-pill ${message.type === "share" ? "warning" : "info"}">${message.status}</em>
-            </span>
-            <span class="mp-cell__actions">
+            </div>
+            <div class="health-message-actions">
               ${message.type === "share"
-                ? `<button class="mp-link-btn hoverable" type="button" data-action="accept-share">接受</button><button class="mp-link-btn warn hoverable" type="button" data-action="reject-share">拒绝</button>`
-                : `<button class="mp-link-btn hoverable" type="button" data-action="mark-read">标为已读</button>`}
-            </span>
+                ? `<button class="health-action-btn hoverable" type="button" data-action="accept-share">接受</button><button class="health-action-btn warn hoverable" type="button" data-action="reject-share">拒绝</button>`
+                : `<button class="health-action-btn hoverable" type="button" data-action="mark-read">标为已读</button>`}
+            </div>
           </div>
         `).join("")}
       </div>
     </section>
-    <section class="section">
-      <div class="settings-group-title">设备告警</div>
-      <div class="mp-cells">
+    <section class="section health-subsection">
+      <div class="health-section-head"><h3>设备告警</h3></div>
+      <div class="health-alarm-list">
         ${mock.alarms.map(renderAlarmCard).join("")}
       </div>
     </section>
@@ -4824,34 +4901,39 @@ function renderMine() {
       ],
     },
   ];
+  const onlineCount = mock.devices.filter((d) => d.status === "online").length;
+  const alertCount = pendingAlertCount();
   return `
     ${renderPageTop("mine")}
-    <section class="section">
-      <div class="mp-cells profile-cells">
-        <button class="mp-cell mp-cell_access hoverable" type="button" data-action="open-settings" data-settings="profile">
-          <span class="mp-cell__hd profile-avatar-mini">${icon("user-round")}</span>
-          <span class="mp-cell__bd">
-            <strong>${mock.user.name}</strong>
-            <span>${mock.user.account}</span>
-          </span>
-          <span class="mp-cell__ft">${icon("chevron-right")}</span>
-        </button>
+    <section class="section health-subsection">
+      <div class="health-profile-hero">
+        <div class="health-profile-avatar">${icon("user-round")}</div>
+        <div class="health-profile-info">
+          <strong>${mock.user.name}</strong>
+          <span>${mock.user.account}</span>
+        </div>
+        <button class="health-profile-edit hoverable" type="button" data-action="open-settings" data-settings="profile">${icon("chevron-right")}</button>
+      </div>
+      <div class="health-metrics-grid health-metrics-grid-3">
+        ${renderHealthMetricTile("设备", `${onlineCount}/${mock.devices.length}`, "在线", { iconName: "watch" })}
+        ${renderHealthMetricTile("告警", `${alertCount}`, "待处理", { iconName: "bell" })}
+        ${renderHealthMetricTile("服务", "1", "套餐生效中", { iconName: "credit-card" })}
       </div>
     </section>
     ${mineGroups.map((group) => `
-      <section class="section">
-        <div class="settings-group-title">${group.title}</div>
-        <div class="mp-cells">
+      <section class="section health-subsection">
+        <div class="health-section-head"><h3>${group.title}</h3></div>
+        <div class="health-settings-card">
           ${group.items.map(([panel, iconName, title, desc]) => renderSettingsItem(panel, iconName, title, desc)).join("")}
         </div>
       </section>
     `).join("")}
     ${renderCapabilityLibrary()}
     ${renderBrandThemeDemo()}
-    <section class="section">
-      <div class="mp-cells">
-        <button class="mp-cell mp-cell-danger hoverable" type="button" data-action="logout-confirm">
-          <span class="mp-cell__bd">退出登录</span>
+    <section class="section health-subsection">
+      <div class="health-settings-card health-settings-card-danger">
+        <button class="health-settings-row danger hoverable" type="button" data-action="logout-confirm">
+          <span class="health-settings-body"><strong>退出登录</strong></span>
         </button>
       </div>
     </section>
@@ -4921,13 +5003,13 @@ function renderSettingsItem(panel, iconName, title, desc) {
   const action = panel === "help" ? "open-h5" : "open-settings";
   const settingsAttr = panel === "help" ? "" : ` data-settings="${panel}"`;
   return `
-    <button class="mp-cell mp-cell_access hoverable" type="button" data-action="${action}"${settingsAttr}>
-      <span class="mp-cell__hd settings-icon">${icon(iconName)}</span>
-      <span class="mp-cell__bd">
+    <button class="health-settings-row hoverable" type="button" data-action="${action}"${settingsAttr}>
+      <span class="health-settings-icon">${icon(iconName)}</span>
+      <span class="health-settings-body">
         <strong>${title}</strong>
         <span>${desc}</span>
       </span>
-      <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      ${icon("chevron-right")}
     </button>
   `;
 }

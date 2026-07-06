@@ -1,4 +1,4 @@
-/* v0.4.0 今日健康看板（小米运动健康式布局，Eview mPERS 能力） */
+/* v0.4.1 浅色健康 UI：今日 + 二级页 + 登录 */
 .health-screen-body {
   background: #f5f6f8;
 }
@@ -189,7 +189,14 @@
   height: 40px;
   border-radius: 12px;
   color: #fff;
+  background: var(--primary);
 }
+
+.health-device-chip-icon.blue { background: var(--blue); }
+.health-device-chip-icon.amber { background: var(--amber); }
+.health-device-chip-icon.coral { background: var(--coral); }
+.health-device-chip-icon.green { background: var(--green); }
+.health-device-chip-icon.purple { background: #7657c8; }
 
 .health-device-chip-body strong {
   display: block;
@@ -240,4 +247,615 @@
 .bottom-nav.mp-tabbar-5 .nav-button.active .lucide,
 .bottom-nav.mp-tabbar-5 .nav-button.active [data-lucide] {
   color: #0c756f;
+}
+
+/* ── 登录页 ── */
+.login-screen-health {
+  min-height: 100%;
+  background: #f5f6f8;
+}
+
+.login-health-inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 48px 20px 24px;
+}
+
+.login-brand-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.login-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #0c756f, #3cb8a8);
+  box-shadow: 0 8px 20px rgba(12, 117, 111, 0.25);
+}
+
+.login-brand-text strong {
+  display: block;
+  font-size: 18px;
+}
+
+.login-brand-text span {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.login-health-title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.login-health-desc {
+  margin: 10px 0 0;
+  max-width: 320px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.login-action-card {
+  margin-top: auto;
+  padding: 20px 18px 16px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(22, 33, 45, 0.08);
+}
+
+.login-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-primary-btn.mp-btn-wechat {
+  color: #fff;
+  background: #07c160;
+}
+
+.login-primary-btn.login-primary-brand {
+  color: #fff;
+  background: var(--primary);
+}
+
+.login-primary-btn.login-btn-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.login-secondary-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.login-link-dot {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.login-dev-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.login-action-card .mp-agreement {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.login-version-note {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.login-action-card .login-account-form input {
+  border-radius: 10px;
+  border-color: #e8ecef;
+  background: #f9fafb;
+}
+
+/* ── 二级页通用 ── */
+.health-subsection {
+  padding-top: 0;
+  padding-bottom: 4px;
+}
+
+.health-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.health-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+}
+
+.health-pill.warn {
+  color: #c2410c;
+  background: #fff4ed;
+}
+
+.health-metrics-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.health-metrics-grid-3 .health-metric-card {
+  padding: 10px;
+}
+
+.health-metrics-grid-3 .health-metric-card strong {
+  font-size: 16px;
+}
+
+.health-quick-actions-4 {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 0;
+}
+
+.health-quick-actions-4 .health-quick-btn {
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 6px;
+  font-size: 11px;
+}
+
+/* ── 设备详情 Hero ── */
+.health-hero-card {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-hero-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.health-hero-card-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--primary);
+}
+
+.health-hero-card-icon.blue { background: var(--blue); }
+.health-hero-card-icon.amber { background: var(--amber); }
+.health-hero-card-icon.coral { background: var(--coral); }
+.health-hero-card-icon.green { background: var(--green); }
+.health-hero-card-icon.purple { background: #7657c8; }
+
+.health-hero-card h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.health-hero-card p,
+.health-hero-card-top span {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.health-pet-card .health-hero-card-top {
+  align-items: center;
+}
+
+.health-pet-card .health-hero-card-top strong {
+  display: block;
+  font-size: 16px;
+}
+
+/* ── 分段 Tab ── */
+.health-segment-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  border: none;
+  border-radius: 12px;
+  background: #e8ecef;
+  overflow-x: auto;
+}
+
+.health-segment-tabs .mp-tab {
+  flex: 1 0 auto;
+  min-height: 36px;
+  margin: 0;
+  border: none;
+  border-radius: 10px;
+  border-bottom: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.health-segment-tabs .mp-tab.active {
+  color: var(--primary-dark);
+  background: #fff;
+  border-bottom: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
+.health-segment-tabs-inline {
+  margin-top: 10px;
+}
+
+/* ── 洞察 / 图表 ── */
+.health-insight-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-insight-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.health-insight-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.health-insight-warning {
+  background: #fffaf3;
+  border: 1px solid rgba(201, 122, 5, 0.15);
+}
+
+.health-insight-danger {
+  background: #fff5f5;
+  border: 1px solid rgba(250, 81, 81, 0.2);
+}
+
+.health-chart-card {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 120px;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+
+.health-bar {
+  flex: 1;
+  min-width: 12px;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, #3cb8a8, #0c756f);
+}
+
+.health-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.health-map-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ── 告警 / 消息 ── */
+.health-alarm-list,
+.health-message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-alarm-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-alarm-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fff4ed;
+  color: #c2410c;
+}
+
+.health-alarm-icon.high {
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+.health-alarm-body strong {
+  display: block;
+  font-size: 14px;
+}
+
+.health-alarm-body span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.health-alarm-body .status-pill {
+  margin-top: 6px;
+}
+
+.health-message-card {
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-message-body strong {
+  display: block;
+  font-size: 14px;
+}
+
+.health-message-body span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.health-message-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.health-action-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.health-action-btn.warn {
+  background: #fff1f0;
+  color: #cf1322;
+}
+
+/* ── 列表卡 ── */
+.health-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-list-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-list-card-body strong {
+  display: block;
+  font-size: 14px;
+}
+
+.health-list-card-body span,
+.health-list-card-body small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.health-timeline {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.health-timeline .timeline-item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.health-timeline .timeline-item:last-child {
+  border-bottom: none;
+}
+
+/* ── 我的页 ── */
+.health-profile-hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0c756f 0%, #3cb8a8 100%);
+  color: #fff;
+}
+
+.health-profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.health-profile-info strong {
+  display: block;
+  font-size: 18px;
+}
+
+.health-profile-info span {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.health-profile-edit {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  cursor: pointer;
+}
+
+.health-profile-hero + .health-metrics-grid .health-metric-card {
+  background: #fff;
+}
+
+.health-settings-card {
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.health-settings-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.health-settings-row:last-child {
+  border-bottom: none;
+}
+
+.health-settings-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.health-settings-body strong {
+  display: block;
+  font-size: 14px;
+}
+
+.health-settings-body span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.health-settings-card-danger .health-settings-row.danger .health-settings-body strong {
+  color: #cf1322;
+  text-align: center;
+  width: 100%;
+}
+
+.health-metric-card.compact {
+  padding: 10px;
+}
+
+.health-metric-card.compact strong {
+  font-size: 15px;
 }
