@@ -3986,7 +3986,7 @@ function renderLoginVisualStage() {
       <div class="login-orbit-ring login-orbit-ring-delay"></div>
       <div class="login-hub">
         <span class="login-hub-pulse"></span>
-        <span class="login-hub-icon">${icon("shield-heart")}</span>
+        <span class="login-hub-icon">${icon("shield-check")}</span>
       </div>
       <svg class="login-ecg" viewBox="0 0 280 48" preserveAspectRatio="none" aria-hidden="true">
         <path class="login-ecg-path" d="M0 24 H40 L48 8 L56 40 L64 24 H120 L128 14 L136 34 L144 24 H200 L212 4 L224 44 L236 24 H280" />
