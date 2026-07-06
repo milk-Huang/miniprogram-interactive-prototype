@@ -3496,7 +3496,7 @@ function tabPanelInfo() {
       goals: [
         "确认账号资料、账号安全、通知设置和帮助关于分组是否清楚。",
         "确认地图与定位放在这里表达的是地区、地图服务和权限设置，不是查看设备位置。",
-        "确认退出登录放在底部且有二次确认，减少误触。",
+        "确认退出登录在「账号与安全」内且有二次确认，我的页底部不再单独放置。",
       ],
       actions: [
         "点击顶部资料卡右侧编辑按钮修改昵称、邮箱、手机号和地区。",
@@ -3937,7 +3937,7 @@ function aiResultPanelInfo() {
 function logoutPanelInfo() {
   return {
     title: "退出登录确认",
-    summary: "退出登录弹窗用于避免用户在我的页误触退出，属于账号安全和基础体验的一部分。",
+    summary: "退出登录弹窗用于避免误触退出；入口位于我的 → 账号与安全。",
     tags: ["二次确认", "账号安全", "退出登录"],
     goals: [
       "确认退出登录不会被误触。",
@@ -4876,7 +4876,7 @@ function renderMine() {
     {
       title: "账号",
       items: [
-        ["security", "shield-check", "账号与安全", "修改密码、登录设备和账号注销"],
+        ["security", "shield-check", "账号与安全", "修改密码、登录设备、退出登录和账号注销"],
       ],
     },
     {
@@ -4930,13 +4930,6 @@ function renderMine() {
     `).join("")}
     ${renderCapabilityLibrary()}
     ${renderBrandThemeDemo()}
-    <section class="section health-subsection">
-      <div class="health-settings-card health-settings-card-danger">
-        <button class="health-settings-row danger hoverable" type="button" data-action="logout-confirm">
-          <span class="health-settings-body"><strong>退出登录</strong></span>
-        </button>
-      </div>
-    </section>
   `;
 }
 
@@ -5743,6 +5736,10 @@ function renderSecuritySettings() {
       <button class="mp-cell mp-cell_access hoverable" type="button" data-action="toast-login-devices">
         <span class="mp-cell__bd"><strong>登录设备管理</strong><span>查看最近登录记录，发现异常可退出</span></span>
         <span class="mp-cell__ft">${icon("chevron-right")}</span>
+      </button>
+      <button class="mp-cell mp-cell_access hoverable mp-cell-logout" type="button" data-action="logout-confirm">
+        <span class="mp-cell__bd"><strong>退出登录</strong><span>退出当前账号，需重新登录</span></span>
+        <span class="mp-cell__ft">${icon("log-out")}</span>
       </button>
     </div>
     <section class="section">
