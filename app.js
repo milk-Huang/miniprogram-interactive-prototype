@@ -23,7 +23,7 @@ const mock = {
       battery: 82,
       signal: "强",
       locateType: "GPS",
-      location: "深圳湾 · 14:32",
+      location: "Marina Park · 14:32",
       lastEvent: "疑似跌倒已触发 AI 预警",
       color: "blue",
       category: "family",
@@ -53,7 +53,7 @@ const mock = {
       battery: 46,
       signal: "中",
       locateType: "WiFi",
-      location: "家庭区域 · 14:28",
+      location: "Home Zone · 14:28",
       lastEvent: "低电量提醒",
       color: "amber",
       category: "family",
@@ -83,7 +83,7 @@ const mock = {
       battery: 74,
       signal: "强",
       locateType: "GPS",
-      location: "公园东门 · 14:31",
+      location: "Central Park East · 14:31",
       lastEvent: "离开宠物围栏",
       color: "green",
       category: "pet",
@@ -113,7 +113,7 @@ const mock = {
       battery: 18,
       signal: "中",
       locateType: "Bluetooth",
-      location: "机场到达层 · 14:20",
+      location: "Arrivals Hall · 14:20",
       lastEvent: "物品低电量",
       color: "blue",
       category: "item",
@@ -163,20 +163,20 @@ const mock = {
       severity: "high",
       time: "14:30",
       status: "待确认",
-      description: "宠物已离开公园活动围栏，最近位置在公园东门。",
+      description: "Pet left Park Activity Zone; last seen near Central Park East.",
       ai: "建议立即查看实时位置，并开启高频定位。",
     },
   ],
   track: [
     { time: "08:20", title: "离开 Home Zone", desc: "GPS · 精度 12m" },
-    { time: "10:35", title: "到达社区中心", desc: "WiFi · 精度 34m" },
+    { time: "10:35", title: "Arrived at Community Center", desc: "WiFi · accuracy 34m" },
     { time: "14:26", title: "疑似跌倒事件", desc: "GPS · 精度 10m" },
   ],
   geofences: [
     { name: "Home Zone", shape: "圆形", trigger: "进出都提醒", status: "启用", radius: "300m", schedule: "全天" },
-    { name: "社区中心", shape: "多边形", trigger: "离开提醒", status: "启用", radius: "6 个顶点", schedule: "工作日 09:00–17:00" },
-    { name: "学校接送", shape: "圆形", trigger: "进入提醒", status: "启用", radius: "120m", schedule: "周一至周五 07:30 / 16:30" },
-    { name: "禁入区域 · 河边", shape: "多边形", trigger: "进入立即报警", status: "暂停", radius: "8 个顶点", schedule: "全天" },
+    { name: "Community Center", shape: "多边形", trigger: "离开提醒", status: "启用", radius: "6 个顶点", schedule: "工作日 09:00–17:00" },
+    { name: "School Pickup", shape: "圆形", trigger: "进入提醒", status: "启用", radius: "120m", schedule: "周一至周五 07:30 / 16:30" },
+    { name: "Restricted Zone · Riverside", shape: "多边形", trigger: "进入立即报警", status: "暂停", radius: "8 个顶点", schedule: "全天" },
   ],
   healthRanges: {
     day: {
@@ -184,7 +184,7 @@ const mock = {
       bars: [12, 18, 24, 30, 22, 28, 16],
       labels: ["6", "9", "12", "15", "18", "21", "24"],
       summaryTitle: "今日活动分布",
-      summary: "上午活动量偏低，午后在社区中心附近活动增加；晚间心率平稳。",
+      summary: "上午活动量偏低，午后在 Community Center 附近活动增加；晚间心率平稳。",
     },
     week: {
       label: "近 7 天",
@@ -233,7 +233,7 @@ const mock = {
   ],
   systemMessages: [
     { title: "分享邀请", desc: "Michael Chen 邀请你查看爸爸定位器", status: "待确认", type: "share" },
-    { title: "系统通知", desc: "国内地图与定位权限将在首次使用地图时申请", status: "未读", type: "system" },
+    { title: "系统通知", desc: "首次使用地图时将申请定位权限", status: "未读", type: "system" },
   ],
   discoveredDevices: [
     { id: "ble-ev05-9a31", name: "EV05-9A31", model: "EV05", signal: "强", imei: "863450071234001" },
@@ -277,7 +277,7 @@ const mock = {
     { name: "zuobin（本人）", relation: "本人", phone: "+86 138 0000 1234", priority: 1, triggers: "SOS · 跌倒 · 离线" },
     { name: "Jason Chen", relation: "配偶", phone: "+86 139 0000 5678", priority: 2, triggers: "SOS · 跌倒" },
     { name: "Michael Chen", relation: "兄弟", phone: "+86 137 0000 4321", priority: 3, triggers: "SOS" },
-    { name: "社区医院 24h", relation: "医疗机构", phone: "+86 0755 1234 5678", priority: 4, triggers: "SOS · 跌倒未响应" },
+    { name: "City Medical Center 24h", relation: "医疗机构", phone: "+1 555 123 4567", priority: 4, triggers: "SOS · 跌倒未响应" },
   ],
   aiQuestions: [
     {
@@ -494,7 +494,7 @@ const LOCALES = {
       openTypePhone: "open-type=\"getPhoneNumber\"",
       visualHeart: "心率 78 bpm",
       visualSteps: "3,824 步",
-      visualLocation: "深圳湾 · 在线",
+      visualLocation: "Marina Park · 在线",
       visualSos: "SOS 安全守护",
     },
     forgotPassword: {
@@ -755,7 +755,7 @@ const LOCALES = {
       openTypePhone: "open-type=\"getPhoneNumber\"",
       visualHeart: "78 bpm",
       visualSteps: "3,824 steps",
-      visualLocation: "Shenzhen Bay · online",
+      visualLocation: "Marina Park · online",
       visualSos: "SOS safety",
     },
     forgotPassword: {
