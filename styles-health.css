@@ -254,7 +254,7 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
-  background: #f5f6f8;
+  background: linear-gradient(180deg, #dff0ec 0%, #e9f4f1 34%, #f2f5f6 68%, #f5f6f8 100%);
 }
 
 .login-health-inner {
@@ -310,15 +310,15 @@
   color: var(--muted);
 }
 
-/* 登录视觉舞台 */
+/* 登录视觉舞台：去卡片化，与背景融为一体并延伸到登录卡下方 */
 .login-visual-stage {
   position: relative;
   flex: 1 1 auto;
-  min-height: 120px;
-  margin: 20px -4px 16px;
-  border-radius: 24px;
+  min-height: 140px;
+  margin: 12px -20px -32px;
+  border-radius: 0;
   overflow: hidden;
-  background: linear-gradient(165deg, #e8f6f4 0%, #f0f7ff 45%, #f5f6f8 100%);
+  background: transparent;
 }
 
 .login-visual-bg {
@@ -559,15 +559,20 @@
 }
 
 .login-action-card {
-  margin-top: 0;
+  position: relative;
+  z-index: 1;
+  margin-top: 8px;
   flex: 0 1 auto;
   min-height: 0;
   max-height: min(48%, 360px);
   overflow-y: auto;
   padding: 16px 18px 12px;
-  border-radius: 20px;
-  background: #fff;
-  box-shadow: 0 8px 32px rgba(22, 33, 45, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: 0 -10px 36px rgba(22, 33, 45, 0.06), 0 8px 32px rgba(22, 33, 45, 0.05);
 }
 
 .login-primary-btn {
@@ -638,8 +643,8 @@
 
 .login-action-card .login-account-form input {
   border-radius: 10px;
-  border-color: #e8ecef;
-  background: #f9fafb;
+  border-color: rgba(224, 230, 234, 0.9);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 /* ── 二级页通用 ── */

@@ -4041,9 +4041,6 @@ function renderLogin() {
               </button>
               <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
             </div>
-            <div class="login-secondary-links">
-              <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
-            </div>
           </div>
           ${renderLoginAgreement()}
           <p class="login-version-note">${L.brand.subtitle}</p>
@@ -6185,16 +6182,6 @@ function handleAction(action, element, event) {
       }
       state.modal = null;
       showToast(`POST /c/v1/auth/password/reset/start · ${account} · region=${mock.user.region}`);
-      render();
-    },
-    "quick-demo"() {
-      state.loggedIn = true;
-      state.route = "home";
-      state.tab = "today";
-      state.modal = null;
-      state.pendingLocationGuide = false;
-      state.locationPermission = "unknown";
-      showToast(t("toast.guest"));
       render();
     },
     back() {
