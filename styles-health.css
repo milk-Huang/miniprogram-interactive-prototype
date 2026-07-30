@@ -251,14 +251,17 @@
 
 /* ── 登录页 ── */
 .login-screen-health {
-  min-height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
   background: #f5f6f8;
 }
 
 .login-health-inner {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  height: 100%;
+  min-height: 0;
   padding: 40px 20px 20px;
 }
 
@@ -310,8 +313,8 @@
 /* 登录视觉舞台 */
 .login-visual-stage {
   position: relative;
-  flex: 1;
-  min-height: 220px;
+  flex: 1 1 auto;
+  min-height: 120px;
   margin: 20px -4px 16px;
   border-radius: 24px;
   overflow: hidden;
@@ -557,8 +560,11 @@
 
 .login-action-card {
   margin-top: 0;
-  flex-shrink: 0;
-  padding: 20px 18px 16px;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: min(48%, 360px);
+  overflow-y: auto;
+  padding: 16px 18px 12px;
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 8px 32px rgba(22, 33, 45, 0.08);
@@ -618,13 +624,13 @@
 }
 
 .login-action-card .mp-agreement {
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
 }
 
 .login-version-note {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   text-align: center;
   font-size: 11px;
   color: var(--muted);

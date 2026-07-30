@@ -295,12 +295,12 @@ const mock = {
   ],
   configCategories: [
     { id: "info", icon: "circle-gauge", title: "设备信息", desc: "设备ID、MAC、固件、ICCID、激活时间" },
-    { id: "home", icon: "house-wifi", title: "Home WiFi / Home Beacon", desc: "家庭 WiFi、信标、配置复制" },
+    { id: "home", icon: "house-wifi", title: "Home WiFi / Home Beacon", desc: "家庭 WiFi、信标信息" },
     { id: "location", icon: "map-pinned", title: "定位与上报", desc: "定位方式、上报间隔、AGPS" },
     { id: "alerts", icon: "shield-alert", title: "告警阈值", desc: "跌倒、离线、低电量、超速" },
     { id: "call", icon: "phone-call", title: "SOS 与联系人", desc: "紧急联系人、白名单、按键" },
     { id: "sensor", icon: "heart-pulse", title: "健康传感器", desc: "心率、步数、运动检测" },
-    { id: "ble", icon: "bluetooth-connected", title: "蓝牙连接 / 固件升级", desc: "近场连接、参数同步、设备升级" },
+    { id: "ble", icon: "bluetooth-connected", title: "蓝牙连接", desc: "近场连接与参数读取" },
     { id: "network", icon: "router", title: "网络与 SIM", desc: "网络连接和 SIM 状态" },
   ],
 };
@@ -369,7 +369,7 @@ const LOCALES = {
       intro: "面向前后端协作：确认页面流程、小程序路径、HTTP 接口、微信原生能力与 i18n。",
       structureTitle: "页面结构",
       structure: [
-        "登录页：多平台一键登录、账号/邮箱密码、协议",
+        "登录页：账号/邮箱 + 密码统一登录、协议",
         "今日：健康与安全摘要（步数/心率/活跃，无睡眠）",
         "地图首页：全部设备位置、状态、围栏和告警",
         "设备页：手表、定位器分组与添加设备",
@@ -379,7 +379,7 @@ const LOCALES = {
       ],
       pathTitle: "推荐点击路径",
       paths: [
-        "平台登录 → 今日首页",
+        "账号密码登录 → 今日首页",
         "查看健康指标与待处理告警",
         "地图 Tab → 设备标记 / 围栏",
         "点击「妈妈手表」→ 健康 / 地图详情",
@@ -630,7 +630,7 @@ const LOCALES = {
       intro: "For FE/BE alignment: flows, mini program paths, HTTP & WeChat APIs, i18n keys.",
       structureTitle: "Page structure",
       structure: [
-        "Login: WeChat, phone, agreements",
+        "Login: account/email + password, agreements",
         "Map home: locations, status, geofences, alerts",
         "Devices: list, scan/BLE bind",
         "Device detail: overview, map, health, alerts, config",
@@ -639,7 +639,7 @@ const LOCALES = {
       ],
       pathTitle: "Suggested walkthrough",
       paths: [
-        "WeChat login → map home",
+        "Account sign in → map home",
         "Tap map pin → single-device map",
         "Scan to add → bind flow",
         "Mom's Watch → all detail tabs",
@@ -1336,6 +1336,8 @@ const state = {
   configCategory: "home",
   settingsPanel: "profile",
   agreedToTerms: false,
+  loginAccount: "",
+  loginPassword: "",
   dialog: null,
   toast: "",
   chat: [],
@@ -2507,7 +2509,7 @@ const suggestedApiCatalog = {
     path: "/c/v1/devices/{deviceId}/commands",
     title: "设备指令下发",
     purpose: "查找设备、响铃、远程同步等动作需要指令下发。",
-    uiEvidence: "设备详情 data-action=\"toast-find\"、toast-channel。",
+    uiEvidence: "设备详情 data-action=\"toast-find\"。",
     currentStatus: "core:remote 未见通用设备命令接口；部分配置更偏 BLE/协议边界。",
     dto: "DeviceCommandRequestDto / DeviceCommandResponseDto",
   },
@@ -2543,7 +2545,7 @@ const suggestedApiCatalog = {
     path: "/c/v1/devices/{deviceId}/firmware/check",
     title: "检查 OTA 固件",
     purpose: "BLE/配置页需要检查设备固件版本是否可升级。",
-    uiEvidence: "配置 BLE 分类 data-action=\"ota-check\"。",
+    uiEvidence: "小程序端配置仅查看，OTA 检查由 App 端承担。",
     currentStatus: "core:remote 未见 OTA HTTP 接口。",
     dto: "FirmwareVersionDto",
   },
@@ -2761,12 +2763,12 @@ const apiPageMap = {
   },
   "detail:config": {
     title: "配置页所需 API",
-    summary: "设备详情与 Manifest；远程配置读写与 OTA 待补齐。",
+    summary: "设备详情与 Manifest；小程序端配置仅查看，不提供保存/下发。",
     apiIds: ["deviceDetail", "productManifest", "panelManifest", "locationRefresh"],
-    suggestedApiIds: ["deviceConfigRead", "deviceConfigSave", "configOperationStatus", "deviceCommand", "otaCheck", "otaStart"],
+    suggestedApiIds: ["deviceConfigRead"],
     gaps: [
-      "设备配置读取、保存、下发状态、OTA、SIM/APN 等 HTTP 接口待定义。",
-      "近场配置可走 BLE，与 HTTP 配置链路需产品确认边界。",
+      "小程序端仅需配置读取接口；保存、下发、OTA 等写操作由 App 端承担。",
+      "小程序与 App 定位存在差异，近场 BLE 配置链路不在小程序范围内。",
     ],
   },
   "modal:add-device": {
@@ -2807,11 +2809,11 @@ const apiPageMap = {
   },
   "modal:config-category": {
     title: "配置分类 API",
-    summary: "Manifest 与设备详情作为能力依据；远程配置读写待实现。",
+    summary: "Manifest 与设备详情作为能力依据；小程序端仅读取展示，不保存下发。",
     apiIds: ["deviceDetail", "productManifest", "panelManifest"],
-    suggestedApiIds: ["deviceConfigRead", "deviceConfigSave", "configOperationStatus", "deviceCommand", "otaCheck", "otaStart"],
+    suggestedApiIds: ["deviceConfigRead"],
     gaps: [
-      "配置读取、保存、下发状态接口待定义。",
+      "仅需配置读取接口；保存与下发能力保留在 App 端。",
     ],
   },
   "modal:h5": {
@@ -3280,8 +3282,7 @@ function toRequirementItems(info) {
 function getDemoPanelInfo() {
   if (!state.loggedIn || state.route === "login") {
     if (state.modal === "forgot-password") return forgotPasswordPanelInfo();
-    if (state.loginView === "account") return accountLoginPanelInfo();
-    return loginPanelInfo();
+    return accountLoginPanelInfo();
   }
   if (state.dialog) return dialogPanelInfo();
   if (state.modal) return modalPanelInfo();
@@ -3795,26 +3796,25 @@ function configCategoryPanelInfo() {
   const category = mock.configCategories.find((item) => item.id === state.configCategory) || mock.configCategories[0];
   return {
     title: category.title,
-    summary: `当前打开的是“${category.title}”配置分类，用来验证配置项是否按用户认知分组，而不是照搬历史工具 APP 的技术菜单。`,
-    tags: ["配置分类", "设备能力", category.title],
+    summary: `当前打开的是“${category.title}”配置分类，小程序端仅支持查看，用于验证配置项是否按用户认知分组；配置修改在 App 端完成。`,
+    tags: ["配置分类", "仅查看", category.title],
     goals: [
       "确认这个分类名称和字段用户能理解。",
-      "确认保存配置后的反馈符合设备下发流程。",
+      "确认小程序端只读展示不会误导用户去修改。",
       "确认不同型号设备可以按能力显示或隐藏配置项。",
     ],
     actions: [
       "查看当前分类里的字段。",
-      "点击保存配置。",
       "返回配置页打开其他分类对比。",
     ],
     review: [
       "配置项需要分 C 端常用设置和技术验证设置。",
-      "保存配置不等于设备已生效，需要展示下发状态。",
+      "小程序与 App 定位不同，配置保存/下发能力只在 App 端提供。",
       "Home WiFi / Home Beacon 等专业术语按业务保留英文。",
     ],
     backend: [
-      "配置读取、保存、下发、设备确认结果、设备能力矩阵。",
-      "BLE、远程指令和服务端配置需要统一状态模型。",
+      "配置读取、设备能力矩阵（小程序端只读）。",
+      "配置保存、下发、设备确认等写接口仅 App 端使用。",
     ],
   };
 }
@@ -4012,12 +4012,6 @@ function renderLoginVisualStage() {
 
 function renderLogin() {
   const L = LOCALES[state.locale] || LOCALES["zh-CN"];
-  const platform = getCurrentPlatform();
-  const platformName = platformLabel(platform);
-  const canLogin = state.agreedToTerms;
-  const disabledCls = canLogin ? "" : " login-btn-disabled";
-  const isAccount = state.loginView === "account";
-  const showDevHint = state.viewMode === "dev";
   return `
     <div class="login-screen login-screen-health">
       <div class="login-health-inner">
@@ -4028,36 +4022,27 @@ function renderLogin() {
             <span>${L.brand.tagline}</span>
           </div>
         </div>
-        <h1 class="login-health-title">${isAccount ? L.login.accountLoginTitle : L.login.hero}</h1>
-        <p class="login-health-desc">${isAccount ? L.login.accountLoginHint : L.login.desc}</p>
-        ${isAccount ? "" : renderLoginVisualStage()}
+        <h1 class="login-health-title">${L.login.hero}</h1>
+        <p class="login-health-desc">${L.login.desc}</p>
+        ${renderLoginVisualStage()}
         <div class="login-action-card safe-bottom">
-          <div class="login-panel login-panel-platform${isAccount ? " login-panel-hidden" : ""}">
-            <button type="button" class="login-primary-btn ${platform.btnClass}${disabledCls}" data-action="platform-login" ${canLogin ? "" : "disabled"}>
-              ${icon("log-in")} ${tReplace("login.platformLogin", { platform: platformName })}
-            </button>
-            ${showDevHint ? `<span class="login-dev-hint">${platform.loginApi}</span>` : ""}
-            <div class="login-secondary-links">
-              <button type="button" class="mp-text-link" data-action="switch-login-account">${L.login.accountLoginLink}</button>
-              <span class="login-link-dot">·</span>
-              <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
-            </div>
-          </div>
-          <div class="login-panel login-panel-account${isAccount ? "" : " login-panel-hidden"}">
-            <button type="button" class="bind-back-link hoverable" data-action="back-login-platform">${icon("chevron-left")} ${L.login.backToPlatformLogin}</button>
+          <div class="login-panel login-panel-account">
             <div class="login-account-form">
               <div class="field">
                 <label for="login-account">${L.login.accountLabel}</label>
-                <input id="login-account" type="text" autocomplete="username" placeholder="${L.login.accountPlaceholder}" value="" />
+                <input id="login-account" type="text" autocomplete="username" placeholder="${L.login.accountPlaceholder}" value="${escapeHtml(state.loginAccount)}" />
               </div>
               <div class="field">
                 <label for="login-password">${L.login.passwordLabel}</label>
-                <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="" />
+                <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="${escapeHtml(state.loginPassword)}" />
               </div>
-              <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
-              <button type="button" class="login-primary-btn login-primary-brand${disabledCls}" data-action="account-password-login" ${canLogin ? "" : "disabled"}>
+              <button type="button" class="login-primary-btn login-primary-brand" data-action="account-password-login">
                 ${icon("key-round")} ${L.login.accountLoginBtn}
               </button>
+              <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
+            </div>
+            <div class="login-secondary-links">
+              <button type="button" class="mp-text-link" data-action="quick-demo">${L.login.guestDemo}</button>
             </div>
           </div>
           ${renderLoginAgreement()}
@@ -4746,7 +4731,7 @@ function renderConfig(device) {
       <div class="section-header">
         <div>
           <h2>设备配置</h2>
-          <p>管理设备连接、定位、告警、联系人和家庭配置</p>
+          <p>查看设备连接、定位、告警、联系人和家庭配置（仅查看，修改请在 App 端）</p>
         </div>
       </div>
       <div class="plugin-summary-card">
@@ -4760,7 +4745,6 @@ function renderConfig(device) {
         <div class="plugin-chip-row">
           ${plugin.enabled.map((item) => `<span class="mini-chip">${item}</span>`).join("")}
         </div>
-        <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="toast-panel-update">${icon("refresh-cw")}检查面板更新</button>
       </div>
       <div class="config-category-grid">
         ${mock.configCategories.map((item) => `
@@ -4776,27 +4760,14 @@ function renderConfig(device) {
         <div class="config-card">
           <h3>${icon("wifi")}Home WiFi</h3>
           ${mock.configs.homeWifi.map((wifi) => `
-            <div class="config-row"><div><strong>${wifi.ssid}</strong><span>来源：${wifi.source} · 信号${wifi.strength}</span></div><span class="mini-chip">可复制</span></div>
+            <div class="config-row"><div><strong>${wifi.ssid}</strong><span>来源：${wifi.source} · 信号${wifi.strength}</span></div><span class="mini-chip">只读</span></div>
           `).join("")}
         </div>
         <div class="config-card">
           <h3>${icon("bluetooth")}Home Beacon</h3>
           ${mock.configs.homeBeacon.map((beacon) => `
-            <div class="config-row"><div><strong>${beacon.name}</strong><span>${beacon.uuid} · 来源：${beacon.source}</span></div><span class="mini-chip">可复制</span></div>
+            <div class="config-row"><div><strong>${beacon.name}</strong><span>${beacon.uuid} · 来源：${beacon.source}</span></div><span class="mini-chip">只读</span></div>
           `).join("")}
-        </div>
-        <div class="config-card">
-          <h3>${icon("copy")}复制配置到其他设备</h3>
-          <p>将当前设备保存的 Home WiFi 和 Home Beacon 配置复制到其他兼容设备。</p>
-          <div class="copy-box">
-            <div class="field">
-              <label for="target-device">目标设备</label>
-              <select id="target-device">
-                ${mock.devices.filter((item) => item.id !== device.id).map((item) => `<option>${item.name} · ${item.model}</option>`).join("")}
-              </select>
-            </div>
-            <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="copy-config">${icon("copy-check")}复制 Home WiFi / Home Beacon</button>
-          </div>
         </div>
       </div>
     </section>
@@ -5490,10 +5461,11 @@ function renderGeofenceModal() {
 
 function renderConfigCategoryModal() {
   const category = mock.configCategories.find((item) => item.id === state.configCategory) || mock.configCategories[0];
-  const isReadOnly = category.id === "info";
-  const body = renderConfigCategoryContent(category.id);
-  const footer = isReadOnly ? "" : mpBtn("primary", `${icon("save")} 保存配置`, "save-config", "mp-btn-block");
-  return wrapMpSheet(category.title, body, footer);
+  const body = `
+    <div class="config-readonly-hint">${icon("eye")} 小程序仅支持查看配置，修改请在 App 端操作</div>
+    ${renderConfigCategoryContent(category.id)}
+  `;
+  return wrapMpSheet(category.title, body, "");
 }
 
 function renderCallContent() {
@@ -5503,31 +5475,29 @@ function renderCallContent() {
         <div class="section-header">
           <div>
             <h3>${icon("contact")}紧急联系人</h3>
-            <p>按优先级依次拨打，触发场景独立配置</p>
+            <p>按优先级依次拨打，触发场景在 App 端配置</p>
           </div>
-          <button class="mp-link-btn hoverable" type="button" data-action="toast-add-contact">${icon("plus")}添加</button>
         </div>
         <div class="contact-list">
           ${mock.emergencyContacts.map((contact) => `
-            <button class="contact-row" type="button" data-action="toast-edit-contact">
+            <div class="contact-row">
               <div class="contact-priority">${contact.priority}</div>
               <div class="contact-info">
                 <strong>${contact.name}</strong>
                 <span>${contact.relation} · ${contact.phone}</span>
                 <small>触发：${contact.triggers}</small>
               </div>
-              ${icon("chevron-right")}
-            </button>
+            </div>
           `).join("")}
         </div>
       </div>
 
       <div class="config-card">
         <h3>${icon("phone-call")}通话与按键</h3>
-        <div class="form-grid">
-          <div class="field"><label for="call-mode">来电策略</label><select id="call-mode"><option>仅白名单可呼入</option><option>所有号码可呼入</option></select></div>
-          <div class="field"><label for="button-action">按键行为</label><select id="button-action"><option>长按 SOS</option><option>短按报位置</option><option>双击拨打优先联系人</option></select></div>
-          <div class="field"><label for="sos-mode">SOS 触发后</label><select id="sos-mode"><option>依次拨打全部联系人</option><option>仅拨打第一位</option><option>同时短信全部</option></select></div>
+        <div class="info-list">
+          <div class="info-row"><span>来电策略</span><strong>仅白名单可呼入</strong></div>
+          <div class="info-row"><span>按键行为</span><strong>长按 SOS</strong></div>
+          <div class="info-row"><span>SOS 触发后</span><strong>依次拨打全部联系人</strong></div>
         </div>
       </div>
     </div>
@@ -5549,7 +5519,6 @@ function renderNetworkContent(device) {
           <div class="info-row"><span>套餐状态</span><strong>${sub.status}</strong></div>
         </div>
         <div class="sheet-actions">
-          <button class="mp-btn mp-btn-primary hoverable" type="button" data-action="toast-renew">${icon("refresh-cw")}立即续费</button>
           <button class="mp-btn mp-btn-default hoverable" type="button" data-action="open-settings" data-settings="service">${icon("credit-card")}查看全部订单</button>
         </div>
       </div>
@@ -5562,23 +5531,22 @@ function renderNetworkContent(device) {
 
       <div class="config-card">
         <h3>${icon("router")}网络与 APN 参数</h3>
-        <div class="form-grid">
-          <div class="field"><label for="apn">APN</label><input id="apn" value="iot.provider" /></div>
-          <div class="field"><label for="server">服务器地址</label><input id="server" value="evmars.example.com" /></div>
-          <div class="field"><label for="iccid">ICCID</label><input id="iccid" value="${hw.iccid || "—"}" readonly /></div>
+        <div class="info-list">
+          <div class="info-row"><span>APN</span><strong>iot.provider</strong></div>
+          <div class="info-row"><span>服务器地址</span><strong>evmars.example.com</strong></div>
+          <div class="info-row"><span>ICCID</span><strong>${hw.iccid || "—"}</strong></div>
         </div>
       </div>
 
-      <button class="list-card" type="button" data-action="toast-channel">
+      <div class="list-card">
         <div class="list-row">
           <div>
             <strong>指令下发通道</strong>
             <span>API（默认） · BLE 近场 · SMS 短信备用</span>
             <small>设备离线或弱网时自动切换到 BLE 或 SMS</small>
           </div>
-          ${icon("chevron-right")}
         </div>
-      </button>
+      </div>
     </div>
   `;
 }
@@ -5606,7 +5574,6 @@ function renderPluginDetailCard(device) {
           </div>
         `).join("")}
       </div>
-      <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="toast-panel-update">${icon("refresh-cw")}检查面板更新</button>
     </div>
   `;
 }
@@ -5644,50 +5611,52 @@ function renderConfigCategoryContent(id) {
       <div class="config-list">
         <div class="config-card">
           <h3>${icon("wifi")}Home WiFi</h3>
-          <div class="field"><label for="wifi-ssid">SSID</label><input id="wifi-ssid" value="Home_5G" /></div>
-          <div class="field"><label for="wifi-password">密码</label><input id="wifi-password" type="password" value="12345678" /></div>
+          <div class="info-list">
+            <div class="info-row"><span>SSID</span><strong>Home_5G</strong></div>
+            <div class="info-row"><span>密码</span><strong>••••••••</strong></div>
+          </div>
         </div>
         <div class="config-card">
           <h3>${icon("bluetooth")}Home Beacon</h3>
-          <div class="field"><label for="beacon-id">Beacon UUID</label><input id="beacon-id" value="FDA5-1201" /></div>
-          <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="copy-config">${icon("copy-check")}从其他设备复制</button>
+          <div class="info-list">
+            <div class="info-row"><span>Beacon UUID</span><strong>FDA5-1201</strong></div>
+          </div>
         </div>
       </div>
     `,
     location: `
-      <div class="form-grid">
-        <div class="field"><label for="loc-mode">定位方式</label><select id="loc-mode"><option>GPS + WiFi + LBS 自动</option><option>GPS 优先</option><option>省电定位</option></select></div>
-        <div class="field"><label for="upload-interval">上报间隔</label><select id="upload-interval"><option>5 分钟</option><option>1 分钟</option><option>15 分钟</option></select></div>
-        <div class="field"><label for="agps">AGPS</label><select id="agps"><option>开启</option><option>关闭</option></select></div>
-        <div class="field"><label for="map-engine">地图方案</label><select id="map-engine"><option>小程序原生 map（腾讯底图）</option><option>海外 web-view + Google</option></select></div>
+      <div class="info-list">
+        <div class="info-row"><span>定位方式</span><strong>GPS + WiFi + LBS 自动</strong></div>
+        <div class="info-row"><span>上报间隔</span><strong>5 分钟</strong></div>
+        <div class="info-row"><span>AGPS</span><strong>开启</strong></div>
+        <div class="info-row"><span>地图方案</span><strong>小程序原生 map（腾讯底图）</strong></div>
       </div>
     `,
     alerts: `
-      <div class="toggle-list">
+      <div class="info-list">
         ${[
-          ["跌倒告警", "灵敏度：中"],
-          ["低电量告警", "阈值：20%"],
-          ["离线告警", "超过 30 分钟未上报"],
-          ["超速告警", "超过 80km/h"],
-        ].map(([title, desc]) => `<label class="toggle-row"><span><strong>${title}</strong><small>${desc}</small></span><input type="checkbox" checked /></label>`).join("")}
+          ["跌倒告警", "已开启 · 灵敏度：中"],
+          ["低电量告警", "已开启 · 阈值：20%"],
+          ["离线告警", "已开启 · 超过 30 分钟未上报"],
+          ["超速告警", "已开启 · 超过 80km/h"],
+        ].map(([label, value]) => `<div class="info-row"><span>${label}</span><strong>${value}</strong></div>`).join("")}
       </div>
     `,
     call: renderCallContent(),
     sensor: `
-      <div class="toggle-list">
+      <div class="info-list">
         ${[
-          ["心率采集", "每 30 分钟采集一次"],
-          ["步数统计", "每日 00:00 重置"],
-          ["运动检测", "用于跌倒和久坐判断"],
+          ["心率采集", "已开启 · 每 30 分钟采集一次"],
+          ["步数统计", "已开启 · 每日 00:00 重置"],
+          ["运动检测", "已开启 · 用于跌倒和久坐判断"],
           ["灵敏度", "中等灵敏度"],
-        ].map(([title, desc]) => `<label class="toggle-row"><span><strong>${title}</strong><small>${desc}</small></span><input type="checkbox" checked /></label>`).join("")}
+        ].map(([label, value]) => `<div class="info-row"><span>${label}</span><strong>${value}</strong></div>`).join("")}
       </div>
     `,
     ble: `
       <div class="config-list">
-        <div class="scan-status">${icon("bluetooth-connected")}<div><strong>蓝牙已就绪</strong><span>用于近场读取、写入配置和设备升级</span></div></div>
+        <div class="scan-status">${icon("bluetooth-connected")}<div><strong>蓝牙已就绪</strong><span>用于近场读取设备参数（仅查看）</span></div></div>
         <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="connect-ble">${icon("download")}读取当前参数</button>
-        <button class="mp-btn mp-btn-default mp-btn-block hoverable" type="button" data-action="ota-check">${icon("upload-cloud")}检查 OTA 固件</button>
       </div>
     `,
     network: renderNetworkContent(device),
@@ -6021,6 +5990,19 @@ function bindEvents() {
     });
   });
 
+  const loginAccountInput = document.getElementById("login-account");
+  if (loginAccountInput) {
+    loginAccountInput.addEventListener("input", () => {
+      state.loginAccount = loginAccountInput.value;
+    });
+  }
+  const loginPasswordInput = document.getElementById("login-password");
+  if (loginPasswordInput) {
+    loginPasswordInput.addEventListener("input", () => {
+      state.loginPassword = loginPasswordInput.value;
+    });
+  }
+
   const agreementInput = document.querySelector(".mp-agreement input[type='checkbox']");
   if (agreementInput) {
     agreementInput.addEventListener("change", () => {
@@ -6175,8 +6157,8 @@ function handleAction(action, element, event) {
         showToast(t("login.agreeRequired"));
         return;
       }
-      const account = document.getElementById("login-account")?.value?.trim() || "";
-      const password = document.getElementById("login-password")?.value || "";
+      const account = state.loginAccount.trim();
+      const password = state.loginPassword;
       if (!account || !password) {
         showToast(t("login.accountPlaceholder"));
         return;
@@ -6187,6 +6169,7 @@ function handleAction(action, element, event) {
       state.modal = null;
       state.pendingLocationGuide = false;
       state.locationPermission = "unknown";
+      state.loginPassword = "";
       showToast(`POST /c/v1/auth/login · ${account}`);
       render();
     },
@@ -6514,10 +6497,6 @@ function handleAction(action, element, event) {
       state.modal = null;
       showToast("安全围栏已保存，等待服务端同步");
     },
-    "save-config"() {
-      state.modal = null;
-      showToast("配置已保存，等待设备确认下发结果");
-    },
     "save-settings"() {
       state.modal = null;
       showToast("设置已保存");
@@ -6547,12 +6526,6 @@ function handleAction(action, element, event) {
     },
     "toast-version"() {
       showToast("当前已是最新版本");
-    },
-    "ota-check"() {
-      showToast("已检查固件版本，当前设备为最新版本");
-    },
-    "copy-config"() {
-      showToast("Home WiFi / Home Beacon 配置已复制到目标设备");
     },
     "alarm-ai"() {
       state.modal = "ai";
@@ -6592,9 +6565,6 @@ function handleAction(action, element, event) {
     "toast-pet-edit"() {
       showToast("宠物档案编辑：品种、生日、体重、疫苗记录可在正式版本完善");
     },
-    "toast-panel-update"() {
-      showToast("面板检查：物模型与面板版本已是当前型号最新版本");
-    },
     "toast-supported-models"() {
       showToast("支持型号清单：按 manifest 下发，可扩展更多设备型号");
     },
@@ -6622,15 +6592,6 @@ function handleAction(action, element, event) {
     "toast-invoice"() {
       showToast("发票管理：电子发票申请和历史发票下载入口");
     },
-    "toast-add-contact"() {
-      showToast("添加紧急联系人：姓名、关系、手机号、优先级和触发场景");
-    },
-    "toast-edit-contact"() {
-      showToast("编辑紧急联系人：可调整优先级、触发场景或删除");
-    },
-    "toast-channel"() {
-      showToast("指令通道：API（默认）/ BLE 近场 / SMS 短信备用，根据设备状态自动选择");
-    },
     "toast-oauth"() {
       const labelMap = { wechat: "微信", apple: "Apple", google: "Google" };
       const label = labelMap[element.dataset.provider] || "第三方";
@@ -6648,6 +6609,7 @@ function handleAction(action, element, event) {
       state.modal = null;
       state.dialog = null;
       state.agreedToTerms = false;
+      state.loginPassword = "";
       render();
     },
   };
