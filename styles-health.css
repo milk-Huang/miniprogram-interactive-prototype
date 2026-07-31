@@ -605,6 +605,16 @@
   cursor: not-allowed;
 }
 
+.login-primary-btn.login-btn-loading svg {
+  animation: login-spin 0.9s linear infinite;
+}
+
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .login-secondary-links {
   display: flex;
   align-items: center;

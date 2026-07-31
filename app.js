@@ -479,11 +479,18 @@ const LOCALES = {
       passwordLabel: "密码",
       passwordPlaceholder: "请输入密码",
       accountLoginBtn: "登录",
+      loggingIn: "登录中…",
       accountLoginLink: "使用账号 / 邮箱登录",
       accountLoginTitle: "账号密码登录",
       backToPlatformLogin: "返回平台登录",
       accountLoginHint: "国家/地区在「我的 → 账号资料」维护，用于找回密码等通知通道",
       forgotPassword: "忘记密码？",
+      registerHint: "小程序不提供注册，请先在 Evmars App 端创建账号",
+      passwordRequired: "请输入密码",
+      agreeDialogTitle: "服务协议与隐私保护",
+      agreeDialogContent: "为保障你的权益，登录前需同意《用户协议》与《隐私政策》。",
+      agreeAndLogin: "同意并登录",
+      silentNote: "token 已缓存，下次进入静默登录",
       guestDemo: "演示模式进入",
       agreePrefix: "我已阅读并同意",
       userAgreement: "《用户协议》",
@@ -740,11 +747,18 @@ const LOCALES = {
       passwordLabel: "Password",
       passwordPlaceholder: "Enter password",
       accountLoginBtn: "Sign in",
+      loggingIn: "Signing in…",
       accountLoginLink: "Sign in with account / email",
       accountLoginTitle: "Account sign in",
       backToPlatformLogin: "Back to platform sign-in",
       accountLoginHint: "Country/region is set under Me → Profile for reset channels",
       forgotPassword: "Forgot password?",
+      registerHint: "No sign-up in mini program — create your account in the Evmars App",
+      passwordRequired: "Enter password",
+      agreeDialogTitle: "Terms & Privacy",
+      agreeDialogContent: "To protect your rights, please agree to the Terms of Service and Privacy Policy before signing in.",
+      agreeAndLogin: "Agree and sign in",
+      silentNote: "Token cached; next launch signs in silently",
       guestDemo: "Enter demo mode",
       agreePrefix: "I agree to",
       userAgreement: "Terms of Service",
@@ -1338,6 +1352,8 @@ const state = {
   agreedToTerms: false,
   loginAccount: "",
   loginPassword: "",
+  loginPasswordVisible: false,
+  loginSubmitting: false,
   dialog: null,
   toast: "",
   chat: [],
@@ -1608,6 +1624,14 @@ function renderDialog() {
       confirmAction: "unbind-device-confirm",
       confirmDanger: true,
       confirmText: L.common.confirm,
+    });
+  }
+  if (state.dialog === "agree-confirm") {
+    return renderMpDialog({
+      title: L.login.agreeDialogTitle,
+      content: L.login.agreeDialogContent,
+      confirmAction: "agree-and-login",
+      confirmText: L.login.agreeAndLogin,
     });
   }
   return "";
@@ -3347,19 +3371,21 @@ function accountLoginPanelInfo() {
   return {
     title: isEn ? "Account sign in" : "账号密码登录",
     summary: isEn
-      ? "Separate sub-page from platform login; only account/email + password. No wx.login on this screen."
-      : "同页切换：显示账号表单时隐藏平台一键登录，仅 POST /c/v1/auth/login。",
-    tags: isEn ? ["Account login", "Forgot password"] : ["账号密码", "忘记密码"],
+      ? "Account/email + password only. Token cached after login; later launches renew silently (wx.checkSession)."
+      : "仅账号/邮箱 + 密码登录；登录成功缓存 token，后续进入静默续期（对应 wx.checkSession）。",
+    tags: isEn ? ["Account login", "Silent renew", "Forgot password"] : ["账号密码", "静默登录", "忘记密码"],
     goals: [
-      isEn ? "Platform login hidden on this page." : "账号模式下同页隐藏平台一键登录。",
-      isEn ? "Back returns to platform login page." : "返回链接切回平台登录区块。",
+      isEn ? "Token cached after first login; no repeated password entry." : "首次登录后缓存 token，不重复输密码。",
+      isEn ? "No sign-up in mini program; accounts created in the App." : "小程序不做注册，账号由 App 端创建。",
     ],
     actions: [
       isEn ? "Enter zuobin + password → POST /c/v1/auth/login." : "输入 zuobin + 密码 → POST /c/v1/auth/login。",
+      isEn ? "Tap sign-in without agreement → confirm dialog “Agree and sign in”." : "未勾协议点登录 → 弹窗「同意并登录」一步完成。",
       isEn ? "Forgot password → reset flow." : "忘记密码 → 发起重置。",
     ],
     review: [
       isEn ? "Region for reset from profile, not login UI." : "重置通道依赖账号资料国家/地区。",
+      isEn ? "Token expiry: refresh or re-login." : "token 过期走 refresh 或重新登录。",
     ],
     backend: ["POST /c/v1/auth/login", "POST /c/v1/auth/password/reset/start"],
   };
@@ -3965,7 +3991,7 @@ function renderLoginAgreement() {
       <input type="checkbox" data-action="toggle-agreement" ${state.agreedToTerms ? "checked" : ""} />
       <span>${L.login.agreePrefix}
         <button type="button" class="mp-link" data-action="open-h5">${L.login.userAgreement}</button>
-        <button type="button" class="mp-link" data-action="toast-policy">${L.login.privacy}</button>
+        <button type="button" class="mp-link" data-action="open-h5">${L.login.privacy}</button>
       </span>
     </label>
   `;
@@ -4034,12 +4060,16 @@ function renderLogin() {
               </div>
               <div class="field">
                 <label for="login-password">${L.login.passwordLabel}</label>
-                <input id="login-password" type="password" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="${escapeHtml(state.loginPassword)}" />
+                <div class="field-password">
+                  <input id="login-password" type="${state.loginPasswordVisible ? "text" : "password"}" autocomplete="current-password" placeholder="${L.login.passwordPlaceholder}" value="${escapeHtml(state.loginPassword)}" />
+                  <button type="button" class="password-toggle" data-action="toggle-password-visibility" aria-label="toggle password">${icon(state.loginPasswordVisible ? "eye-off" : "eye")}</button>
+                </div>
               </div>
-              <button type="button" class="login-primary-btn login-primary-brand" data-action="account-password-login">
-                ${icon("key-round")} ${L.login.accountLoginBtn}
+              <button type="button" class="login-primary-btn login-primary-brand${state.loginSubmitting ? " login-btn-disabled login-btn-loading" : ""}" data-action="account-password-login">
+                ${icon(state.loginSubmitting ? "loader-2" : "key-round")} ${state.loginSubmitting ? L.login.loggingIn : L.login.accountLoginBtn}
               </button>
               <button type="button" class="mp-text-link login-forgot-link" data-action="open-forgot-password">${L.login.forgotPassword}</button>
+              <p class="login-register-hint">${L.login.registerHint}</p>
             </div>
           </div>
           ${renderLoginAgreement()}
@@ -5987,17 +6017,22 @@ function bindEvents() {
     });
   });
 
+  const triggerLoginOnEnter = (e) => {
+    if (e.key === "Enter") document.querySelector("[data-action='account-password-login']")?.click();
+  };
   const loginAccountInput = document.getElementById("login-account");
   if (loginAccountInput) {
     loginAccountInput.addEventListener("input", () => {
       state.loginAccount = loginAccountInput.value;
     });
+    loginAccountInput.addEventListener("keydown", triggerLoginOnEnter);
   }
   const loginPasswordInput = document.getElementById("login-password");
   if (loginPasswordInput) {
     loginPasswordInput.addEventListener("input", () => {
       state.loginPassword = loginPasswordInput.value;
     });
+    loginPasswordInput.addEventListener("keydown", triggerLoginOnEnter);
   }
 
   const agreementInput = document.querySelector(".mp-agreement input[type='checkbox']");
@@ -6150,25 +6185,46 @@ function handleAction(action, element, event) {
       actions["account-password-login"]();
     },
     "account-password-login"() {
-      if (!state.agreedToTerms) {
-        showToast(t("login.agreeRequired"));
-        return;
-      }
+      if (state.loginSubmitting) return;
       const account = state.loginAccount.trim();
       const password = state.loginPassword;
-      if (!account || !password) {
+      if (!account) {
         showToast(t("login.accountPlaceholder"));
         return;
       }
-      state.loggedIn = true;
-      state.route = "home";
-      state.tab = "today";
-      state.modal = null;
-      state.pendingLocationGuide = false;
-      state.locationPermission = "unknown";
-      state.loginPassword = "";
-      showToast(`POST /c/v1/auth/login · ${account}`);
+      if (!password) {
+        showToast(t("login.passwordRequired"));
+        return;
+      }
+      if (!state.agreedToTerms) {
+        state.dialog = "agree-confirm";
+        render();
+        return;
+      }
+      state.loginSubmitting = true;
       render();
+      window.setTimeout(() => {
+        state.loginSubmitting = false;
+        state.loggedIn = true;
+        state.route = "home";
+        state.tab = "today";
+        state.modal = null;
+        state.dialog = null;
+        state.pendingLocationGuide = false;
+        state.locationPermission = "unknown";
+        state.loginPassword = "";
+        showToast(`POST /c/v1/auth/login · ${t("login.silentNote")}`);
+        render();
+      }, 1000);
+    },
+    "toggle-password-visibility"() {
+      state.loginPasswordVisible = !state.loginPasswordVisible;
+      render();
+    },
+    "agree-and-login"() {
+      state.agreedToTerms = true;
+      state.dialog = null;
+      actions["account-password-login"]();
     },
     "open-forgot-password"() {
       state.modal = "forgot-password";

@@ -3911,6 +3911,29 @@ body.is-demo-mode .prototype-stage {
   display: grid;
   gap: 6px;
 }
+.login-account-form .field-password {
+  position: relative;
+}
+.login-account-form .field-password input {
+  padding-right: 44px;
+}
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+}
 .login-account-form label {
   font-size: 13px;
   color: var(--text);
@@ -3928,6 +3951,12 @@ body.is-demo-mode .prototype-stage {
   align-self: center;
   margin: 4px 0 0;
   font-size: 13px;
+  text-align: center;
+}
+.login-register-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
   text-align: center;
 }
 .forgot-password-desc {
